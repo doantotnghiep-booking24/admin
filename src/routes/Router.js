@@ -10,10 +10,11 @@ const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')))
 const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')))
 const Category = Loadable(lazy(() => import('../views/utilities/Category')))
 const User = Loadable(lazy(() => import('../views/utilities/User')))
-const Oder = Loadable(lazy(() => import('../views/utilities/Oder')))
+const News = Loadable(lazy(() => import('../views/utilities/News')))
 const Tour = Loadable(lazy(() => import('../views/utilities/Tour')))
 const Comment = Loadable(lazy(() => import('../views/utilities/Comment')))
 const Statistical= Loadable(lazy(() => import('../views/utilities/Statistical')))
+const Booktour= Loadable(lazy(() => import('../views/utilities/Booktour')))
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
@@ -28,9 +29,10 @@ const Router = [
       { path: '/ui/category', exact: true, element: <Category /> },
       { path: '/ui/statistical', exact: true, element: <Statistical /> },
       { path: '/ui/user', exact: true, element: <User /> },
-      { path: '/ui/oder', exact: true, element: <Oder /> },
+      { path: '/ui/news', exact: true, element: <News /> },
       { path: '/ui/tour', exact: true, element: <Tour /> },
       { path: '/ui/comment', exact: true, element: <Comment /> },
+      { path: '/ui/Booktour', exact: true, element: <Booktour /> },
       { path: '*', element: <Navigate to="/auth/404" /> },
     ],
   },

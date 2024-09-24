@@ -1,134 +1,99 @@
-import  { useState } from 'react';
+import { useState } from 'react';
 import {
     Typography, Box, Table, TableBody, TableCell, TableHead, TableRow,
-    Paper, IconButton, Modal, TextField, Button, Snackbar, Alert
+    IconButton, Modal, TextField, Button
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
 
 const initialCategories = [
-    { id: "1", name: "Biển" },
-    { id: "2", name: "Cắm trại" },
-    { id: "3", name: "Nghỉ dưỡng" } 
+    { id: "1", name: "Danh mục 1" },
+    { id: "2", name: "Danh mục 2" },
+    { id: "3", name: "Danh mục 3" },
 ];
 
 const CategoryManagement = () => {
     const [categories, setCategories] = useState(initialCategories);
-    const [newCategory, setNewCategory] = useState('');
-    const [isEditing, setIsEditing] = useState(false);
-    const [currentId, setCurrentId] = useState(null);
     const [openModal, setOpenModal] = useState(false);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [currentCategory, setCurrentCategory] = useState(null);
 
-    const handleAddCategory = () => {
-        if (newCategory.trim() !== '') {
-            setCategories([...categories, { id: Date.now().toString(), name: newCategory }]);
-            setNewCategory('');
-            setOpenModal(false);
-            setSnackbarMessage('Danh mục đã được thêm thành công!');
-            setSnackbarOpen(true);
-        }
-    };
-
-    const handleEditCategory = (id) => {
-        const category = categories.find(cat => cat.id === id);
-        setNewCategory(category.name);
-        setIsEditing(true);
-        setCurrentId(id);
+    // Mở modal và khởi tạo giá trị cho form
+    const handleEdit = (category) => {
+        setCurrentCategory(category);
         setOpenModal(true);
     };
 
-    const handleUpdateCategory = () => {
-        setCategories(categories.map(cat =>
-            cat.id === currentId ? { ...cat, name: newCategory } : cat
-        ));
-        setNewCategory('');
-        setIsEditing(false);
-        setCurrentId(null);
-        setOpenModal(false);
-        setSnackbarMessage('Danh mục đã được cập nhật thành công!');
-        setSnackbarOpen(true);
+    // Xóa danh mục
+    const handleDelete = (id) => {
+        setCategories(categories.filter(category => category.id !== id));
     };
 
-    const handleDeleteCategory = (id) => {
-        setCategories(categories.filter(cat => cat.id !== id));
-        setSnackbarMessage('Danh mục đã được xóa thành công!');
-        setSnackbarOpen(true);
+    // Lưu danh mục (chỉnh sửa hoặc thêm mới)
+    const handleSave = () => {
+        if (currentCategory.id) {
+            // Cập nhật danh mục
+            setCategories(categories.map(category =>
+                category.id === currentCategory.id ? currentCategory : category
+            ));
+        } else {
+            // Thêm danh mục mới
+            setCategories([...categories, { ...currentCategory, id: (categories.length + 1).toString() }]);
+        }
+        setOpenModal(false);
+        setCurrentCategory(null);
+    };
+
+    const handleChange = (e) => {
+        setCurrentCategory({
+            ...currentCategory,
+            [e.target.name]: e.target.value
+        });
     };
 
     return (
-        <Box sx={{ p: 3 }}>
-            <Typography variant="h4" gutterBottom>
-                Quản Lý Danh Mục Du Lịch
+        <Box sx={{ p: 2, border: '1px solid #ddd', borderRadius: '8px', boxShadow: 1, overflowX: 'auto' }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+                Quản lý Danh Mục
             </Typography>
             <Button
                 variant="contained"
                 color="primary"
-                startIcon={<AddIcon />}
+                sx={{ mb: 2 }}
                 onClick={() => {
-                    setNewCategory('');
-                    setIsEditing(false);
+                    setCurrentCategory({ id: '', name: '' });
                     setOpenModal(true);
                 }}
-                sx={{ mb: 2 }}
             >
                 Thêm Danh Mục
             </Button>
-            <Paper sx={{ overflowX: 'auto', borderRadius: '8px', boxShadow: 1 }}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>
-                                <Typography variant="subtitle2" fontWeight={600}>
-                                    ID
-                                </Typography>
-                            </TableCell>
-                            <TableCell>
-                                <Typography variant="subtitle2" fontWeight={600}>
-                                    Tên Danh Mục
-                                </Typography>
-                            </TableCell>
+            <Table aria-label="simple table" sx={{ whiteSpace: "nowrap" }}>
+                <TableHead>
+                    <TableRow>
+                        <TableCell><Typography variant="subtitle2" fontWeight={600}>ID</Typography></TableCell>
+                        <TableCell><Typography variant="subtitle2" fontWeight={600}>Tên Danh Mục</Typography></TableCell>
+                        <TableCell align="right"><Typography variant="subtitle2" fontWeight={600}>Hành Động</Typography></TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {categories.map((category) => (
+                        <TableRow key={category.id}>
+                            <TableCell><Typography sx={{ fontSize: "15px", fontWeight: "500" }}>{category.id}</Typography></TableCell>
+                            <TableCell><Typography variant="subtitle2" fontWeight={600}>{category.name}</Typography></TableCell>
                             <TableCell align="right">
-                                <Typography variant="subtitle2" fontWeight={600}>
-                                    Hành Động
-                                </Typography>
+                                <IconButton onClick={() => handleEdit(category)}>
+                                    <EditIcon color="primary" />
+                                </IconButton>
+                                <IconButton onClick={() => handleDelete(category.id)}>
+                                    <DeleteIcon color="secondary" />
+                                </IconButton>
                             </TableCell>
                         </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {categories.map((category) => (
-                            <TableRow key={category.id}>
-                                <TableCell>
-                                    <Typography sx={{ fontSize: '15px', fontWeight: '500' }}>
-                                        {category.id}
-                                    </Typography>
-                                </TableCell>
-                                <TableCell>
-                                    <Typography variant="subtitle2" fontWeight={600}>
-                                        {category.name}
-                                    </Typography>
-                                </TableCell>
-                                <TableCell align="right">
-                                    <IconButton onClick={() => handleEditCategory(category.id)} color="primary">
-                                        <EditIcon />
-                                    </IconButton>
-                                    <IconButton onClick={() => handleDeleteCategory(category.id)} color="error">
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </Paper>
-            <Modal
-                open={openModal}
-                onClose={() => setOpenModal(false)}
-                aria-labelledby="modal-title"
-                aria-describedby="modal-description"
-            >
+                    ))}
+                </TableBody>
+            </Table>
+
+            {/* Modal thêm hoặc chỉnh sửa danh mục */}
+            <Modal open={openModal} onClose={() => setOpenModal(false)}>
                 <Box sx={{
                     position: 'absolute',
                     top: '50%',
@@ -140,50 +105,29 @@ const CategoryManagement = () => {
                     boxShadow: 24,
                     p: 4,
                 }}>
-                    <Typography id="modal-title" variant="h6" component="h2" gutterBottom>
-                        {isEditing ? 'Sửa Danh Mục' : 'Thêm Danh Mục'}
-                    </Typography>
-                    <TextField
-                        fullWidth
-                        label="Tên Danh Mục"
-                        variant="outlined"
-                        value={newCategory}
-                        onChange={(e) => setNewCategory(e.target.value)}
-                        sx={{ mb: 2 }}
-                    />
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={isEditing ? handleUpdateCategory : handleAddCategory}
-                            sx={{ mr: 1 }}
-                        >
-                            {isEditing ? 'Cập Nhật' : 'Thêm'}
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            color="secondary"
-                            onClick={() => setOpenModal(false)}
-                        >
-                            Hủy
-                        </Button>
-                    </Box>
+                    <Typography variant="h6" gutterBottom>{currentCategory?.id ? 'Chỉnh sửa Danh Mục' : 'Thêm Danh Mục'}</Typography>
+                    {currentCategory && (
+                        <Box component="form">
+                            <TextField
+                                fullWidth
+                                label="Tên Danh Mục"
+                                name="name"
+                                value={currentCategory.name}
+                                onChange={handleChange}
+                                sx={{ mb: 2 }}
+                            />
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <Button variant="contained" color="primary" onClick={handleSave} sx={{ mr: 1 }}>
+                                    {currentCategory?.id ? 'Lưu' : 'Thêm'}
+                                </Button>
+                                <Button variant="outlined" color="secondary" onClick={() => setOpenModal(false)}>
+                                    Hủy
+                                </Button>
+                            </Box>
+                        </Box>
+                    )}
                 </Box>
             </Modal>
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={6000}
-                onClose={() => setSnackbarOpen(false)}
-                action={
-                    <Button color="inherit" onClick={() => setSnackbarOpen(false)}>
-                        Đóng
-                    </Button>
-                }
-            >
-                <Alert onClose={() => setSnackbarOpen(false)} severity="success">
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
         </Box>
     );
 };

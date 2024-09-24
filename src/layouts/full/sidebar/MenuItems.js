@@ -1,6 +1,6 @@
 import {
    IconLogin,IconAdjustments,
-   IconUserPlus,IconUsers,IconChartPie,IconCategory,IconTicket,IconMessageReport,IconShoppingBag
+   IconUserPlus,IconUsers,IconChartPie,IconCategory,IconTicket,IconMessageReport,IconShoppingCart,IconNews
 } from '@tabler/icons-react';
 
 import { uniqueId } from 'lodash';
@@ -41,9 +41,9 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: 'Quản Lí Oder',
-    icon: IconShoppingBag,
-    href: '/ui/oder',
+    title: 'Quản Lí Bài Viết',
+    icon: IconNews,
+    href: '/ui/news',
   },
   {
     id: uniqueId(),
@@ -56,6 +56,12 @@ const Menuitems = [
     title: 'Quản Lí Bình Luận',
     icon: IconMessageReport,
     href: '/ui/comment',
+  },
+  {
+    id: uniqueId(),
+    title: 'Quản Lí Đơn Đặt Tour',
+    icon: IconShoppingCart,
+    href: '/ui/booktour',
   },
   {
     navlabel: true,
