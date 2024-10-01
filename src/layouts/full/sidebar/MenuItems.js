@@ -1,6 +1,6 @@
 import {
    IconLogin,IconAdjustments,
-   IconUserPlus,IconUsers,IconChartPie,IconCategory,IconTicket,IconMessageReport,IconShoppingCart,IconNews
+   IconUserPlus,IconUsers,IconChartPie,IconCategory,IconTicket,IconMessageReport,IconShoppingCart,IconNews,IconGift,IconMapPin
 } from '@tabler/icons-react';
 
 import { uniqueId } from 'lodash';
@@ -59,26 +59,38 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: 'Quản Lí Đơn Đặt Tour',
+    title: 'Quản Lí Vé Đặt Tour',
     icon: IconShoppingCart,
     href: '/ui/booktour',
   },
   {
-    navlabel: true,
-    subheader: 'Auth',
+    id: uniqueId(),
+    title: 'Quản Lí Khuyến Mãi',
+    icon: IconGift,
+    href: '/ui/voucher',
   },
   {
     id: uniqueId(),
-    title: 'Login',
-    icon: IconLogin,
-    href: '/auth/login',
+    title: 'Quản Lí Địa Điểm',
+    icon: IconMapPin,
+    href: '/ui/location',
   },
-  {
-    id: uniqueId(),
-    title: 'Register',
-    icon: IconUserPlus,
-    href: '/auth/register',
-  },
+  // {
+  //   navlabel: true,
+  //   subheader: 'Auth',
+  // },
+  // {
+  //   id: uniqueId(),
+  //   title: 'Login',
+  //   icon: IconLogin,
+  //   href: '/auth/login',
+  // },
+  // {
+  //   id: uniqueId(),
+  //   title: 'Register',
+  //   icon: IconUserPlus,
+  //   href: '/auth/register',
+  // },
   // {
   //   navlabel: true,
   //   subheader: 'Extra',

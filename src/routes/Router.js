@@ -15,6 +15,8 @@ const Tour = Loadable(lazy(() => import('../views/utilities/Tour')))
 const Comment = Loadable(lazy(() => import('../views/utilities/Comment')))
 const Statistical= Loadable(lazy(() => import('../views/utilities/Statistical')))
 const Booktour= Loadable(lazy(() => import('../views/utilities/Booktour')))
+const Voucher= Loadable(lazy(() => import('../views/utilities/Voucher')))
+const Featured_Location= Loadable(lazy(() => import('../views/utilities/Featured_Location')))
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
@@ -33,6 +35,8 @@ const Router = [
       { path: '/ui/tour', exact: true, element: <Tour /> },
       { path: '/ui/comment', exact: true, element: <Comment /> },
       { path: '/ui/Booktour', exact: true, element: <Booktour /> },
+      { path: '/ui/Voucher', exact: true, element: <Voucher /> },
+      { path: '/ui/location', exact: true, element: <Featured_Location /> },
       { path: '*', element: <Navigate to="/auth/404" /> },
     ],
   },

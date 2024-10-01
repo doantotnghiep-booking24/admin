@@ -1,90 +1,91 @@
 import { useState } from 'react';
 import {
-    Typography, Box, Table, TableBody, TableCell, TableHead, TableRow,
-    IconButton, Modal, TextField, Button
+    Typography, Paper, Table, TableBody, TableCell, TableHead, TableRow,
+    IconButton, Dialog, DialogActions, DialogContent, DialogTitle,
+    TextField, Button, Select, MenuItem, InputLabel, FormControl
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const users = [
-    { id: "1", name: "Sunil Joshi", gmail: "sunil.joshi@example.com", password: "password123" },
-    { id: "2", name: "Andrew McDownland", gmail: "andrew.mcdownland@example.com", password: "pass234" },
-    { id: "3", name: "Christopher Jamil", gmail: "christopher.jamil@example.com", password: "securePass!9" },
-    { id: "4", name: "Nirav Joshi", gmail: "nirav.joshi@example.com", password: "myPassword!8" },
+// Dữ liệu cứng ban đầu
+const initialCustomers = [
+    { id: 1, name: "Nguyễn Văn A", email: "nguyenvana@example.com", password: "password123", role: "admin" },
+    { id: 2, name: "Trần Thị B", email: "tranthib@example.com", password: "pass456", role: "nhân viên" },
+    { id: 3, name: "Lê Minh C", email: "leminhc@example.com", password: "mypassword789", role: "user" },
 ];
 
-const UserManagement = () => {
-    const [userList, setUserList] = useState(users);
-    const [openModal, setOpenModal] = useState(false);
-    const [currentUser, setCurrentUser] = useState(null); // Lưu thông tin người dùng hiện tại
+const CustomerManagement = () => {
+    const [customers] = useState(initialCustomers);
+    const [openEdit, setOpenEdit] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState({ id: '', name: '', email: '', password: '', role: '' });
 
-    const handleEdit = (user) => {
-        setCurrentUser(user); // Lưu thông tin người dùng khi nhấn sửa
-        setOpenModal(true); // Hiển thị modal
+    // Mở form chỉnh sửa
+    const handleEdit = (customer) => {
+        setSelectedCustomer(customer);
+        setOpenEdit(true);
     };
 
-    const handleDelete = (id) => {
-        setUserList(userList.filter(user => user.id !== id));
-        console.log("Đã xóa người dùng với id:", id);
-    };
-
-    const handleSave = () => {
-        setUserList(userList.map(user => 
-            user.id === currentUser.id ? currentUser : user
-        ));
-        setOpenModal(false); // Đóng modal sau khi lưu
-    };
-
-    const handleChange = (e) => {
-        setCurrentUser({
-            ...currentUser,
-            [e.target.name]: e.target.value
-        });
+    // Đóng form chỉnh sửa
+    const handleCloseEdit = () => {
+        setOpenEdit(false);
     };
 
     return (
-        <Box 
-            sx={{ 
-                p: 2, 
-                border: '1px solid #ddd', 
-                borderRadius: '8px', 
-                boxShadow: 1, 
-                overflowX: 'auto' 
-            }}
-        >
-            <Typography variant="h6" sx={{ mb: 2 }}>
-                Quản lý Người dùng
+        <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
+            {/* Tiêu đề được căn giữa */}
+            <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}>
+                Quản Lý Khách Hàng
             </Typography>
-            <Table aria-label="simple table" sx={{ whiteSpace: "nowrap" }}>
+
+            {/* Bảng khách hàng */}
+            <Table aria-label="bảng khách hàng">
                 <TableHead>
                     <TableRow>
-                        <TableCell><Typography variant="subtitle2" fontWeight={600}>Mã</Typography></TableCell>
-                        <TableCell><Typography variant="subtitle2" fontWeight={600}>Tên</Typography></TableCell>
-                        <TableCell><Typography variant="subtitle2" fontWeight={600}>Gmail</Typography></TableCell>
-                        <TableCell><Typography variant="subtitle2" fontWeight={600}>Mật khẩu</Typography></TableCell>
-                        <TableCell align="right"><Typography variant="subtitle2" fontWeight={600}>Hành động</Typography></TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>
+                                Mã khách hàng
+                            </Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>
+                                Tên khách hàng
+                            </Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>
+                                Email
+                            </Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>
+                                Mật khẩu
+                            </Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>
+                                Vai trò
+                            </Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }} align="right">
+                            <Typography variant="subtitle2" fontWeight={600}>
+                                Hành động
+                            </Typography>
+                        </TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {userList.map((user) => (
-                        <TableRow key={user.id}>
-                            <TableCell>
-                                <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>{user.id}</Typography>
-                            </TableCell>
-                            <TableCell>
-                                <Typography variant="subtitle2" fontWeight={600}>{user.name}</Typography>
-                            </TableCell>
-                            <TableCell>
-                                <Typography color="textSecondary" variant="subtitle2" fontWeight={400}>{user.gmail}</Typography>
-                            </TableCell>
-                            <TableCell>
-                                <Typography color="textSecondary" variant="subtitle2" fontWeight={400}>{user.password}</Typography>
-                            </TableCell>
+                    {customers.map((customer) => (
+                        <TableRow key={customer.id}>
+                            <TableCell>{customer.id}</TableCell>
+                            <TableCell>{customer.name}</TableCell>
+                            <TableCell>{customer.email}</TableCell>
+                            <TableCell>{customer.password}</TableCell>
+                            <TableCell>{customer.role}</TableCell>
                             <TableCell align="right">
-                                <IconButton onClick={() => handleEdit(user)}>
+                                <IconButton onClick={() => handleEdit(customer)}>
                                     <EditIcon color="primary" />
                                 </IconButton>
-                                <IconButton onClick={() => handleDelete(user.id)}>
+                                <IconButton>
                                     <DeleteIcon color="secondary" />
                                 </IconButton>
                             </TableCell>
@@ -93,61 +94,53 @@ const UserManagement = () => {
                 </TableBody>
             </Table>
 
-            {/* Modal chỉnh sửa người dùng */}
-            <Modal open={openModal} onClose={() => setOpenModal(false)}>
-                <Box sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 400,
-                    bgcolor: 'background.paper',
-                    borderRadius: 2,
-                    boxShadow: 24,
-                    p: 4,
-                }}>
-                    <Typography variant="h6" gutterBottom>Chỉnh sửa thông tin người dùng</Typography>
-                    {currentUser && (
-                        <Box component="form">
-                            <TextField
-                                fullWidth
-                                label="Tên"
-                                name="name"
-                                value={currentUser.name}
-                                onChange={handleChange}
-                                sx={{ mb: 2 }}
-                            />
-                            <TextField
-                                fullWidth
-                                label="Gmail"
-                                name="gmail"
-                                value={currentUser.gmail}
-                                onChange={handleChange}
-                                sx={{ mb: 2 }}
-                            />
-                            <TextField
-                                fullWidth
-                                label="Mật khẩu"
-                                name="password"
-                                type="password"
-                                value={currentUser.password}
-                                onChange={handleChange}
-                                sx={{ mb: 2 }}
-                            />
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                <Button variant="contained" color="primary" onClick={handleSave} sx={{ mr: 1 }}>
-                                    Lưu
-                                </Button>
-                                <Button variant="outlined" color="secondary" onClick={() => setOpenModal(false)}>
-                                    Hủy
-                                </Button>
-                            </Box>
-                        </Box>
-                    )}
-                </Box>
-            </Modal>
-        </Box>
+            {/* Form chỉnh sửa khách hàng */}
+            <Dialog open={openEdit} onClose={handleCloseEdit}>
+                <DialogTitle>Chỉnh sửa khách hàng</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        margin="dense"
+                        label="Tên khách hàng"
+                        fullWidth
+                        variant="outlined"
+                        value={selectedCustomer.name}
+                        onChange={(e) => setSelectedCustomer({ ...selectedCustomer, name: e.target.value })}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Email"
+                        fullWidth
+                        variant="outlined"
+                        value={selectedCustomer.email}
+                        onChange={(e) => setSelectedCustomer({ ...selectedCustomer, email: e.target.value })}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Mật khẩu"
+                        fullWidth
+                        variant="outlined"
+                        value={selectedCustomer.password}
+                        onChange={(e) => setSelectedCustomer({ ...selectedCustomer, password: e.target.value })}
+                    />
+                    <FormControl fullWidth sx={{ mt: 2 }}>
+                        <InputLabel>Vai trò</InputLabel>
+                        <Select
+                            value={selectedCustomer.role}
+                            onChange={(e) => setSelectedCustomer({ ...selectedCustomer, role: e.target.value })}
+                        >
+                            <MenuItem value="admin">Admin</MenuItem>
+                            <MenuItem value="nhân viên">Nhân viên</MenuItem>
+                            <MenuItem value="user">User</MenuItem>
+                        </Select>
+                    </FormControl>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseEdit} color="secondary">Đóng</Button>
+                    <Button onClick={handleCloseEdit} color="primary">Lưu</Button>
+                </DialogActions>
+            </Dialog>
+        </Paper>
     );
 };
 
-export default UserManagement;
+export default CustomerManagement;

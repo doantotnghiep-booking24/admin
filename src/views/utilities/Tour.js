@@ -1,238 +1,323 @@
 import { useState } from 'react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-  MenuItem,
-  Select,
-  Typography,
-  Box,
-  TextField,
-  Grid,
-  Chip,
-  IconButton,
+    Typography,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    IconButton,
+    Button,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
+    Select,
+    MenuItem,
+    InputLabel,
+    FormControl,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-// Dữ liệu mẫu cho bảng
 const initialTours = [
-  {
-    id: 1,
-    code: 'T001',
-    title: 'Tour Biển Đà Nẵng',
-    image: 'https://example.com/image1.jpeg',
-    itinerary: {
-      description: 'Tour 2 ngày 1 đêm',
-      startLocation: 'Đà Nẵng',
-      endLocation: 'Đà Nẵng',
-      totalPrice: '3.000.000 VNĐ',
+    {
+        id: 1,
+        nameTour: "Tour Bãi Biển",
+        titleTour: "Khám Phá Bãi Biển Đà Nẵng",
+        imageTour: "https://via.placeholder.com/150",
+        descriptionTour: "Một tour hấp dẫn tại bãi biển Đà Nẵng.",
+        departureTime: "9:00 AM",
+        totalDate: "3 ngày",
+        voucher: "10% OFF",
+        category: "Đà Nẵng",
+        featuredLocation: "Bãi Biển Mỹ Khê",
+        typeTour: "2 ngày 1 đêm"
     },
-    info: {
-      location: 'Đà Nẵng',
-      transportService: 'Xe du lịch',
-      startDate: '2024-10-01',
-      endDate: '2024-10-03',
-      departureTime: '08:00',
-      arrivalTime: '20:00',
+    {
+        id: 2,
+        nameTour: "Tour Núi Bà Nà",
+        titleTour: "Khám Phá Núi Bà Nà",
+        imageTour: "https://via.placeholder.com/150",
+        descriptionTour: "Một chuyến đi đầy thú vị đến Núi Bà Nà.",
+        departureTime: "8:00 AM",
+        totalDate: "2 ngày",
+        voucher: "15% OFF",
+        category: "Featured Location",
+        featuredLocation: "Bãi Biển Mỹ Khê",
+        typeTour: "3 ngày 2 đêm"
     },
-    status: 'Xác nhận',
-    statusColor: 'success', // Thêm màu cho trạng thái
-  },
-  // Thêm các tour khác ở đây
+    // Bạn có thể thêm nhiều tour hơn nữa
 ];
 
 const TourManagement = () => {
-  const [tours, setTours] = useState(initialTours);
-  const [filteredTours, setFilteredTours] = useState(initialTours);
-  const [searchParams, setSearchParams] = useState({
-    title: '',
-    startDate: '',
-    endDate: '',
-  });
-  const [editTourId, setEditTourId] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState('');
+    const [tours] = useState(initialTours);
+    const [openAdd, setOpenAdd] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
+    const [selectedTour, setSelectedTour] = useState(null);
 
-  const handleEdit = (id) => {
-    setEditTourId(id);
-    const tourToEdit = tours.find(tour => tour.id === id);
-    setSelectedStatus(tourToEdit.status);
-  };
+    const handleAddClickOpen = () => {
+        setOpenAdd(true);
+    };
 
-  const handleDelete = (id) => {
-    const updatedTours = tours.filter(tour => tour.id !== id);
-    setTours(updatedTours);
-    setFilteredTours(updatedTours);
-  };
+    const handleEditClickOpen = (tour) => {
+        setSelectedTour(tour);
+        setOpenEdit(true);
+    };
 
-  const handleChangeStatus = (id, newStatus) => {
-    const updatedTours = tours.map((tour) => {
-      if (tour.id === id) {
-        return { ...tour, status: newStatus };
-      }
-      return tour;
-    });
-    setTours(updatedTours);
-  };
+    const handleClose = () => {
+        setOpenAdd(false);
+        setOpenEdit(false);
+        setSelectedTour(null);
+    };
 
-  const handleSave = (id) => {
-    handleChangeStatus(id, selectedStatus);
-    setEditTourId(null);
-  };
+    return (
+        <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
+            <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}>
+                Quản Lý Tour
+            </Typography>
 
-  // Xử lý tìm kiếm
-  const handleSearch = () => {
-    const filtered = tours.filter(tour => {
-      const titleMatch = tour.title.toLowerCase().includes(searchParams.title.toLowerCase());
-      const startDateMatch = searchParams.startDate ? tour.info.startDate === searchParams.startDate : true;
-      const endDateMatch = searchParams.endDate ? tour.info.endDate === searchParams.endDate : true;
-
-      return titleMatch && startDateMatch && endDateMatch;
-    });
-    setFilteredTours(filtered);
-  };
-
-  return (
-    <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 2 }}>
-      <Box p={2}>
-        <Typography variant="h4" align="center" gutterBottom>
-          Quản lý Tour
-        </Typography>
-      </Box>
-      
-      {/* Form Tìm Kiếm */}
-      <Box p={2}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              label="Tiêu đề Tour"
-              variant="outlined"
-              value={searchParams.title}
-              onChange={(e) => setSearchParams({ ...searchParams, title: e.target.value })}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              label="Ngày bắt đầu"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={searchParams.startDate}
-              onChange={(e) => setSearchParams({ ...searchParams, startDate: e.target.value })}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              label="Ngày kết thúc"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={searchParams.endDate}
-              onChange={(e) => setSearchParams({ ...searchParams, endDate: e.target.value })}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSearch}
-            >
-              Tìm Kiếm
+            <Button variant="contained" color="primary" onClick={handleAddClickOpen}>
+                Thêm Tour
             </Button>
-          </Grid>
-        </Grid>
-      </Box>
 
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>STT</TableCell>
-            <TableCell>Mã tour</TableCell>
-            <TableCell>Tiêu đề tour</TableCell>
-            <TableCell>Hình ảnh</TableCell>
-            <TableCell>Lịch trình</TableCell>
-            <TableCell>Thông tin</TableCell>
-            <TableCell>Trạng thái</TableCell>
-            <TableCell>Hành động</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {filteredTours.map((tour, index) => (
-            <TableRow key={tour.id}>
-              <TableCell>{index + 1}</TableCell>
-              <TableCell>{tour.code}</TableCell>
-              <TableCell>{tour.title}</TableCell>
-              <TableCell>
-                <img src={tour.image} alt={tour.title} style={{ width: '100px', height: 'auto', borderRadius: '8px' }} />
-              </TableCell>
-              <TableCell>
-                <Typography variant="body2"><strong>Mô tả:</strong> {tour.itinerary.description}</Typography>
-                <Typography variant="body2"><strong>Vị trí bắt đầu:</strong> {tour.itinerary.startLocation}</Typography>
-                <Typography variant="body2"><strong>Vị trí kết thúc:</strong> {tour.itinerary.endLocation}</Typography>
-                <Typography variant="body2"><strong>Tổng giá:</strong> {tour.itinerary.totalPrice}</Typography>
-              </TableCell>
-              <TableCell>
-                <Typography variant="body2"><strong>Địa điểm:</strong> {tour.info.location}</Typography>
-                <Typography variant="body2"><strong>Dịch vụ di chuyển:</strong> {tour.info.transportService}</Typography>
-                <Typography variant="body2"><strong>Ngày bắt đầu:</strong> {tour.info.startDate}</Typography>
-                <Typography variant="body2"><strong>Ngày kết thúc:</strong> {tour.info.endDate}</Typography>
-                <Typography variant="body2"><strong>Thời gian khởi hành:</strong> {tour.info.departureTime}</Typography>
-                <Typography variant="body2"><strong>Thời gian đến nơi:</strong> {tour.info.arrivalTime}</Typography>
-              </TableCell>
-              <TableCell>
-                {editTourId === tour.id ? (
-                  <Select
-                    value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value)}
-                    size="small"
-                    sx={{ minWidth: 120 }}
-                  >
-                    <MenuItem value="Xác nhận">Xác nhận</MenuItem>
-                    <MenuItem value="Khởi tạo">Khởi tạo</MenuItem>
-                    <MenuItem value="Hủy">Hủy</MenuItem>
-                  </Select>
-                ) : (
-                  <Chip
-                    label={tour.status}
-                    color={tour.statusColor}
-                    size="small"
-                    sx={{ px: 1 }}
-                  />
-                )}
-              </TableCell>
-              <TableCell align="right">
-                {editTourId === tour.id ? (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    onClick={() => handleSave(tour.id)}
-                  >
-                    Lưu
-                  </Button>
-                ) : (
-                  <>
-                    <IconButton onClick={() => handleEdit(tour.id)}>
-                      <EditIcon color="primary" />
-                    </IconButton>
-                    <IconButton onClick={() => handleDelete(tour.id)}>
-                      <DeleteIcon color="secondary" />
-                    </IconButton>
-                  </>
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
+            <Table aria-label="bảng tour" sx={{ mt: 2 }}>
+                <TableHead>
+                    <TableRow>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Id</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Tên Tour</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Tiêu Đề</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Hình Ảnh</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Mô Tả</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Voucher</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Lịch Trình</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Thông Tin Tour</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }} align="right">
+                            <Typography variant="subtitle2" fontWeight={600}>Hành Động</Typography>
+                        </TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {tours.map((tour) => (
+                        <TableRow key={tour.id}>
+                            <TableCell>{tour.id}</TableCell>
+                            <TableCell>{tour.nameTour}</TableCell>
+                            <TableCell>{tour.titleTour}</TableCell>
+                            <TableCell>
+                                <img src={tour.imageTour} alt={tour.nameTour} style={{ width: 50, height: 50 }} />
+                            </TableCell>
+                            <TableCell>{tour.descriptionTour}</TableCell>
+                            <TableCell>{tour.voucher}</TableCell>
+                            <TableCell>
+                                <Typography>
+                                    <strong>Thời gian khởi hành:</strong> {tour.departureTime}<br />
+                                    <strong>Tổng ngày:</strong> {tour.totalDate}<br />
+                                    <strong>Loại tour:</strong> {tour.typeTour}
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Typography>
+                                    <strong>Danh Mục:</strong> {tour.category}<br />
+                                    <strong>Địa Điểm Nổi Bật:</strong> {tour.featuredLocation}
+                                </Typography>
+                            </TableCell>
+                            <TableCell align="right">
+                                <IconButton onClick={() => handleEditClickOpen(tour)}>
+                                    <EditIcon color="primary" />
+                                </IconButton>
+                                <IconButton>
+                                    <DeleteIcon color="secondary" />
+                                </IconButton>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+
+            {/* Form Thêm Tour */}
+            <Dialog open={openAdd} onClose={handleClose}>
+                <DialogTitle>Thêm Tour Mới</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Tên Tour"
+                        fullWidth
+                        variant="outlined"
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Tiêu Đề"
+                        fullWidth
+                        variant="outlined"
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Hình Ảnh URL"
+                        fullWidth
+                        variant="outlined"
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Mô Tả"
+                        fullWidth
+                        variant="outlined"
+                        multiline
+                        rows={2}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Thời Gian Khởi Hành"
+                        fullWidth
+                        variant="outlined"
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Tổng Ngày"
+                        fullWidth
+                        variant="outlined"
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Voucher"
+                        fullWidth
+                        variant="outlined"
+                    />
+                    <FormControl fullWidth sx={{ mt: 1 }}>
+                        <InputLabel>Danh Mục</InputLabel>
+                        <Select defaultValue="">
+                            <MenuItem value="Đà Nẵng">Đà Nẵng</MenuItem>
+                            <MenuItem value="Featured Location">Địa Điểm Nổi Bật</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <FormControl fullWidth sx={{ mt: 1 }}>
+                        <InputLabel>Địa Điểm Nổi Bật</InputLabel>
+                        <Select defaultValue="">
+                            <MenuItem value="Bãi Biển Mỹ Khê">Bãi Biển Mỹ Khê</MenuItem>
+                            <MenuItem value="Núi Bà Nà">Núi Bà Nà</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <FormControl fullWidth sx={{ mt: 1 }}>
+                        <InputLabel>Loại Tour</InputLabel>
+                        <Select defaultValue="">
+                            <MenuItem value="2 ngày 1 đêm">2 ngày 1 đêm</MenuItem>
+                            <MenuItem value="3 ngày 2 đêm">3 ngày 2 đêm</MenuItem>
+                        </Select>
+                    </FormControl>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">Hủy</Button>
+                    <Button onClick={handleClose} color="primary">Thêm</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Form Chỉnh Sửa Tour */}
+            <Dialog open={openEdit} onClose={handleClose}>
+                <DialogTitle>Chỉnh Sửa Tour</DialogTitle>
+                <DialogContent>
+                    {selectedTour && (
+                        <>
+                            <TextField
+                                autoFocus
+                                margin="dense"
+                                label="Tên Tour"
+                                fullWidth
+                                variant="outlined"
+                                defaultValue={selectedTour.nameTour}
+                            />
+                            <TextField
+                                margin="dense"
+                                label="Tiêu Đề"
+                                fullWidth
+                                variant="outlined"
+                                defaultValue={selectedTour.titleTour}
+                            />
+                            <TextField
+                                margin="dense"
+                                label="Hình Ảnh URL"
+                                fullWidth
+                                variant="outlined"
+                                defaultValue={selectedTour.imageTour}
+                            />
+                            <TextField
+                                margin="dense"
+                                label="Mô Tả"
+                                fullWidth
+                                variant="outlined"
+                                multiline
+                                rows={2}
+                                defaultValue={selectedTour.descriptionTour}
+                            />
+                            <TextField
+                                margin="dense"
+                                label="Thời Gian Khởi Hành"
+                                fullWidth
+                                variant="outlined"
+                                defaultValue={selectedTour.departureTime}
+                            />
+                            <TextField
+                                margin="dense"
+                                label="Tổng Ngày"
+                                fullWidth
+                                variant="outlined"
+                                defaultValue={selectedTour.totalDate}
+                            />
+                            <TextField
+                                margin="dense"
+                                label="Voucher"
+                                fullWidth
+                                variant="outlined"
+                                defaultValue={selectedTour.voucher}
+                            />
+                            <FormControl fullWidth sx={{ mt: 1 }}>
+                                <InputLabel>Danh Mục</InputLabel>
+                                <Select defaultValue={selectedTour.category}>
+                                    <MenuItem value="Đà Nẵng">Đà Nẵng</MenuItem>
+                                    <MenuItem value="Featured Location">Địa Điểm Nổi Bật</MenuItem>
+                                </Select>
+                            </FormControl>
+                            <FormControl fullWidth sx={{ mt: 1 }}>
+                                <InputLabel>Địa Điểm Nổi Bật</InputLabel>
+                                <Select defaultValue={selectedTour.featuredLocation}>
+                                    <MenuItem value="Bãi Biển Mỹ Khê">Bãi Biển Mỹ Khê</MenuItem>
+                                    <MenuItem value="Núi Bà Nà">Núi Bà Nà</MenuItem>
+                                </Select>
+                            </FormControl>
+                            <FormControl fullWidth sx={{ mt: 1 }}>
+                                <InputLabel>Loại Tour</InputLabel>
+                                <Select defaultValue={selectedTour.typeTour}>
+                                    <MenuItem value="2 ngày 1 đêm">2 ngày 1 đêm</MenuItem>
+                                    <MenuItem value="3 ngày 2 đêm">3 ngày 2 đêm</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">Hủy</Button>
+                    <Button onClick={handleClose} color="primary">Lưu</Button>
+                </DialogActions>
+            </Dialog>
+        </Paper>
+    );
 };
 
 export default TourManagement;

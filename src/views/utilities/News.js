@@ -1,122 +1,130 @@
 import { useState } from 'react';
 import {
-    Typography, Box, Table, TableBody, TableCell, TableHead, TableRow,
-    IconButton, Modal, TextField, Button, CardMedia
+    Typography,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    IconButton,
+    Button,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const initialPosts = [
-    { id: "1", title: "Bài viết 1", content: "Nội dung bài viết 1", image: "https://via.placeholder.com/150" },
-    { id: "2", title: "Bài viết 2", content: "Nội dung bài viết 2", image: "https://via.placeholder.com/150" },
-    { id: "3", title: "Bài viết 3", content: "Nội dung bài viết 3", image: "https://via.placeholder.com/150" },
+const initialArticles = [
+    {
+        id: 1,
+        nameNew: "Bài Viết Về Đà Nẵng",
+        titleNew: "Khám Phá Thành Phố Đà Nẵng",
+        contentNew: "Đà Nẵng là một thành phố du lịch nổi tiếng với bãi biển đẹp và nhiều địa điểm tham quan.",
+        imageNew: ["https://via.placeholder.com/150"],
+        createdAt: "2024-10-01"
+    },
+    {
+        id: 2,
+        nameNew: "Bài Viết Về Hà Nội",
+        titleNew: "Khám Phá Thủ Đô Hà Nội",
+        contentNew: "Hà Nội không chỉ nổi tiếng với ẩm thực mà còn với văn hóa và lịch sử lâu đời.",
+        imageNew: ["https://via.placeholder.com/150"],
+        createdAt: "2024-10-01"
+    },
+    // Bạn có thể thêm nhiều bài viết hơn nữa
 ];
 
-const PostManagement = () => {
-    const [postList, setPostList] = useState(initialPosts); // Danh sách bài viết
-    const [openModal, setOpenModal] = useState(false); // Kiểm soát modal
-    const [currentPost, setCurrentPost] = useState(null); // Bài viết hiện tại được chọn
-    const [selectedImage, setSelectedImage] = useState(null); // Hình ảnh đã chọn
+const ArticleManagement = () => {
+    const [articles] = useState(initialArticles);
+    const [openAdd, setOpenAdd] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
+    const [selectedArticle, setSelectedArticle] = useState(null);
+    const [newImages, setNewImages] = useState([]);
 
-    // Mở modal và khởi tạo giá trị cho form
-    const handleEdit = (post) => {
-        setCurrentPost(post);
-        setSelectedImage(null);
-        setOpenModal(true);
+    const handleAddClickOpen = () => {
+        setOpenAdd(true);
+        setNewImages([]); // Reset images when opening the add dialog
     };
 
-    // Xóa bài viết
-    const handleDelete = (id) => {
-        setPostList(postList.filter(post => post.id !== id));
+    const handleEditClickOpen = (article) => {
+        setSelectedArticle(article);
+        setOpenEdit(true);
     };
 
-    // Lưu bài viết (chỉnh sửa hoặc thêm mới)
-    const handleSave = () => {
-        let updatedPost = { ...currentPost };
-
-        const reader = new FileReader();
-        if (selectedImage) {
-            reader.onload = () => {
-                updatedPost.image = reader.result;
-                if (!updatedPost.id) {
-                    updatedPost.id = (postList.length + 1).toString(); // Tạo ID mới
-                    setPostList([...postList, updatedPost]); // Thêm bài viết mới
-                } else {
-                    setPostList(postList.map(post => post.id === currentPost.id ? updatedPost : post)); // Cập nhật bài viết
-                }
-                setOpenModal(false);
-            };
-            reader.readAsDataURL(selectedImage);
-        } else {
-            if (!updatedPost.id) {
-                updatedPost.id = (postList.length + 1).toString();
-                setPostList([...postList, updatedPost]); // Thêm bài viết mới nếu không có ID
-            } else {
-                setPostList(postList.map(post => post.id === currentPost.id ? updatedPost : post)); // Cập nhật bài viết
-            }
-            setOpenModal(false);
-        }
+    const handleClose = () => {
+        setOpenAdd(false);
+        setOpenEdit(false);
+        setSelectedArticle(null);
+        setNewImages([]); // Reset images on close
     };
 
-    const handleChange = (e) => {
-        setCurrentPost({
-            ...currentPost,
-            [e.target.name]: e.target.value
-        });
+    const handleImageChange = (event) => {
+        const files = Array.from(event.target.files).map(file => URL.createObjectURL(file));
+        setNewImages(files);
     };
 
-    const handleImageChange = (e) => {
-        setSelectedImage(e.target.files[0]); // Thay đổi hình ảnh đã chọn
-    };
-
-    const handleImageRemove = () => {
-        setCurrentPost({
-            ...currentPost,
-            image: null // Xóa hình ảnh hiện tại
-        });
+    const handleRemoveImage = (index) => {
+        setNewImages(prevImages => prevImages.filter((_, i) => i !== index));
     };
 
     return (
-        <Box sx={{ p: 2, border: '1px solid #ddd', borderRadius: '8px', boxShadow: 1, overflowX: 'auto' }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-                Quản lý Bài Viết
+        <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
+            <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}>
+                Quản Lý Bài Viết
             </Typography>
-            <Button
-                variant="contained"
-                color="primary"
-                sx={{ mb: 2 }}
-                onClick={() => setCurrentPost({ id: '', title: '', content: '', image: '' }) || setOpenModal(true)}
-            >
+
+            <Button variant="contained" color="primary" onClick={handleAddClickOpen}>
                 Thêm Bài Viết
             </Button>
-            <Table aria-label="simple table" sx={{ whiteSpace: "nowrap" }}>
+
+            <Table aria-label="bảng bài viết" sx={{ mt: 2 }}>
                 <TableHead>
                     <TableRow>
-                        <TableCell><Typography variant="subtitle2" fontWeight={600}>Mã</Typography></TableCell>
-                        <TableCell><Typography variant="subtitle2" fontWeight={600}>Tiêu đề</Typography></TableCell>
-                        <TableCell><Typography variant="subtitle2" fontWeight={600}>Hình ảnh</Typography></TableCell>
-                        <TableCell><Typography variant="subtitle2" fontWeight={600}>Nội dung</Typography></TableCell>
-                        <TableCell align="right"><Typography variant="subtitle2" fontWeight={600}>Hành động</Typography></TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Id</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Tên Bài Viết</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Tiêu Đề</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Hình Ảnh</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Nội Dung</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Ngày Tạo</Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E0F7FA' }} align="right">
+                            <Typography variant="subtitle2" fontWeight={600}>Hành Động</Typography>
+                        </TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {postList.map((post) => (
-                        <TableRow key={post.id}>
-                            <TableCell><Typography sx={{ fontSize: "15px", fontWeight: "500" }}>{post.id}</Typography></TableCell>
-                            <TableCell><Typography variant="subtitle2" fontWeight={600}>{post.title}</Typography></TableCell>
+                    {articles.map((article) => (
+                        <TableRow key={article.id}>
+                            <TableCell>{article.id}</TableCell>
+                            <TableCell>{article.nameNew}</TableCell>
+                            <TableCell>{article.titleNew}</TableCell>
                             <TableCell>
-                                {post.image ? (
-                                    <CardMedia component="img" image={post.image} alt={post.title} sx={{ width: 100, height: 75 }} />
-                                ) : (
-                                    <Typography variant="body2">Không có hình ảnh</Typography>
-                                )}
+                                {article.imageNew.map((image, index) => (
+                                    <img key={index} src={image} alt={article.nameNew} style={{ width: 50, height: 50, marginRight: 5 }} />
+                                ))}
                             </TableCell>
-                            <TableCell><Typography variant="body2">{post.content}</Typography></TableCell>
+                            <TableCell>{article.contentNew}</TableCell>
+                            <TableCell>{article.createdAt}</TableCell>
                             <TableCell align="right">
-                                <IconButton onClick={() => handleEdit(post)}>
+                                <IconButton onClick={() => handleEditClickOpen(article)}>
                                     <EditIcon color="primary" />
                                 </IconButton>
-                                <IconButton onClick={() => handleDelete(post.id)}>
+                                <IconButton>
                                     <DeleteIcon color="secondary" />
                                 </IconButton>
                             </TableCell>
@@ -125,88 +133,138 @@ const PostManagement = () => {
                 </TableBody>
             </Table>
 
-            {/* Modal thêm hoặc chỉnh sửa bài viết */}
-            <Modal open={openModal} onClose={() => setOpenModal(false)}>
-                <Box sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 400,
-                    bgcolor: 'background.paper',
-                    borderRadius: 2,
-                    boxShadow: 24,
-                    p: 4,
-                }}>
-                    <Typography variant="h6" gutterBottom>{currentPost?.id ? 'Chỉnh sửa Bài Viết' : 'Thêm Bài Viết'}</Typography>
-                    {currentPost && (
-                        <Box component="form">
-                            <TextField
-                                fullWidth
-                                label="Tiêu đề"
-                                name="title"
-                                value={currentPost.title}
-                                onChange={handleChange}
-                                sx={{ mb: 2 }}
-                            />
-                            <TextField
-                                fullWidth
-                                label="Nội dung"
-                                name="content"
-                                multiline
-                                rows={6} // Cho phép nhập nhiều dòng
-                                value={currentPost.content}
-                                onChange={handleChange}
-                                inputProps={{
-                                    maxLength: 5000, // Thêm maxLength nếu bạn muốn giới hạn (có thể bỏ qua)
+            {/* Form Thêm Bài Viết */}
+            <Dialog open={openAdd} onClose={handleClose}>
+                <DialogTitle>Thêm Bài Viết Mới</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Tên Bài Viết"
+                        fullWidth
+                        variant="outlined"
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Tiêu Đề"
+                        fullWidth
+                        variant="outlined"
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Nội Dung"
+                        fullWidth
+                        variant="outlined"
+                        multiline
+                        rows={4}
+                    />
+                    <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageChange}
+                    />
+                    <div style={{ marginTop: '10px' }}>
+                        {newImages.map((image, index) => (
+                            <div key={index} style={{ display: 'inline-block', position: 'relative', marginRight: '10px' }}>
+                                <img src={image} alt={`Preview ${index}`} style={{ width: 50, height: 50 }} />
+                                <IconButton
+                                    size="small"
+                                    onClick={() => handleRemoveImage(index)}
+                                    style={{ position: 'absolute', top: 0, right: 0 }}
+                                >
+                                    <DeleteIcon fontSize="small" />
+                                </IconButton>
+                            </div>
+                        ))}
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">Hủy</Button>
+                    <Button onClick={handleClose} color="primary">Thêm</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Form Chỉnh Sửa Bài Viết */}
+<Dialog open={openEdit} onClose={handleClose}>
+    <DialogTitle>Chỉnh Sửa Bài Viết</DialogTitle>
+    <DialogContent>
+        {selectedArticle && (
+            <>
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    label="Tên Bài Viết"
+                    fullWidth
+                    variant="outlined"
+                    defaultValue={selectedArticle.nameNew}
+                />
+                <TextField
+                    margin="dense"
+                    label="Tiêu Đề"
+                    fullWidth
+                    variant="outlined"
+                    defaultValue={selectedArticle.titleNew}
+                />
+                <TextField
+                    margin="dense"
+                    label="Nội Dung"
+                    fullWidth
+                    variant="outlined"
+                    multiline
+                    rows={4}
+                    defaultValue={selectedArticle.contentNew}
+                />
+                <div>
+                    <Typography variant="subtitle2" sx={{ mt: 2 }}>Hình Ảnh Hiện Tại:</Typography>
+                    {selectedArticle.imageNew.map((image, index) => (
+                        <div key={index} style={{ display: 'inline-block', position: 'relative', marginRight: '10px' }}>
+                            <img src={image} alt={selectedArticle.nameNew} style={{ width: 50, height: 50 }} />
+                            <IconButton
+                                size="small"
+                                onClick={() => {
+                                    const updatedImages = selectedArticle.imageNew.filter((_, i) => i !== index);
+                                    setSelectedArticle(prev => ({ ...prev, imageNew: updatedImages }));
                                 }}
-                                sx={{ mb: 2 }}
-                            />
-                            {currentPost.image ? (
-                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                    <CardMedia
-                                        component="img"
-                                        image={currentPost.image}
-                                        alt={currentPost.title}
-                                        sx={{ width: 100, height: 75, mr: 2 }}
-                                    />
-                                    <Button variant="contained" color="secondary" onClick={handleImageRemove}>
-                                        Xóa Hình Ảnh
-                                    </Button>
-                                </Box>
-                            ) : (
-                                <Typography variant="body2" sx={{ mb: 2 }}>Không có hình ảnh</Typography>
-                            )}
-                            <Button
-                                variant="contained"
-                                component="label"
-                                sx={{ mb: 2 }}
+                                style={{ position: 'absolute', top: 0, right: 0 }}
                             >
-                                Upload Hình ảnh (JPEG)
-                                <input
-                                    type="file"
-                                    accept="image/jpeg"
-                                    hidden
-                                    onChange={handleImageChange}
-                                />
-                            </Button>
-                            {selectedImage && (
-                                <Typography variant="body2">{selectedImage.name}</Typography>
-                            )}
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                <Button variant="contained" color="primary" onClick={handleSave} sx={{ mr: 1 }}>
-                                    {currentPost?.id ? 'Lưu' : 'Thêm'}
-                                </Button>
-                                <Button variant="outlined" color="secondary" onClick={() => setOpenModal(false)}>
-                                    Hủy
-                                </Button>
-                            </Box>
-                        </Box>
-                    )}
-                </Box>
-            </Modal>
-        </Box>
+                                <DeleteIcon fontSize="small" />
+                            </IconButton>
+                        </div>
+                    ))}
+                </div>
+                <Typography variant="subtitle2" sx={{ mt: 2 }}>Tải Lên Hình Ảnh Mới:</Typography>
+                <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageChange}
+                />
+                <div style={{ marginTop: '10px' }}>
+                    {newImages.map((image, index) => (
+                        <div key={index} style={{ display: 'inline-block', position: 'relative', marginRight: '10px' }}>
+                            <img src={image} alt={`Preview ${index}`} style={{ width: 50, height: 50 }} />
+                            <IconButton
+                                size="small"
+                                onClick={() => handleRemoveImage(index)}
+                                style={{ position: 'absolute', top: 0, right: 0 }}
+                            >
+                                <DeleteIcon fontSize="small" />
+                            </IconButton>
+                        </div>
+                    ))}
+                </div>
+            </>
+        )}
+    </DialogContent>
+    <DialogActions>
+        <Button onClick={handleClose} color="primary">Hủy</Button>
+        <Button onClick={handleClose} color="primary">Lưu</Button>
+    </DialogActions>
+</Dialog>
+
+        </Paper>
     );
 };
 
-export default PostManagement;
+export default ArticleManagement;
