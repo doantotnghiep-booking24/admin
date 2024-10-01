@@ -1,91 +1,87 @@
-import { useState } from 'react'; 
+import { useState } from 'react';
 import {
     Typography, Paper, Table, TableBody, TableCell, TableHead, TableRow,
-    IconButton, Chip
+    IconButton,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const initialComments = [
+const initialCustomers = [
     {
         id: 1,
-        userName: "John Doe",
-        email: "johndoe@example.com",
-        content: "Bình luận rất hay!",
-        time: "2024-09-20 10:15",
-        status: "Hiển thị",
-        statusColor: "success",
-        location: "Đà Nẵng"
+        Name_Customer: "Nguyễn Văn A",
+        Date_Of_Birth: "1990-01-15",
+        Sex_Customer: "Nam",
+        Phone_Number: "0901234567",
+        Citizen_Identification: "0123456789",
+        Address: "123 Đường ABC, Quận 1, TP.HCM"
     },
     {
         id: 2,
-        userName: "Jane Smith",
-        email: "janesmith@example.com",
-        content: "Tôi đồng ý với ý kiến này!",
-        time: "2024-09-19 14:23",
-        status: "Hiển thị",
-        statusColor: "success",
-        location: "Quảng Ngãi"
+        Name_Customer: "Trần Thị B",
+        Date_Of_Birth: "1985-07-20",
+        Sex_Customer: "Nữ",
+        Phone_Number: "0909876543",
+        Citizen_Identification: "9876543210",
+        Address: "456 Đường XYZ, Quận 3, TP.HCM"
     },
     {
         id: 3,
-        userName: "Mike Johnson",
-        email: "mikej@example.com",
-        content: "Bài viết này rất hữu ích.",
-        time: "2024-09-18 09:45",
-        status: "Ẩn",
-        statusColor: "error",
-        location: "Hà Nội"
-    },
+        Name_Customer: "Phạm Văn C",
+        Date_Of_Birth: "1992-12-30",
+        Sex_Customer: "Nam",
+        Phone_Number: "0912345678",
+        Citizen_Identification: "3456789123",
+        Address: "789 Đường DEF, Quận 5, TP.HCM"
+    }
 ];
 
-const CommentManagement = () => {
-    const [comments] = useState(initialComments);
+const CustomerManagement = () => {
+    const [customers] = useState(initialCustomers);
 
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
-            {/* Tiêu đề được căn giữa */}
+            {/* Tiêu đề căn giữa */}
             <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}>
-                Quản Lý Bình Luận
+                Quản Lý Khách Hàng
             </Typography>
 
-            {/* Bảng Bình Luận */}
-            <Table aria-label="bảng bình luận">
+            <Table aria-label="bảng khách hàng">
                 <TableHead>
                     <TableRow>
-                    <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                STT
+                                ID
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                Tên địa điểm
+                                Tên Khách Hàng
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                Tên người dùng
+                                Ngày Sinh
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                Email
+                                Giới Tính
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                Nội dung
+                                Số Điện Thoại
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                Thời gian
+                                CMND/CCCD
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                Trạng thái
+                                Địa Chỉ
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }} align="right">
@@ -96,30 +92,19 @@ const CommentManagement = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {comments.map((comment, index) => (
-                        <TableRow key={comment.id}>
+                    {customers.map((customer) => (
+                        <TableRow key={customer.id}>
                             <TableCell>
                                 <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>
-                                    {index + 1}
+                                    {customer.id}
                                 </Typography>
                             </TableCell>
-                            <TableCell>{comment.location}</TableCell>
-                            <TableCell>
-                                <Typography variant="subtitle2" fontWeight={600}>
-                                    {comment.userName}
-                                </Typography>
-                            </TableCell>
-                            <TableCell>{comment.email}</TableCell>
-                            <TableCell>{comment.content}</TableCell>
-                            <TableCell>{comment.time}</TableCell>
-                            <TableCell>
-                                <Chip
-                                    label={comment.status}
-                                    color={comment.statusColor}
-                                    size="small"
-                                    sx={{ px: 1 }}
-                                />
-                            </TableCell>
+                            <TableCell>{customer.Name_Customer}</TableCell>
+                            <TableCell>{customer.Date_Of_Birth}</TableCell>
+                            <TableCell>{customer.Sex_Customer}</TableCell>
+                            <TableCell>{customer.Phone_Number}</TableCell>
+                            <TableCell>{customer.Citizen_Identification}</TableCell>
+                            <TableCell>{customer.Address}</TableCell>
                             <TableCell align="right">
                                 <IconButton>
                                     <EditIcon color="primary" />
@@ -136,4 +121,5 @@ const CommentManagement = () => {
     );
 };
 
-export default CommentManagement;
+export default CustomerManagement;
+ 

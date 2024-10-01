@@ -67,17 +67,17 @@ const CategoryManagement = () => {
             <Table aria-label="bảng danh mục">
                 <TableHead>
                     <TableRow>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
                                 ID
                             </Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
                                 Danh mục
                             </Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }} align="right">
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }} align="right">
                             <Typography variant="subtitle2" fontWeight={600}>
                                 Hành động
                             </Typography>

@@ -95,7 +95,7 @@ const BookingManagement = () => {
                 <TableHead>
                     <TableRow>
                         {['ID', 'Tên Tour - Mã Tour', 'Thông Tin Khách Hàng', 'Thông Tin Tour', 'Ngày Tạo', 'Trạng Thái', 'Phương Thức Thanh Toán', 'BILL'].map((header) => (
-                            <TableCell key={header} sx={{ backgroundColor: '#E0F7FA', fontSize: '14px', fontFamily: 'Arial' }}>
+                            <TableCell key={header} sx={{ backgroundColor: '#E3F2FD', fontSize: '14px', fontFamily: 'Arial' }}>
                                 <Typography variant="subtitle2" fontWeight={600}>{header}</Typography>
                             </TableCell>
                         ))}

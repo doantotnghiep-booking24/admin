@@ -78,34 +78,34 @@ const VoucherManagement = () => {
             <Table aria-label="bảng voucher" sx={{ mt: 2 }}>
                 <TableHead>
                     <TableRow>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Id</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Code Voucher</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Mô Tả</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Giảm Giá</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Loại</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Ngày Bắt Đầu</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Ngày Kết Thúc</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Số Lượng Tối Đa</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Điều Kiện</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }} align="right">
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }} align="right">
                             <Typography variant="subtitle2" fontWeight={600}>Hành Động</Typography>
                         </TableCell>
                     </TableRow>

@@ -17,6 +17,10 @@ const Statistical= Loadable(lazy(() => import('../views/utilities/Statistical'))
 const Booktour= Loadable(lazy(() => import('../views/utilities/Booktour')))
 const Voucher= Loadable(lazy(() => import('../views/utilities/Voucher')))
 const Featured_Location= Loadable(lazy(() => import('../views/utilities/Featured_Location')))
+const Type_tour= Loadable(lazy(() => import('../views/utilities/Type_tour')))
+const Customer= Loadable(lazy(() => import('../views/utilities/Customer')))
+const Airplane= Loadable(lazy(() => import('../views/utilities/Airplane')))
+const Supplier= Loadable(lazy(() => import('../views/utilities/Supplier')))
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
@@ -31,12 +35,16 @@ const Router = [
       { path: '/ui/category', exact: true, element: <Category /> },
       { path: '/ui/statistical', exact: true, element: <Statistical /> },
       { path: '/ui/user', exact: true, element: <User /> },
+      { path: '/ui/customer', exact: true, element: <Customer /> },
       { path: '/ui/news', exact: true, element: <News /> },
       { path: '/ui/tour', exact: true, element: <Tour /> },
       { path: '/ui/comment', exact: true, element: <Comment /> },
       { path: '/ui/Booktour', exact: true, element: <Booktour /> },
       { path: '/ui/Voucher', exact: true, element: <Voucher /> },
       { path: '/ui/location', exact: true, element: <Featured_Location /> },
+      { path: '/ui/typetour', exact: true, element: <Type_tour /> },
+      { path: '/ui/airplane', exact: true, element: <Airplane /> },
+      { path: '/ui/supplier', exact: true, element: <Supplier /> },
       { path: '*', element: <Navigate to="/auth/404" /> },
     ],
   },

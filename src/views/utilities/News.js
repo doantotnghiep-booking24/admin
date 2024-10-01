@@ -84,25 +84,25 @@ const ArticleManagement = () => {
             <Table aria-label="bảng bài viết" sx={{ mt: 2 }}>
                 <TableHead>
                     <TableRow>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Id</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Tên Bài Viết</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Tiêu Đề</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Hình Ảnh</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Nội Dung</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Ngày Tạo</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }} align="right">
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }} align="right">
                             <Typography variant="subtitle2" fontWeight={600}>Hành Động</Typography>
                         </TableCell>
                     </TableRow>

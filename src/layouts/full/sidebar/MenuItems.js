@@ -1,6 +1,8 @@
 import {
    IconLogin,IconAdjustments,
-   IconUserPlus,IconUsers,IconChartPie,IconCategory,IconTicket,IconMessageReport,IconShoppingCart,IconNews,IconGift,IconMapPin
+   IconUserPlus,IconUsers,
+   IconChartPie,IconCategory,IconTicket,IconMessageReport,IconShoppingCart,
+   IconNews,IconGift,IconMapPin,IconPlane,IconHeadset,IconUser,IconLocationPin
 } from '@tabler/icons-react';
 
 import { uniqueId } from 'lodash';
@@ -36,7 +38,7 @@ const Menuitems = [
   {
     id: uniqueId(),
     title: 'Quản Lí User',
-    icon: IconUsers,
+    icon: IconUser,
     href: '/ui/user',
   },
   {
@@ -74,6 +76,30 @@ const Menuitems = [
     title: 'Quản Lí Địa Điểm',
     icon: IconMapPin,
     href: '/ui/location',
+  },
+  {
+    id: uniqueId(),
+    title: 'Quản Lí Loại Tour',
+    icon: IconLocationPin,
+    href: '/ui/typetour',
+  },
+  {
+    id: uniqueId(),
+    title: 'Quản Lí Khách Hàng',
+    icon: IconUsers,
+    href: '/ui/customer',
+  },
+  {
+    id: uniqueId(),
+    title: 'Quản Lí Máy Bay',
+    icon: IconPlane,
+    href: '/ui/airplane',
+  },
+  {
+    id: uniqueId(),
+    title: 'Quản Lí Nhà Cung Cấp',
+    icon: IconHeadset,
+    href: '/ui/supplier',
   },
   // {
   //   navlabel: true,

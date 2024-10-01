@@ -14,9 +14,12 @@ import {
     DialogContent,
     DialogActions,
     TextField,
+    Box,
+    
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
 const initialLocations = [
     {
@@ -45,6 +48,7 @@ const LocationManagement = () => {
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState(null);
+    const [images, setImages] = useState([]);
 
     const handleAddClickOpen = () => {
         setOpenAdd(true);
@@ -59,6 +63,18 @@ const LocationManagement = () => {
         setOpenAdd(false);
         setOpenEdit(false);
         setSelectedLocation(null);
+        setImages([]);
+    };
+
+    const handleImageUpload = (event) => {
+        const files = Array.from(event.target.files);
+        const imageUrls = files.map((file) => URL.createObjectURL(file));
+        setImages(imageUrls);
+    };
+
+    const handleImageRemove = (index) => {
+        const newImages = images.filter((_, i) => i !== index);
+        setImages(newImages);
     };
 
     return (
@@ -74,28 +90,28 @@ const LocationManagement = () => {
             <Table aria-label="bảng địa điểm" sx={{ mt: 2 }}>
                 <TableHead>
                     <TableRow>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Id</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Tên Địa Điểm</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Địa Chỉ</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Hình Ảnh</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Loại</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Quốc Gia</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Thành Phố</Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }} align="right">
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }} align="right">
                             <Typography variant="subtitle2" fontWeight={600}>Hành Động</Typography>
                         </TableCell>
                     </TableRow>
@@ -142,12 +158,22 @@ const LocationManagement = () => {
                         fullWidth
                         variant="outlined"
                     />
-                    <TextField
-                        margin="dense"
-                        label="Hình Ảnh URL"
-                        fullWidth
-                        variant="outlined"
+                    <input
+                        type="file"
+                        multiple
+                        onChange={handleImageUpload}
+                        style={{ marginBottom: '16px' }}
                     />
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        {images.map((image, index) => (
+                            <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                <img src={image} alt={`preview-${index}`} style={{ width: '50px', height: 'auto', marginRight: '8px' }} />
+                                <IconButton onClick={() => handleImageRemove(index)}>
+                                    <RemoveCircleOutlineIcon color="error" />
+                                </IconButton>
+                            </Box>
+                        ))}
+                    </Box>
                     <TextField
                         margin="dense"
                         label="Loại"
@@ -194,13 +220,22 @@ const LocationManagement = () => {
                                 variant="outlined"
                                 defaultValue={selectedLocation.addressLocation}
                             />
-                            <TextField
-                                margin="dense"
-                                label="Hình Ảnh URL"
-                                fullWidth
-                                variant="outlined"
-                                defaultValue={selectedLocation.imageLocation}
+                            <input
+                                type="file"
+                                multiple
+                                onChange={handleImageUpload}
+                                style={{ marginBottom: '16px' }}
                             />
+                            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                {images.map((image, index) => (
+                                    <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                        <img src={image} alt={`preview-${index}`} style={{ width: '50px', height: 'auto', marginRight: '8px' }} />
+                                        <IconButton onClick={() => handleImageRemove(index)}>
+                                            <RemoveCircleOutlineIcon color="error" />
+                                        </IconButton>
+                                    </Box>
+                                ))}
+                            </Box>
                             <TextField
                                 margin="dense"
                                 label="Loại"

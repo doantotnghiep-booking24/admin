@@ -41,32 +41,32 @@ const CustomerManagement = () => {
             <Table aria-label="bảng khách hàng">
                 <TableHead>
                     <TableRow>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
                                 Mã khách hàng
                             </Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
                                 Tên khách hàng
                             </Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
                                 Email
                             </Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
                                 Mật khẩu
                             </Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
                                 Vai trò
                             </Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E0F7FA' }} align="right">
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }} align="right">
                             <Typography variant="subtitle2" fontWeight={600}>
                                 Hành động
                             </Typography>
