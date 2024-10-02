@@ -34,11 +34,11 @@ const CustomerManagement = () => {
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
             {/* Tiêu đề được căn giữa */}
             <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}>
-                Quản Lý Khách Hàng
+                Quản Lý Users
             </Typography>
 
             {/* Bảng khách hàng */}
-            <Table aria-label="bảng khách hàng">
+            <Table aria-label="bảng user">
                 <TableHead>
                     <TableRow>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>

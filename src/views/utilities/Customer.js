@@ -9,6 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 const initialCustomers = [
     {
         id: 1,
+        Create_by : "Nguyễn Ngọc Hùng",
         Name_Customer: "Nguyễn Văn A",
         Date_Of_Birth: "1990-01-15",
         Sex_Customer: "Nam",
@@ -18,6 +19,7 @@ const initialCustomers = [
     },
     {
         id: 2,
+        Create_by : "Nguyễn Ngọc Hùng",
         Name_Customer: "Trần Thị B",
         Date_Of_Birth: "1985-07-20",
         Sex_Customer: "Nữ",
@@ -27,6 +29,7 @@ const initialCustomers = [
     },
     {
         id: 3,
+        Create_by : "Nguyễn Ngọc Hùng",
         Name_Customer: "Phạm Văn C",
         Date_Of_Birth: "1992-12-30",
         Sex_Customer: "Nam",
@@ -52,6 +55,11 @@ const CustomerManagement = () => {
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
                                 ID
+                            </Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>
+                                Được tạo bởi
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
@@ -99,6 +107,7 @@ const CustomerManagement = () => {
                                     {customer.id}
                                 </Typography>
                             </TableCell>
+                            <TableCell>{customer.Create_by}</TableCell>
                             <TableCell>{customer.Name_Customer}</TableCell>
                             <TableCell>{customer.Date_Of_Birth}</TableCell>
                             <TableCell>{customer.Sex_Customer}</TableCell>
