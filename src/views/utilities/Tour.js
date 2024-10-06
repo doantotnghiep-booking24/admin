@@ -223,12 +223,20 @@ const TourManagement = () => {
                         fullWidth
                         variant="outlined"
                     />
-                    <TextField
-                        margin="dense"
-                        label="Voucher"
-                        fullWidth
-                        variant="outlined"
-                    />
+                     <FormControl fullWidth sx={{ mt: 1 }}>
+                        <InputLabel>Lịch trình chuyến đi</InputLabel>
+                        <Select defaultValue="">
+                            <MenuItem value="Vourcher">Đà Nẵng</MenuItem>
+                            <MenuItem value="Vourcher">Hà Nội</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <FormControl fullWidth sx={{ mt: 1 }}>
+                        <InputLabel>Voucher</InputLabel>
+                        <Select defaultValue="">
+                            <MenuItem value="Vourcher">10%</MenuItem>
+                            <MenuItem value="Vourcher">20%</MenuItem>
+                        </Select>
+                    </FormControl>
                     <FormControl fullWidth sx={{ mt: 1 }}>
                         <InputLabel>Danh Mục</InputLabel>
                         <Select defaultValue="">
