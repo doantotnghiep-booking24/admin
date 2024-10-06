@@ -31,7 +31,8 @@ const initialTours = [
         titleTour: "Khám Phá Bãi Biển Đà Nẵng",
         imageTour: "https://via.placeholder.com/150",
         descriptionTour: "Một tour hấp dẫn tại bãi biển Đà Nẵng.",
-        departureTime: "9:00 AM",
+        startTour : "Quảng Trị",
+        endTour : "Đà Nẵng",
         totalDate: "3 ngày",
         voucher: "10% OFF",
         category: "Đà Nẵng",
@@ -44,7 +45,8 @@ const initialTours = [
         titleTour: "Khám Phá Núi Bà Nà",
         imageTour: "https://via.placeholder.com/150",
         descriptionTour: "Một chuyến đi đầy thú vị đến Núi Bà Nà.",
-        departureTime: "8:00 AM",
+        startTour : "Quảng Trị",
+        endTour : "Đà Nẵng",
         totalDate: "2 ngày",
         voucher: "15% OFF",
         category: "Featured Location",
@@ -141,7 +143,8 @@ const TourManagement = () => {
                             <TableCell>{tour.voucher}</TableCell>
                             <TableCell>
                                 <Typography>
-                                    <strong>Thời gian khởi hành:</strong> {tour.departureTime}<br />
+                                    <strong>Điểm bắt đầu:</strong> {tour.startTour}<br />
+                                    <strong>Điểm kết thúc:</strong> {tour.endTour}<br />
                                     <strong>Tổng ngày:</strong> {tour.totalDate}<br />
                                     <strong>Loại tour:</strong> {tour.typeTour}
                                 </Typography>
@@ -149,7 +152,8 @@ const TourManagement = () => {
                             <TableCell>
                                 <Typography>
                                     <strong>Danh Mục:</strong> {tour.category}<br />
-                                    <strong>Địa Điểm Nổi Bật:</strong> {tour.featuredLocation}
+                                    <strong>Địa Điểm Nổi Bật:</strong> {tour.featuredLocation}<br />
+                                    <strong>Loại Tour:</strong> {'Tour hằng ngày'}
                                 </Typography>
                             </TableCell>
                             <TableCell align="right">
@@ -175,6 +179,7 @@ const TourManagement = () => {
                         label="Tên Tour"
                         fullWidth
                         variant="outlined"
+                       
                     />
                     <TextField
                         margin="dense"

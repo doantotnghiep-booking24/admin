@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { handleGetCategories, handleCreateCategories, handleDeleteCategories, handleUpdateCategories } from '../../service/index.js';
 import {
     Typography, Paper, Table, TableBody, TableCell, TableHead, TableRow,
     IconButton, Dialog, DialogActions, DialogContent, DialogTitle,
@@ -8,23 +9,75 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 
-// Dữ liệu cứng ban đầu
-const initialCategories = [
-    { id: 1, name: "Du lịch biển" },
-    { id: 2, name: "Du lịch sinh thái" },
-    { id: 3, name: "Du lịch văn hóa" },
-];
 
 const CategoryManagement = () => {
-    const [categories] = useState(initialCategories);
     const [openEdit, setOpenEdit] = useState(false);
     const [openAdd, setOpenAdd] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState({ id: '', name: '' });
-    const [newCategory, setNewCategory] = useState({ name: '' });
+    const [getcategories, setGetcategories] = useState([])
+    const [valueinput, setValueinput] = useState()
+    const [idDelete, setIdDelete] = useState()
+    const [idUpdate, setIdUpdate] = useState()
+    const [type_ButtonAdd, setType_ButtonAdd] = useState()
+    const [type_ButtonEdit, setType_ButtonEdit] = useState()
+    const getValueEdit = (data) => {
+        setValueinput(data)
+    }
+    const getValueAdd = (data) => {
+        setValueinput(data)
+    }
+    const btn_edit = (type) => {
+        setType_ButtonEdit(type)
+    }
+    const btn_add = (type) => {
+        setType_ButtonAdd(type)
+    }
 
+    useEffect(() => {
+        if (valueinput, type_ButtonEdit) {
+            const Update_cate = async () => {
+                const res = await handleUpdateCategories(idUpdate, valueinput)
+                res.status === 200 ? window.location.reload() : console.log('Error When handle function Update');
+                 
+                handleCloseAdd()
+            }
+            Update_cate()
+        }
+    }, [type_ButtonEdit])
+    useEffect(() => {
+        if (valueinput, type_ButtonAdd) {
+            const Create_cate = async () => {
+                const res = await handleCreateCategories(valueinput)
+                res.status === 200 ? window.location.reload() : console.log('Error When handle function Create');
+                handleCloseAdd()
+            }
+            Create_cate()
+        }
+    }, [type_ButtonAdd])
+    useEffect(() => {
+        const Delete_Cate = async () => {
+            const res = await handleDeleteCategories(idDelete)
+            res.status === 200 ? window.location.reload() : console.log('Error When handle function Delete');
+            handleCloseAdd()
+        }
+        Delete_Cate()
+    },[idDelete])
+    useEffect(() => {
+        const getCate = async () => {
+            const data_categories = await handleGetCategories()
+            console.log(data_categories);
+
+            setGetcategories(data_categories)
+        }
+        getCate()
+    }, [])
+    const handleDelete = (id) => {
+        setIdDelete(id)
+    }
     // Mở form chỉnh sửa
-    const handleEdit = (category) => {
-        setSelectedCategory(category);
+    const handleEdit = (Name_Cate, _id, type) => {
+        // setSelectedCategory(Name_Cate);
+        setIdUpdate(_id)
         setOpenEdit(true);
     };
 
@@ -34,8 +87,7 @@ const CategoryManagement = () => {
     };
 
     // Mở form thêm danh mục
-    const handleOpenAdd = () => {
-        setNewCategory({ name: '' });
+    const handleOpenAdd = (type) => {
         setOpenAdd(true);
     };
 
@@ -57,7 +109,7 @@ const CategoryManagement = () => {
                     variant="contained"
                     color="primary"
                     startIcon={<AddIcon />}
-                    onClick={handleOpenAdd}
+                    onClick={() => handleOpenAdd('Create')}
                 >
                     Thêm danh mục
                 </Button>
@@ -85,15 +137,15 @@ const CategoryManagement = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {categories.map((category) => (
-                        <TableRow key={category.id}>
-                            <TableCell>{category.id}</TableCell>
-                            <TableCell>{category.name}</TableCell>
+                    {getcategories.map((category) => (
+                        <TableRow key={category._id}>
+                            <TableCell>{category._id}</TableCell>
+                            <TableCell>{category.Name_Cate}</TableCell>
                             <TableCell align="right">
-                                <IconButton onClick={() => handleEdit(category)}>
+                                <IconButton onClick={() => handleEdit(category.Name_Cate, category._id)}>
                                     <EditIcon color="primary" />
                                 </IconButton>
-                                <IconButton>
+                                <IconButton onClick={() => handleDelete(category._id)}>
                                     <DeleteIcon color="secondary" />
                                 </IconButton>
                             </TableCell>
@@ -109,15 +161,12 @@ const CategoryManagement = () => {
                     <TextField
                         margin="dense"
                         label="Tên danh mục"
-                        fullWidth
-                        variant="outlined"
-                        value={selectedCategory.name}
-                        onChange={(e) => setSelectedCategory({ ...selectedCategory, name: e.target.value })}
+                        onChange={(e) => getValueEdit (e.target.value)}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseEdit} color="secondary">Đóng</Button>
-                    <Button onClick={handleCloseEdit} color="primary">Lưu</Button>
+                    <Button onClick={() => btn_edit('Update')} color="primary">Lưu</Button>
                 </DialogActions>
             </Dialog>
 
@@ -128,15 +177,12 @@ const CategoryManagement = () => {
                     <TextField
                         margin="dense"
                         label="Tên danh mục"
-                        fullWidth
-                        variant="outlined"
-                        value={newCategory.name}
-                        onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                        onChange={(e) => getValueAdd(e.target.value)}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseAdd} color="secondary">Đóng</Button>
-                    <Button onClick={handleCloseAdd} color="primary">Lưu</Button>
+                    <Button onClick={() => btn_add('Create')} color="primary">Lưu</Button>
                 </DialogActions>
             </Dialog>
         </Paper>
