@@ -19,8 +19,9 @@ const Voucher= Loadable(lazy(() => import('../views/utilities/Voucher')))
 const Featured_Location= Loadable(lazy(() => import('../views/utilities/Featured_Location')))
 const Type_tour= Loadable(lazy(() => import('../views/utilities/Type_tour')))
 const Customer= Loadable(lazy(() => import('../views/utilities/Customer')))
-const Airplane= Loadable(lazy(() => import('../views/utilities/Airplane')))
-const Supplier= Loadable(lazy(() => import('../views/utilities/Supplier')))
+const Service= Loadable(lazy(() => import('../views/utilities/Service')))
+const Role= Loadable(lazy(() => import('../views/utilities/Role')))
+const Schedule= Loadable(lazy(() => import('../views/utilities/Schedule')))
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
@@ -43,8 +44,9 @@ const Router = [
       { path: '/ui/Voucher', exact: true, element: <Voucher /> },
       { path: '/ui/location', exact: true, element: <Featured_Location /> },
       { path: '/ui/typetour', exact: true, element: <Type_tour /> },
-      { path: '/ui/airplane', exact: true, element: <Airplane /> },
-      { path: '/ui/supplier', exact: true, element: <Supplier /> },
+      { path: '/ui/service', exact: true, element: <Service /> },
+      { path: '/ui/role', exact: true, element: <Role /> },
+      { path: '/ui/schedule', exact: true, element: <Schedule /> },
       { path: '*', element: <Navigate to="/auth/404" /> },
     ],
   },

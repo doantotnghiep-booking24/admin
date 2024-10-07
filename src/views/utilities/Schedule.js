@@ -1,43 +1,23 @@
 import { useState } from 'react';
 import {
     Typography, Paper, Table, TableBody, TableCell, TableHead, TableRow,
-    IconButton, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, MenuItem
+    IconButton, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
-const initialPlanes = [
-    {
-        id: 1,
-        Supplier: "Vietnam Airlines",
-        Type_Plane: "Airbus A320",
-        Price: "200,000,000 VND",
-        Description: "Máy bay tầm trung phục vụ nội địa"
-    },
-    {
-        id: 2,
-        Supplier: "Vietjet Air",
-        Type_Plane: "Boeing 737",
-        Price: "180,000,000 VND",
-        Description: "Máy bay giá rẻ cho các chuyến bay quốc tế ngắn"
-    },
-    {
-        id: 3,
-        Supplier: "Vietnam Airlines",
-        Type_Plane: "Airbus A380",
-        Price: "300,000,000 VND",
-        Description: "Máy bay hạng sang cho các chuyến bay dài"
-    }
+const initialSchedules = [
+    { id: 1, Departure_Time: '08:00 AM', Location: 'Đà Nẵng', Means_of_Transport: 'Xe buýt', Work: 'Tham quan Bà Nà Hills' },
+    { id: 2, Departure_Time: '09:00 AM', Location: 'Hội An', Means_of_Transport: 'Xe máy', Work: 'Khám phá phố cổ' },
+    { id: 3, Departure_Time: '10:00 AM', Location: 'Huế', Means_of_Transport: 'Ô tô', Work: 'Tham quan Đại Nội' }
 ];
 
-const suppliers = ["Vietnam Airlines", "Vietjet Air"];
-
-const PlaneManagement = () => {
-    const [planes] = useState(initialPlanes);
+const ScheduleManagement = () => {
+    const [schedules] = useState(initialSchedules);
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
-    const [selectedSupplier, setSelectedSupplier] = useState(suppliers[0]);
     const [editData, setEditData] = useState(null);
 
     const handleClickOpenAdd = () => {
@@ -48,8 +28,8 @@ const PlaneManagement = () => {
         setOpenAdd(false);
     };
 
-    const handleClickOpenEdit = (plane) => {
-        setEditData(plane);
+    const handleClickOpenEdit = (schedule) => {
+        setEditData(schedule);
         setOpenEdit(true);
     };
 
@@ -59,9 +39,8 @@ const PlaneManagement = () => {
 
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
-            {/* Tiêu đề căn giữa */}
             <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}>
-                Quản Lý Máy Bay
+                Quản Lý Lịch Trình
             </Typography>
 
             <Button
@@ -70,11 +49,10 @@ const PlaneManagement = () => {
                 onClick={handleClickOpenAdd}
                 sx={{ mb: 2 }}
             >
-                Thêm Máy Bay
+                Thêm Lịch Trình
             </Button>
 
-            {/* Bảng Máy Bay */}
-            <Table aria-label="bảng máy bay">
+            <Table aria-label="bảng lịch trình">
                 <TableHead>
                     <TableRow>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
@@ -84,22 +62,22 @@ const PlaneManagement = () => {
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                Nhà Cung Cấp
+                                Thời Gian Khởi Hành
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                Loại Máy Bay
+                                Địa Điểm
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                Giá
+                                Phương Tiện Giao Thông
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                Mô Tả
+                                Công Việc
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }} align="right">
@@ -110,15 +88,15 @@ const PlaneManagement = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {planes.map((plane) => (
-                        <TableRow key={plane.id}>
-                            <TableCell>{plane.id}</TableCell>
-                            <TableCell>{plane.Supplier}</TableCell>
-                            <TableCell>{plane.Type_Plane}</TableCell>
-                            <TableCell>{plane.Price}</TableCell>
-                            <TableCell>{plane.Description}</TableCell>
+                    {schedules.map((schedule) => (
+                        <TableRow key={schedule.id}>
+                            <TableCell>{schedule.id}</TableCell>
+                            <TableCell>{schedule.Departure_Time}</TableCell>
+                            <TableCell>{schedule.Location}</TableCell>
+                            <TableCell>{schedule.Means_of_Transport}</TableCell>
+                            <TableCell>{schedule.Work}</TableCell>
                             <TableCell align="right">
-                                <IconButton onClick={() => handleClickOpenEdit(plane)}>
+                                <IconButton onClick={() => handleClickOpenEdit(schedule)}>
                                     <EditIcon color="primary" />
                                 </IconButton>
                                 <IconButton>
@@ -130,36 +108,33 @@ const PlaneManagement = () => {
                 </TableBody>
             </Table>
 
-            {/* Form Thêm Máy Bay */}
+            {/* Form Thêm Lịch Trình */}
             <Dialog open={openAdd} onClose={handleCloseAdd}>
-                <DialogTitle>Thêm Máy Bay</DialogTitle>
+                <DialogTitle>Thêm Lịch Trình</DialogTitle>
                 <DialogContent>
                     <TextField
-                        select
-                        label="Nhà Cung Cấp"
-                        value={selectedSupplier}
-                        onChange={(e) => setSelectedSupplier(e.target.value)}
+                        label="Thời Gian Khởi Hành"
                         fullWidth
+                        type="time"
                         sx={{ mb: 2 }}
-                    >
-                        {suppliers.map((supplier) => (
-                            <MenuItem key={supplier} value={supplier}>
-                                {supplier}
-                            </MenuItem>
-                        ))}
-                    </TextField>
+                        InputProps={{
+                            startAdornment: (
+                                <AccessTimeIcon sx={{ marginRight: 1 }} />
+                            )
+                        }}
+                    />
                     <TextField
-                        label="Loại Máy Bay"
+                        label="Địa Điểm"
                         fullWidth
                         sx={{ mb: 2 }}
                     />
                     <TextField
-                        label="Giá"
+                        label="Phương Tiện Giao Thông"
                         fullWidth
                         sx={{ mb: 2 }}
                     />
                     <TextField
-                        label="Mô Tả"
+                        label="Công Việc"
                         fullWidth
                         sx={{ mb: 2 }}
                     />
@@ -174,39 +149,37 @@ const PlaneManagement = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* Form Chỉnh Sửa Máy Bay */}
+            {/* Form Chỉnh Sửa Lịch Trình */}
             <Dialog open={openEdit} onClose={handleCloseEdit}>
-                <DialogTitle>Chỉnh Sửa Máy Bay</DialogTitle>
+                <DialogTitle>Chỉnh Sửa Lịch Trình</DialogTitle>
                 <DialogContent>
                     <TextField
-                        select
-                        label="Nhà Cung Cấp"
-                        value={editData ? editData.Supplier : selectedSupplier}
-                        onChange={(e) => setSelectedSupplier(e.target.value)}
+                        label="Thời Gian Khởi Hành"
+                        value={editData ? editData.Departure_Time : ''}
                         fullWidth
+                        type="time"
                         sx={{ mb: 2 }}
-                    >
-                        {suppliers.map((supplier) => (
-                            <MenuItem key={supplier} value={supplier}>
-                                {supplier}
-                            </MenuItem>
-                        ))}
-                    </TextField>
+                        InputProps={{
+                            startAdornment: (
+                                <AccessTimeIcon sx={{ marginRight: 1 }} />
+                            )
+                        }}
+                    />
                     <TextField
-                        label="Loại Máy Bay"
-                        value={editData ? editData.Type_Plane : ''}
+                        label="Địa Điểm"
+                        value={editData ? editData.Location : ''}
                         fullWidth
                         sx={{ mb: 2 }}
                     />
                     <TextField
-                        label="Giá"
-                        value={editData ? editData.Price : ''}
+                        label="Phương Tiện Giao Thông"
+                        value={editData ? editData.Means_of_Transport : ''}
                         fullWidth
                         sx={{ mb: 2 }}
                     />
                     <TextField
-                        label="Mô Tả"
-                        value={editData ? editData.Description : ''}
+                        label="Công Việc"
+                        value={editData ? editData.Work : ''}
                         fullWidth
                         sx={{ mb: 2 }}
                     />
@@ -224,4 +197,4 @@ const PlaneManagement = () => {
     );
 };
 
-export default PlaneManagement;
+export default ScheduleManagement;

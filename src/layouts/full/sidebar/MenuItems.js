@@ -2,7 +2,8 @@ import {
    IconLogin,IconAdjustments,
    IconUserPlus,IconUsers,
    IconChartPie,IconCategory,IconTicket,IconMessageReport,IconShoppingCart,
-   IconNews,IconGift,IconMapPin,IconPlane,IconHeadset,IconUser,IconLocationPin
+   IconNews,IconGift,IconMapPin,IconUser,IconLocationPin,IconCalendarMonth,
+   IconUserCircle,IconDeviceHeartMonitor
 } from '@tabler/icons-react';
 
 import { uniqueId } from 'lodash';
@@ -91,15 +92,21 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: 'Quản Lí Máy Bay',
-    icon: IconPlane,
-    href: '/ui/airplane',
+    title: 'Quản Lí Dịch vụ',
+    icon: IconDeviceHeartMonitor,
+    href: '/ui/service',
   },
   {
     id: uniqueId(),
-    title: 'Quản Lí Nhà Cung Cấp',
-    icon: IconHeadset,
-    href: '/ui/supplier',
+    title: 'Quản Lí Vai Trò',
+    icon: IconUserCircle,
+    href: '/ui/role',
+  },
+  {
+    id: uniqueId(),
+    title: 'Quản Lí Lịch Trình',
+    icon: IconCalendarMonth,
+    href: '/ui/schedule',
   },
   // {
   //   navlabel: true,
