@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Typography,
     Paper,
@@ -15,8 +15,11 @@ import {
     DialogActions,
     TextField,
 } from '@mui/material';
+import { Input } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import axios from 'axios';
+import { IconApi } from '@tabler/icons-react';
 
 const initialArticles = [
     {
@@ -44,11 +47,20 @@ const ArticleManagement = () => {
     const [openEdit, setOpenEdit] = useState(false);
     const [selectedArticle, setSelectedArticle] = useState(null);
     const [newImages, setNewImages] = useState([]);
+    const [nameImages, setNameImages] = useState([]);
+    const [news, setNews] = useState({
+        Name: "",
+        Title: "",
+        Content: "",
+        Image: {}
+    })
+
 
     const handleAddClickOpen = () => {
         setOpenAdd(true);
         setNewImages([]); // Reset images when opening the add dialog
     };
+
 
     const handleEditClickOpen = (article) => {
         setSelectedArticle(article);
@@ -63,13 +75,65 @@ const ArticleManagement = () => {
     };
 
     const handleImageChange = (event) => {
-        const files = Array.from(event.target.files).map(file => URL.createObjectURL(file));
-        setNewImages(files);
+        const files = Array.from(event.target.files)
+
+
+        // for(let i of files) {
+        //     console.log(i);
+
+        // }
+        // for (let i = 0; i < files.length; i++) {
+        //     setNameImages((prev) => [...prev, files[i].name])
+        // }
+        const fileNames = files.map(file => file.name);
+        console.log(fileNames);
+        const objectName = Object.assign({}, fileNames);
+        console.log(objectName);
+
+
+        setNews(prevNews => ({
+            ...prevNews,
+            Image: objectName
+        }));
+        const filesDisplay = files.map(item => URL.createObjectURL(item))
+
+        setNewImages(filesDisplay);
+
     };
 
     const handleRemoveImage = (index) => {
         setNewImages(prevImages => prevImages.filter((_, i) => i !== index));
     };
+
+    const handleAddNews = async () => {
+        const api = "http://localhost:3001/News/CreateNew"
+        console.log(news);
+
+        try {
+            const res = await fetch(api,
+                {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ...news })
+                },
+            )
+            console.log(res);
+
+        } catch (e) {
+            console.log(e);
+
+        }
+    }
+    const handleGetValueInput = (e) => {
+        const { name, value } = e.target
+        setNews({ ...news, [name]: value })
+
+    }
+
+
 
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
@@ -143,12 +207,18 @@ const ArticleManagement = () => {
                         label="Tên Bài Viết"
                         fullWidth
                         variant="outlined"
+                        name='Name'
+
+                        onChange={(e) => handleGetValueInput(e)}
                     />
                     <TextField
                         margin="dense"
                         label="Tiêu Đề"
                         fullWidth
                         variant="outlined"
+                        name='Title'
+
+                        onChange={(e) => handleGetValueInput(e)}
                     />
                     <TextField
                         margin="dense"
@@ -157,12 +227,15 @@ const ArticleManagement = () => {
                         variant="outlined"
                         multiline
                         rows={4}
+                        name='Content'
+
+                        onChange={(e) => handleGetValueInput(e)}
                     />
                     <input
                         type="file"
                         accept="image/*"
-                        multiple
-                        onChange={handleImageChange}
+                        multiple="multiple"
+                        onChange={(e) => handleImageChange(e)}
                     />
                     <div style={{ marginTop: '10px' }}>
                         {newImages.map((image, index) => (
@@ -181,87 +254,87 @@ const ArticleManagement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Hủy</Button>
-                    <Button onClick={handleClose} color="primary">Thêm</Button>
+                    <Button onClick={handleAddNews} color="primary">Thêm</Button>
                 </DialogActions>
             </Dialog>
 
             {/* Form Chỉnh Sửa Bài Viết */}
-<Dialog open={openEdit} onClose={handleClose}>
-    <DialogTitle>Chỉnh Sửa Bài Viết</DialogTitle>
-    <DialogContent>
-        {selectedArticle && (
-            <>
-                <TextField
-                    autoFocus
-                    margin="dense"
-                    label="Tên Bài Viết"
-                    fullWidth
-                    variant="outlined"
-                    defaultValue={selectedArticle.nameNew}
-                />
-                <TextField
-                    margin="dense"
-                    label="Tiêu Đề"
-                    fullWidth
-                    variant="outlined"
-                    defaultValue={selectedArticle.titleNew}
-                />
-                <TextField
-                    margin="dense"
-                    label="Nội Dung"
-                    fullWidth
-                    variant="outlined"
-                    multiline
-                    rows={4}
-                    defaultValue={selectedArticle.contentNew}
-                />
-                <div>
-                    <Typography variant="subtitle2" sx={{ mt: 2 }}>Hình Ảnh Hiện Tại:</Typography>
-                    {selectedArticle.imageNew.map((image, index) => (
-                        <div key={index} style={{ display: 'inline-block', position: 'relative', marginRight: '10px' }}>
-                            <img src={image} alt={selectedArticle.nameNew} style={{ width: 50, height: 50 }} />
-                            <IconButton
-                                size="small"
-                                onClick={() => {
-                                    const updatedImages = selectedArticle.imageNew.filter((_, i) => i !== index);
-                                    setSelectedArticle(prev => ({ ...prev, imageNew: updatedImages }));
-                                }}
-                                style={{ position: 'absolute', top: 0, right: 0 }}
-                            >
-                                <DeleteIcon fontSize="small" />
-                            </IconButton>
-                        </div>
-                    ))}
-                </div>
-                <Typography variant="subtitle2" sx={{ mt: 2 }}>Tải Lên Hình Ảnh Mới:</Typography>
-                <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageChange}
-                />
-                <div style={{ marginTop: '10px' }}>
-                    {newImages.map((image, index) => (
-                        <div key={index} style={{ display: 'inline-block', position: 'relative', marginRight: '10px' }}>
-                            <img src={image} alt={`Preview ${index}`} style={{ width: 50, height: 50 }} />
-                            <IconButton
-                                size="small"
-                                onClick={() => handleRemoveImage(index)}
-                                style={{ position: 'absolute', top: 0, right: 0 }}
-                            >
-                                <DeleteIcon fontSize="small" />
-                            </IconButton>
-                        </div>
-                    ))}
-                </div>
-            </>
-        )}
-    </DialogContent>
-    <DialogActions>
-        <Button onClick={handleClose} color="primary">Hủy</Button>
-        <Button onClick={handleClose} color="primary">Lưu</Button>
-    </DialogActions>
-</Dialog>
+            <Dialog open={openEdit} onClose={handleClose}>
+                <DialogTitle>Chỉnh Sửa Bài Viết</DialogTitle>
+                <DialogContent>
+                    {selectedArticle && (
+                        <>
+                            <TextField
+                                autoFocus
+                                margin="dense"
+                                label="Tên Bài Viết"
+                                fullWidth
+                                variant="outlined"
+                                defaultValue={selectedArticle.nameNew}
+                            />
+                            <TextField
+                                margin="dense"
+                                label="Tiêu Đề"
+                                fullWidth
+                                variant="outlined"
+                                defaultValue={selectedArticle.titleNew}
+                            />
+                            <TextField
+                                margin="dense"
+                                label="Nội Dung"
+                                fullWidth
+                                variant="outlined"
+                                multiline
+                                rows={4}
+                                defaultValue={selectedArticle.contentNew}
+                            />
+                            <div>
+                                <Typography variant="subtitle2" sx={{ mt: 2 }}>Hình Ảnh Hiện Tại:</Typography>
+                                {selectedArticle.imageNew.map((image, index) => (
+                                    <div key={index} style={{ display: 'inline-block', position: 'relative', marginRight: '10px' }}>
+                                        <img src={image} alt={selectedArticle.nameNew} style={{ width: 50, height: 50 }} />
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => {
+                                                const updatedImages = selectedArticle.imageNew.filter((_, i) => i !== index);
+                                                setSelectedArticle(prev => ({ ...prev, imageNew: updatedImages }));
+                                            }}
+                                            style={{ position: 'absolute', top: 0, right: 0 }}
+                                        >
+                                            <DeleteIcon fontSize="small" />
+                                        </IconButton>
+                                    </div>
+                                ))}
+                            </div>
+                            <Typography variant="subtitle2" sx={{ mt: 2 }}>Tải Lên Hình Ảnh Mới:</Typography>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={handleImageChange}
+                            />
+                            <div style={{ marginTop: '10px' }}>
+                                {newImages.map((image, index) => (
+                                    <div key={index} style={{ display: 'inline-block', position: 'relative', marginRight: '10px' }}>
+                                        <img src={image} alt={`Preview ${index}`} style={{ width: 50, height: 50 }} />
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => handleRemoveImage(index)}
+                                            style={{ position: 'absolute', top: 0, right: 0 }}
+                                        >
+                                            <DeleteIcon fontSize="small" />
+                                        </IconButton>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">Hủy</Button>
+                    <Button onClick={handleClose} color="primary">Lưu</Button>
+                </DialogActions>
+            </Dialog>
 
         </Paper>
     );
