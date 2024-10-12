@@ -18,6 +18,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
+import ModalCustom from '../../modals/ModalCustom';
 
 const initialVouchers = [
     {
@@ -68,6 +69,8 @@ const VoucherManagement = () => {
         Condition: ""
     })
     const [dataVoucher, setDataVoucher] = useState([])
+    const [isModal, setIsModal] = useState(false)
+    const [deletedId, setDeletedId] = useState("")
     const handleAddClickOpen = () => {
         setOpenAdd(true);
     };
@@ -239,7 +242,7 @@ const VoucherManagement = () => {
                                 <IconButton onClick={() => handleEditClickOpen(voucher)}>
                                     <EditIcon color="primary" />
                                 </IconButton>
-                                <IconButton onClick={() => handleDeleteVoucher(voucher._id)}>
+                                <IconButton onClick={() => (setIsModal(true), setDeletedId(voucher._id))}>
                                     <DeleteIcon color="secondary" />
                                 </IconButton>
                             </TableCell>
@@ -417,6 +420,12 @@ const VoucherManagement = () => {
                     <Button onClick={handleUpdateVoucher} color="primary">Lưu</Button>
                 </DialogActions>
             </Dialog>
+
+            <ModalCustom isModal={isModal} setIsModals={(value) => {
+                setIsModal(value)
+            }} actionId={deletedId} handleAction={(id) => {
+                handleDeleteVoucher(id)
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Voucher này không!" />
         </Paper>
     );
 };

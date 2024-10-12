@@ -6,18 +6,21 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 
-export default function ModalHandleDelNews({
+export default function ModalCustom({
   isModal,
   setIsModals,
-  deletedId,
-  handleDeleteNews,
+  handleAction,
+  description,
+  confirmText,
+  cancelText,
+  actionId,
 }) {
   const handleClose = () => {
     setIsModals(false);
   };
 
   const handleAgree = () => {
-    handleDeleteNews(deletedId);
+    handleAction(actionId);
     handleClose();
   };
 
@@ -31,13 +34,13 @@ export default function ModalHandleDelNews({
       >
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Bạn có muốn xóa Bài viết này không?
+            {description || "Bạn có muốn xóa phần này không?"}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Nhấn nhầm đó</Button>
+          <Button onClick={handleClose}>{cancelText || "Hủy"}</Button>
           <Button onClick={handleAgree} autoFocus>
-           Xóa luôn đi!!
+            {confirmText || "Đồng ý"}
           </Button>
         </DialogActions>
       </Dialog>

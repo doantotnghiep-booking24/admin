@@ -8,6 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import axios from 'axios';
+import ModalCustom from '../../modals/ModalCustom';
 const initialSchedules = [
     {
         id: 1,
@@ -31,6 +32,9 @@ const ScheduleManagement = () => {
         means_of_transport: "",
         Work: "",
     })
+
+    const [isModal, setIsModal] = useState(false)
+    const [deletedId, setDeletedId] = useState("")
 
     const handleClickOpenAdd = () => {
         setOpenAdd(true);
@@ -107,7 +111,7 @@ const ScheduleManagement = () => {
         }
     }
 
-    const handleDeleteTypeTour = async (id) => {
+    const handleDeleteSchedule = async (id) => {
         const api = "http://localhost:3001/Schedules/DeleteSchedule/"
         try {
             if (id) {
@@ -191,7 +195,7 @@ const ScheduleManagement = () => {
                                 <IconButton onClick={() => handleClickOpenEdit(schedule)}>
                                     <EditIcon color="primary" />
                                 </IconButton>
-                                <IconButton onClick={() => handleDeleteTypeTour(schedule._id)}>
+                                <IconButton onClick={() => (setIsModal(true), setDeletedId(schedule._id))}>
                                     <DeleteIcon color="secondary" />
                                 </IconButton>
                             </TableCell>
@@ -324,6 +328,11 @@ const ScheduleManagement = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+            <ModalCustom isModal={isModal} setIsModals={(value) => {
+                setIsModal(value)
+            }} actionId={deletedId} handleAction={(id) => {
+                handleDeleteSchedule(id)
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Lịch trình này không!" />
         </Paper>
     );
 };

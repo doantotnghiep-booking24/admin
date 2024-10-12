@@ -25,6 +25,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import axios from 'axios';
+import ModalCustom from '../../modals/ModalCustom';
 
 const initialLocations = [
     {
@@ -71,6 +72,8 @@ const LocationManagement = () => {
         City_Location: "",
         id_tour: ""
     })
+    const [isModal, setIsModal] = useState(false)
+    const [deletedId, setDeletedId] = useState("")
 
     const handleAddClickOpen = () => {
         setOpenAdd(true);
@@ -267,7 +270,7 @@ const LocationManagement = () => {
                                 <IconButton onClick={() => handleEditClickOpen(location)}>
                                     <EditIcon color="primary" />
                                 </IconButton>
-                                <IconButton onClick={() => handleDeleteLocation(location._id)}>
+                                <IconButton onClick={() => (setIsModal(true), setDeletedId(location._id))}>
                                     <DeleteIcon color="secondary" />
                                 </IconButton>
                             </TableCell>
@@ -454,6 +457,12 @@ const LocationManagement = () => {
                     <Button onClick={handleUpdateNews} color="primary">Lưu</Button>
                 </DialogActions>
             </Dialog>
+
+            <ModalCustom isModal={isModal} setIsModals={(value) => {
+                setIsModal(value)
+            }} actionId={deletedId} handleAction={(id) => {
+                handleDeleteLocation(id)
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Địa điểm này không!" />
         </Paper>
     );
 };

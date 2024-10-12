@@ -20,7 +20,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import ModalHandleDelNews from '../../modals/ModalHandleDelNews';
+import ModalCustom from '../../modals/ModalCustom';
 
 const initialArticles = [
     {
@@ -408,11 +408,11 @@ const ArticleManagement = () => {
                     <Button onClick={handleUpdateNews} color="primary">Lưu</Button>
                 </DialogActions>
             </Dialog>
-            <ModalHandleDelNews isModal={isModal} setIsModals={(value) => {
+            <ModalCustom isModal={isModal} setIsModals={(value) => {
                 setIsModal(value)
-            }} deletedId={deletedId} handleDeleteNews={(id) => {
+            }} actionId={deletedId} handleAction={(id) => {
                 handleDeleteNews(id)
-            }} />
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Bài viết này không!"/>
         </Paper>
     );
 };

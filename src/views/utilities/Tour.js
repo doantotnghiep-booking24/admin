@@ -25,6 +25,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import ModalCustom from '../../modals/ModalCustom';
 const initialTours = [
     {
         id: 1,
@@ -91,6 +92,9 @@ const TourManagement = () => {
         id_Type_Tour: "",
 
     })
+
+    const [isModal, setIsModal] = useState(false)
+    const [deletedId, setDeletedId] = useState("")
     const handleAddClickOpen = () => {
         setOpenAdd(true);
     };
@@ -413,7 +417,7 @@ const TourManagement = () => {
                                 <IconButton onClick={() => handleEditClickOpen(tour)}>
                                     <EditIcon color="primary" />
                                 </IconButton>
-                                <IconButton onClick={() => handleDele(tour._id)}>
+                                <IconButton onClick={() => (setIsModal(true), setDeletedId(tour._id))}>
                                     <DeleteIcon color="secondary" />
                                 </IconButton>
                             </TableCell>
@@ -680,6 +684,12 @@ const TourManagement = () => {
                     <Button onClick={handleEditTour} color="primary">Lưu</Button>
                 </DialogActions>
             </Dialog>
+
+            <ModalCustom isModal={isModal} setIsModals={(value) => {
+                setIsModal(value)
+            }} actionId={deletedId} handleAction={(id) => {
+                handleDele(id)
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Tour này không!"/>
         </Paper >
     );
 };

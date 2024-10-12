@@ -8,6 +8,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
+import ModalCustom from '../../modals/ModalCustom';
 
 const initialTourTypes = [
     { id: 1, Name_Type: "Du lịch mạo hiểm" },
@@ -25,7 +26,8 @@ const TourTypeManagement = () => {
     const [valueInput, setValueInput] = useState({
         Name_Type: ""
     })
-
+    const [isModal, setIsModal] = useState(false)
+    const [deletedId, setDeletedId] = useState("")
     const handleOpenAddDialog = () => setOpenAddDialog(true);
     const handleCloseAddDialog = () => setOpenAddDialog(false);
 
@@ -153,7 +155,7 @@ const TourTypeManagement = () => {
                                 <IconButton onClick={() => handleOpenEditDialog(type)}>
                                     <EditIcon color="primary" />
                                 </IconButton>
-                                <IconButton onClick={() => handleDeleteTypeTour(type._id)}>
+                                <IconButton onClick={() => (setIsModal(true), setDeletedId(type._id))}>
                                     <DeleteIcon color="secondary" />
                                 </IconButton>
                             </TableCell>
@@ -213,6 +215,11 @@ const TourTypeManagement = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+            <ModalCustom isModal={isModal} setIsModals={(value) => {
+                setIsModal(value)
+            }} actionId={deletedId} handleAction={(id) => {
+                handleDeleteTypeTour(id)
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Loại Tour này không!" />
         </Paper>
     );
 };
