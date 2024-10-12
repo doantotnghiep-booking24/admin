@@ -26,7 +26,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import axios from 'axios';
 import ModalCustom from '../../modals/ModalCustom';
-
+import { toast } from 'react-toastify';
 const initialLocations = [
     {
         id: 1,
@@ -121,6 +121,7 @@ const LocationManagement = () => {
         try {
             const res = await axios.post(api)
             getDataManagerLocation();
+            notification("success", "Deleted News successfully")
         } catch (error) {
             console.log(error);
 
@@ -158,6 +159,7 @@ const LocationManagement = () => {
                 console.log(data);
                 getDataManagerLocation()
                 handleClose()
+                notification("success", "Created News successfully")
             })
             .catch(err => {
                 console.log(err);
@@ -182,6 +184,7 @@ const LocationManagement = () => {
             await axios.post(`http://localhost:3001/V2/Featured_Location/UpdateFeatured_Location/${selectedLocation._id}`, formData);
             getDataManagerLocation()
             handleClose()
+            notification("success", "Updated News successfully")
         } catch (err) {
             console.error(err);
         }
@@ -210,6 +213,18 @@ const LocationManagement = () => {
         return tours?.Name_Tour
     }
 
+    const notification = (status, message) => {
+        return toast[status](message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        })
+    }
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
             <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}>

@@ -9,6 +9,7 @@ import AddIcon from '@mui/icons-material/Add';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import axios from 'axios';
 import ModalCustom from '../../modals/ModalCustom';
+import { toast } from 'react-toastify';
 const initialSchedules = [
     {
         id: 1,
@@ -71,12 +72,11 @@ const ScheduleManagement = () => {
 
     const handleAddTypeTours = async () => {
         const api = "http://localhost:3001/Schedules/CreateSchedule"
-
         try {
             const res = await axios.post(api, valueInput)
             handleCloseAdd()
             getAllSchedule()
-
+            notification("success", "Created Schedule successfully")
         } catch (error) {
             console.log(error);
 
@@ -103,7 +103,7 @@ const ScheduleManagement = () => {
             console.log(res);
             getAllSchedule();
             handleCloseEdit();  // Đóng form edit
-
+            notification("success", "Updated Schedule successfully")
 
         } catch (error) {
             console.log(error);
@@ -117,6 +117,7 @@ const ScheduleManagement = () => {
             if (id) {
                 const res = await axios.post(`${api}${id}`)
                 getAllSchedule()
+                notification("success", "Deleted Schedule successfully")
             }
         } catch (error) {
             console.log(error);
@@ -125,6 +126,18 @@ const ScheduleManagement = () => {
     useEffect(() => {
         getAllSchedule();
     }, [])
+    const notification = (status, message) => {
+        return toast[status](message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        })
+    }
 
 
     return (
@@ -187,7 +200,7 @@ const ScheduleManagement = () => {
                         <TableRow key={schedule.id}>
                             <TableCell>{schedule._id}</TableCell>
                             <TableCell>{schedule.Departure_Time}</TableCell>
-                            <TableCell>{schedule.Name_Schedule}</TableCell>
+                            <TableCell>{schedule?.Name_Schedule}</TableCell>
                             <TableCell>{schedule.Location}</TableCell>
                             <TableCell>{schedule.means_of_transport}</TableCell>
                             <TableCell>{schedule.Work}</TableCell>

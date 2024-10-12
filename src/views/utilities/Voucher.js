@@ -19,7 +19,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import ModalCustom from '../../modals/ModalCustom';
-
+import { toast } from 'react-toastify';
 const initialVouchers = [
     {
         id: 1,
@@ -126,6 +126,7 @@ const VoucherManagement = () => {
             setValueInput({})
             getAllVoucher()
             handleClose()
+            notification("success", "Created Voucher successfully")
         } catch (error) {
             console.log(error);
 
@@ -151,7 +152,7 @@ const VoucherManagement = () => {
             console.log(res);
             getAllVoucher()
             handleClose()
-
+            notification("success", "Updated Voucher successfully")
 
         } catch (error) {
             console.log(error);
@@ -167,6 +168,7 @@ const VoucherManagement = () => {
                 const res = await axios.post(`${api}${id}`)
                 console.log(res);
                 getAllVoucher();
+                notification("success", "Deleted Voucher successfully")
             }
         } catch (error) {
             console.log(error);
@@ -176,6 +178,20 @@ const VoucherManagement = () => {
     useEffect(() => {
         getAllVoucher();
     }, [])
+
+    const notification = (status, message) => {
+        return toast[status](message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        })
+    }
+
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
             <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}>

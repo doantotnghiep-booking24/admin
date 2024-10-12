@@ -9,7 +9,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import ModalCustom from '../../modals/ModalCustom';
-
+import { toast } from 'react-toastify';
 const initialTourTypes = [
     { id: 1, Name_Type: "Du lịch mạo hiểm" },
     { id: 2, Name_Type: "Du lịch văn hóa" },
@@ -63,7 +63,7 @@ const TourTypeManagement = () => {
             const res = await axios.post(api, valueInput)
             setOpenAddDialog(false)
             getAllTypeTours()
-
+            notification("success", "Created Type Tour successfully")
         } catch (error) {
             console.log(error);
 
@@ -83,7 +83,7 @@ const TourTypeManagement = () => {
             const res = await axios.post(`${api}${selectedType._id}`, updatedType)
             setOpenEditDialog(false)
             getAllTypeTours()
-
+            notification("success", "Updated Type Tour successfully")
         } catch (error) {
             console.log(error);
 
@@ -96,6 +96,7 @@ const TourTypeManagement = () => {
             if (id) {
                 const res = await axios.post(`${api}${id}`)
                 getAllTypeTours()
+                notification("success", "Deleted Type Tour successfully")
             }
         } catch (error) {
             console.log(error);
@@ -104,7 +105,18 @@ const TourTypeManagement = () => {
     useEffect(() => {
         getAllTypeTours();
     }, [])
-
+    const notification = (status, message) => {
+        return toast[status](message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        })
+    }
 
 
     return (
