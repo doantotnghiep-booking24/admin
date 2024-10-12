@@ -249,7 +249,7 @@ const ArticleManagement = () => {
                                 ))}
                             </TableCell>
                             <TableCell>{item.Content}</TableCell>
-                            <TableCell>{item.Cretate_At}</TableCell>
+                            <TableCell>{item?.Cretate_At?.split("T")[0]}</TableCell>
                             <TableCell align="right">
                                 <IconButton onClick={() => handleEditClickOpen(item)}>
                                     <EditIcon color="primary" />
