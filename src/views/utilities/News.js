@@ -15,11 +15,11 @@ import {
     DialogActions,
     TextField,
 } from '@mui/material';
-import { Input } from '@mui/material';
+
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
-import { IconApi } from '@tabler/icons-react';
+
 
 const initialArticles = [
     {
@@ -48,22 +48,25 @@ const ArticleManagement = () => {
     const [selectedArticle, setSelectedArticle] = useState(null);
     const [newImages, setNewImages] = useState([]);
     const [nameImages, setNameImages] = useState([]);
+    const [isLoading, setIsLoading] = useState(false)
+    const [dataNews, setDataNews] = useState([])
     const [news, setNews] = useState({
         Name: "",
         Title: "",
-        Content: "",
-        Image: {}
+        Content: ""
     })
+
+
 
 
     const handleAddClickOpen = () => {
         setOpenAdd(true);
-        setNewImages([]); // Reset images when opening the add dialog
+        setNewImages([]);
     };
 
 
-    const handleEditClickOpen = (article) => {
-        setSelectedArticle(article);
+    const handleEditClickOpen = (item) => {
+        setSelectedArticle(item);
         setOpenEdit(true);
     };
 
@@ -74,28 +77,12 @@ const ArticleManagement = () => {
         setNewImages([]); // Reset images on close
     };
 
-    const handleImageChange = (event) => {
+    const handleImageChange = async (event) => {
         const files = Array.from(event.target.files)
+        setNameImages(files)
 
-
-        // for(let i of files) {
-        //     console.log(i);
-
-        // }
-        // for (let i = 0; i < files.length; i++) {
-        //     setNameImages((prev) => [...prev, files[i].name])
-        // }
-        const fileNames = files.map(file => file.name);
-        console.log(fileNames);
-        const objectName = Object.assign({}, fileNames);
-        console.log(objectName);
-
-
-        setNews(prevNews => ({
-            ...prevNews,
-            Image: objectName
-        }));
         const filesDisplay = files.map(item => URL.createObjectURL(item))
+
 
         setNewImages(filesDisplay);
 
@@ -107,31 +94,88 @@ const ArticleManagement = () => {
 
     const handleAddNews = async () => {
         const api = "http://localhost:3001/News/CreateNew"
-        console.log(news);
-
-        try {
-            const res = await fetch(api,
-                {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ ...news })
-                },
-            )
-            console.log(res);
-
-        } catch (e) {
-            console.log(e);
-
+        const formData = new FormData();
+        for (let i = 0; i < nameImages.length; i++) {
+            let file = nameImages[i];
+            formData.append("Image", file)
         }
+        formData.append("Name", news.Name)
+        formData.append("Title", news.Title)
+        formData.append("Content", news.Content)
+
+        fetch('http://localhost:3001/News/CreateNew', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(err => {
+                console.log(err);
+            })
+
+
     }
     const handleGetValueInput = (e) => {
         const { name, value } = e.target
         setNews({ ...news, [name]: value })
-
     }
+
+    const getNewsData = async () => {
+        const api = "http://localhost:3001/News/GetAllNews"
+        setIsLoading(true)
+        try {
+            const res = await axios.get(api);
+            const datas = await res.data;
+            const { Featured_Location } = datas
+
+            setDataNews(Featured_Location)
+
+        } catch (error) {
+            console.log(error);
+
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleUpdateNews = async () => {
+        setIsLoading(true);
+        const formData = new FormData();
+        for (let i = 0; i < nameImages.length; i++) {
+            formData.append("Image", nameImages[i]);
+        }
+        formData.append("Name", news.Name === "" ? selectedArticle.Name : news.Name);
+        formData.append("Title", news.Title === "" ? selectedArticle.Name : news.Title);
+        formData.append("Content", news.Content === "" ? selectedArticle.Content : news.Content);
+
+        try {
+            await axios.post(`http://localhost:3001/News/UpdateNew/${selectedArticle._id}`, formData);
+            getNewsData()
+            setOpenEdit(false);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false)
+        }
+    };
+
+    const handleDeleteNews = async (id) => {
+        const api = "http://localhost:3001/News/DeleteNew/"
+        try {
+            const res = await axios.post(`${api}${id}`)
+            getNewsData()
+
+        } catch (error) {
+            console.log(error);
+
+        }
+    }
+    useEffect(() => {
+        getNewsData();
+    }, [])
 
 
 
@@ -172,23 +216,23 @@ const ArticleManagement = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {articles.map((article) => (
-                        <TableRow key={article.id}>
-                            <TableCell>{article.id}</TableCell>
-                            <TableCell>{article.nameNew}</TableCell>
-                            <TableCell>{article.titleNew}</TableCell>
+                    {dataNews?.map((item) => (
+                        <TableRow key={item._id}>
+                            <TableCell>{item._id}</TableCell>
+                            <TableCell>{item.Name}</TableCell>
+                            <TableCell>{item.Title}</TableCell>
                             <TableCell>
-                                {article.imageNew.map((image, index) => (
-                                    <img key={index} src={image} alt={article.nameNew} style={{ width: 50, height: 50, marginRight: 5 }} />
+                                {item?.Image?.slice(0, 1).map((image, index) => (
+                                    <img key={index} src={image.path} alt={item.nameNew} style={{ width: 50, height: 50, marginRight: 5 }} />
                                 ))}
                             </TableCell>
-                            <TableCell>{article.contentNew}</TableCell>
-                            <TableCell>{article.createdAt}</TableCell>
+                            <TableCell>{item.Content}</TableCell>
+                            <TableCell>{item.Cretate_At}</TableCell>
                             <TableCell align="right">
-                                <IconButton onClick={() => handleEditClickOpen(article)}>
+                                <IconButton onClick={() => handleEditClickOpen(item)}>
                                     <EditIcon color="primary" />
                                 </IconButton>
-                                <IconButton>
+                                <IconButton onClick={() => handleDeleteNews(item._id)}>
                                     <DeleteIcon color="secondary" />
                                 </IconButton>
                             </TableCell>
@@ -265,34 +309,40 @@ const ArticleManagement = () => {
                     {selectedArticle && (
                         <>
                             <TextField
+                                name='Name'
                                 autoFocus
                                 margin="dense"
                                 label="Tên Bài Viết"
                                 fullWidth
                                 variant="outlined"
-                                defaultValue={selectedArticle.nameNew}
+                                onChange={(e) => handleGetValueInput(e)}
+                                defaultValue={selectedArticle?.Name}
                             />
                             <TextField
+                                name="Title"
                                 margin="dense"
                                 label="Tiêu Đề"
                                 fullWidth
                                 variant="outlined"
-                                defaultValue={selectedArticle.titleNew}
+                                onChange={(e) => handleGetValueInput(e)}
+                                defaultValue={selectedArticle.Title}
                             />
                             <TextField
+                                name="Content"
                                 margin="dense"
                                 label="Nội Dung"
                                 fullWidth
                                 variant="outlined"
                                 multiline
                                 rows={4}
-                                defaultValue={selectedArticle.contentNew}
+                                onChange={(e) => handleGetValueInput(e)}
+                                defaultValue={selectedArticle.Content}
                             />
                             <div>
                                 <Typography variant="subtitle2" sx={{ mt: 2 }}>Hình Ảnh Hiện Tại:</Typography>
-                                {selectedArticle.imageNew.map((image, index) => (
+                                {selectedArticle?.Image?.map((image, index) => (
                                     <div key={index} style={{ display: 'inline-block', position: 'relative', marginRight: '10px' }}>
-                                        <img src={image} alt={selectedArticle.nameNew} style={{ width: 50, height: 50 }} />
+                                        <img src={image.path} alt={selectedArticle.Name} style={{ width: 50, height: 50 }} />
                                         <IconButton
                                             size="small"
                                             onClick={() => {
@@ -332,7 +382,7 @@ const ArticleManagement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Hủy</Button>
-                    <Button onClick={handleClose} color="primary">Lưu</Button>
+                    <Button onClick={handleUpdateNews} color="primary">Lưu</Button>
                 </DialogActions>
             </Dialog>
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Typography, Paper, Table, TableBody, TableCell, TableHead, TableRow,
     IconButton, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField
@@ -7,11 +7,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-
+import axios from 'axios';
 const initialSchedules = [
-    { id: 1, Departure_Time: '08:00 AM', Location: 'Đà Nẵng', Means_of_Transport: 'Xe buýt', Work: 'Tham quan Bà Nà Hills' },
-    { id: 2, Departure_Time: '09:00 AM', Location: 'Hội An', Means_of_Transport: 'Xe máy', Work: 'Khám phá phố cổ' },
-    { id: 3, Departure_Time: '10:00 AM', Location: 'Huế', Means_of_Transport: 'Ô tô', Work: 'Tham quan Đại Nội' }
+    {
+        id: 1,
+        Name_Schedule: "hanoi", Departure_Time: '08:00 AM', Location: 'Đà Nẵng', Means_of_Transport: 'Xe buýt', Work: 'Tham quan Bà Nà Hills'
+    },
+
 ];
 
 const ScheduleManagement = () => {
@@ -19,6 +21,16 @@ const ScheduleManagement = () => {
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [editData, setEditData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false)
+    const [dataSchedule, setDataSchedule] = useState([])
+    const [valueInput, setValueInput] = useState({
+        _id: null,
+        Departure_Time: "",
+        Name_Schedule: "",
+        Location: "",
+        means_of_transport: "",
+        Work: "",
+    })
 
     const handleClickOpenAdd = () => {
         setOpenAdd(true);
@@ -29,6 +41,7 @@ const ScheduleManagement = () => {
     };
 
     const handleClickOpenEdit = (schedule) => {
+
         setEditData(schedule);
         setOpenEdit(true);
     };
@@ -36,6 +49,79 @@ const ScheduleManagement = () => {
     const handleCloseEdit = () => {
         setOpenEdit(false);
     };
+
+    const getAllSchedule = async () => {
+        setIsLoading(true)
+        const api = "http://localhost:3001/Schedules/GetAllSchedule"
+        try {
+            const res = await axios.get(api)
+            const datas = await res.data
+
+            setDataSchedule(datas.Schedule_Travel)
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleAddTypeTours = async () => {
+        const api = "http://localhost:3001/Schedules/CreateSchedule"
+
+        try {
+            const res = await axios.post(api, valueInput)
+            handleCloseAdd()
+            getAllSchedule()
+
+        } catch (error) {
+            console.log(error);
+
+        }
+
+    }
+
+    const handleGetValueInput = (e) => {
+        const { name, value } = e.target;
+        setValueInput({ ...valueInput, [name]: value })
+    }
+    const handleUpdateTypeTour = async () => {
+        const api = "http://localhost:3001/Schedules/UpdateSchedule/"
+        try {
+            const updatedType = {
+                ...editData,
+                Departure_Time: valueInput.Departure_Time || editData.Departure_Time,
+                Name_Schedule: valueInput.Name_Schedule || editData.Name_Schedule,
+                Location: valueInput.Location || editData.Location,
+                means_of_transport: valueInput.means_of_transport || editData.means_of_transport,
+                Work: valueInput.Work || editData.Work
+            };
+            const res = await axios.post(`${api}${editData._id}`, updatedType)
+            console.log(res);
+            getAllSchedule();
+            handleCloseEdit();  // Đóng form edit
+
+
+        } catch (error) {
+            console.log(error);
+
+        }
+    }
+
+    const handleDeleteTypeTour = async (id) => {
+        const api = "http://localhost:3001/Schedules/DeleteSchedule/"
+        try {
+            if (id) {
+                const res = await axios.post(`${api}${id}`)
+                getAllSchedule()
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    useEffect(() => {
+        getAllSchedule();
+    }, [])
+
 
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
@@ -67,6 +153,11 @@ const ScheduleManagement = () => {
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
+                                Tên Lịch Trình
+                            </Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>
                                 Địa Điểm
                             </Typography>
                         </TableCell>
@@ -88,18 +179,19 @@ const ScheduleManagement = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {schedules.map((schedule) => (
+                    {dataSchedule.map((schedule) => (
                         <TableRow key={schedule.id}>
-                            <TableCell>{schedule.id}</TableCell>
+                            <TableCell>{schedule._id}</TableCell>
                             <TableCell>{schedule.Departure_Time}</TableCell>
+                            <TableCell>{schedule.Name_Schedule}</TableCell>
                             <TableCell>{schedule.Location}</TableCell>
-                            <TableCell>{schedule.Means_of_Transport}</TableCell>
+                            <TableCell>{schedule.means_of_transport}</TableCell>
                             <TableCell>{schedule.Work}</TableCell>
                             <TableCell align="right">
                                 <IconButton onClick={() => handleClickOpenEdit(schedule)}>
                                     <EditIcon color="primary" />
                                 </IconButton>
-                                <IconButton>
+                                <IconButton onClick={() => handleDeleteTypeTour(schedule._id)}>
                                     <DeleteIcon color="secondary" />
                                 </IconButton>
                             </TableCell>
@@ -113,6 +205,7 @@ const ScheduleManagement = () => {
                 <DialogTitle>Thêm Lịch Trình</DialogTitle>
                 <DialogContent>
                     <TextField
+                        name='Departure_Time'
                         label="Thời Gian Khởi Hành"
                         fullWidth
                         type="time"
@@ -122,28 +215,46 @@ const ScheduleManagement = () => {
                                 <AccessTimeIcon sx={{ marginRight: 1 }} />
                             )
                         }}
+                        onChange={handleGetValueInput}
                     />
                     <TextField
+                        name='Name_Schedule'
+                        label="Tên Lịch Trình"
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    />
+
+                    <TextField
+                        name='Location'
                         label="Địa Điểm"
                         fullWidth
                         sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
                     />
                     <TextField
+                        name='means_of_transport'
                         label="Phương Tiện Giao Thông"
                         fullWidth
                         sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
                     />
                     <TextField
+                        name='Work'
                         label="Công Việc"
                         fullWidth
                         sx={{ mb: 2 }}
+                        multiline
+                        rows={4}
+                        onChange={handleGetValueInput}
+
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseAdd} color="primary">
                         Hủy
                     </Button>
-                    <Button onClick={handleCloseAdd} color="primary">
+                    <Button onClick={handleAddTypeTours} color="primary">
                         Lưu
                     </Button>
                 </DialogActions>
@@ -154,8 +265,9 @@ const ScheduleManagement = () => {
                 <DialogTitle>Chỉnh Sửa Lịch Trình</DialogTitle>
                 <DialogContent>
                     <TextField
+                        name='Departure_Time'
                         label="Thời Gian Khởi Hành"
-                        value={editData ? editData.Departure_Time : ''}
+                        defaultValue={editData ? editData.Departure_Time : ''}
                         fullWidth
                         type="time"
                         sx={{ mb: 2 }}
@@ -164,31 +276,50 @@ const ScheduleManagement = () => {
                                 <AccessTimeIcon sx={{ marginRight: 1 }} />
                             )
                         }}
+                        onChange={handleGetValueInput}
                     />
                     <TextField
+                        name='Name_Schedule'
+                        label="Tên Lịch Trình"
+                        defaultValue={editData ? editData.Name_Schedule : ''}
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    />
+
+                    <TextField
+                        name='Location'
                         label="Địa Điểm"
-                        value={editData ? editData.Location : ''}
+                        defaultValue={editData ? editData.Location : ''}
                         fullWidth
                         sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
                     />
                     <TextField
+                        name='means_of_transport'
                         label="Phương Tiện Giao Thông"
-                        value={editData ? editData.Means_of_Transport : ''}
+                        defaultValue={editData ? editData.means_of_transport
+                            : ''}
                         fullWidth
                         sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
                     />
                     <TextField
+                        name='Work'
                         label="Công Việc"
-                        value={editData ? editData.Work : ''}
+                        defaultValue={editData ? editData.Work : ''}
                         fullWidth
                         sx={{ mb: 2 }}
+                        multiline
+                        rows={4}
+                        onChange={handleGetValueInput}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseEdit} color="primary">
                         Hủy
                     </Button>
-                    <Button onClick={handleCloseEdit} color="primary">
+                    <Button onClick={handleUpdateTypeTour} color="primary">
                         Lưu
                     </Button>
                 </DialogActions>

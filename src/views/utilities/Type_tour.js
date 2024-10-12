@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Typography, Paper, Table, TableBody, TableCell, TableHead, TableRow,
     IconButton, Button, TextField, Dialog, DialogActions, DialogContent,
     DialogTitle, Box
 } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import axios from 'axios';
 
 const initialTourTypes = [
     { id: 1, Name_Type: "Du lịch mạo hiểm" },
@@ -14,15 +16,21 @@ const initialTourTypes = [
 ];
 
 const TourTypeManagement = () => {
-    const [tourTypes] = useState(initialTourTypes);
+    const [tourTypes] = useState(initialTourTypes)
     const [openAddDialog, setOpenAddDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [selectedType, setSelectedType] = useState(null);
+    const [typeTours, setTypeTours] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
+    const [valueInput, setValueInput] = useState({
+        Name_Type: ""
+    })
 
     const handleOpenAddDialog = () => setOpenAddDialog(true);
     const handleCloseAddDialog = () => setOpenAddDialog(false);
 
     const handleOpenEditDialog = (type) => {
+
         setSelectedType(type);
         setOpenEditDialog(true);
     };
@@ -30,6 +38,72 @@ const TourTypeManagement = () => {
         setSelectedType(null);
         setOpenEditDialog(false);
     };
+    const getAllTypeTours = async () => {
+        setIsLoading(true)
+        const api = "http://localhost:3001/V2/TypeTour/GetAllTypeTour"
+        try {
+            const res = await axios.get(api)
+            const datas = await res.data
+            const { TypeTour } = datas
+
+            setTypeTours(TypeTour)
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleAddTypeTours = async () => {
+        const api = "http://localhost:3001/V2/TypeTour/CreateTypeTour"
+
+        try {
+            const res = await axios.post(api, valueInput)
+            setOpenAddDialog(false)
+            getAllTypeTours()
+
+        } catch (error) {
+            console.log(error);
+
+        }
+
+    }
+
+    const handleGetValueInput = (e) => {
+        const { name, value } = e.target;
+        setValueInput({ ...valueInput, [name]: value })
+    }
+    const handleUpdateTypeTour = async () => {
+        const api = "http://localhost:3001/V2/TypeTour/UpdateTypeTour/"
+        try {
+
+            const updatedType = valueInput.Name_Type === "" ? { Name_Type: selectedType.Name_Type } : valueInput;
+            const res = await axios.post(`${api}${selectedType._id}`, updatedType)
+            setOpenEditDialog(false)
+            getAllTypeTours()
+
+        } catch (error) {
+            console.log(error);
+
+        }
+    }
+
+    const handleDeleteTypeTour = async (id) => {
+        const api = "http://localhost:3001/V2/TypeTour/DeleteTypeTour/"
+        try {
+            if (id) {
+                const res = await axios.post(`${api}${id}`)
+                getAllTypeTours()
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    useEffect(() => {
+        getAllTypeTours();
+    }, [])
+
+
 
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
@@ -66,11 +140,12 @@ const TourTypeManagement = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {tourTypes.map((type) => (
-                        <TableRow key={type.id}>
+                    {isLoading && <CircularProgress />}
+                    {typeTours?.map((type) => (
+                        <TableRow key={type._id}>
                             <TableCell>
                                 <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>
-                                    {type.id}
+                                    {type._id}
                                 </Typography>
                             </TableCell>
                             <TableCell>{type.Name_Type}</TableCell>
@@ -78,7 +153,7 @@ const TourTypeManagement = () => {
                                 <IconButton onClick={() => handleOpenEditDialog(type)}>
                                     <EditIcon color="primary" />
                                 </IconButton>
-                                <IconButton>
+                                <IconButton onClick={() => handleDeleteTypeTour(type._id)}>
                                     <DeleteIcon color="secondary" />
                                 </IconButton>
                             </TableCell>
@@ -98,13 +173,16 @@ const TourTypeManagement = () => {
                         type="text"
                         fullWidth
                         variant="outlined"
+                        name="Name_Type"
+
+                        onChange={handleGetValueInput}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseAddDialog} color="secondary">
                         Hủy
                     </Button>
-                    <Button onClick={handleCloseAddDialog} color="primary">
+                    <Button onClick={handleAddTypeTours} color="primary">
                         Lưu
                     </Button>
                 </DialogActions>
@@ -121,6 +199,8 @@ const TourTypeManagement = () => {
                         type="text"
                         fullWidth
                         variant="outlined"
+                        name="Name_Type"
+                        onChange={handleGetValueInput}
                         defaultValue={selectedType?.Name_Type}
                     />
                 </DialogContent>
@@ -128,7 +208,7 @@ const TourTypeManagement = () => {
                     <Button onClick={handleCloseEditDialog} color="secondary">
                         Hủy
                     </Button>
-                    <Button onClick={handleCloseEditDialog} color="primary">
+                    <Button onClick={handleUpdateTypeTour} color="primary">
                         Lưu
                     </Button>
                 </DialogActions>

@@ -65,8 +65,6 @@ const CategoryManagement = () => {
     useEffect(() => {
         const getCate = async () => {
             const data_categories = await handleGetCategories()
-            console.log(data_categories);
-
             setGetcategories(data_categories)
         }
         getCate()
