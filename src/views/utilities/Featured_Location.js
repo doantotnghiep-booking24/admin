@@ -143,7 +143,7 @@ const LocationManagement = () => {
         formData.append("Type_Location", location.Type_Location)
         formData.append("Nationnal", location.Nationnal)
         formData.append("City_Location", location.City_Location)
-        formData.append("City_Location", location.id_tour)
+        formData.append("id_tour", location.id_tour)
 
         fetch(api, {
             method: 'POST',
@@ -206,7 +206,7 @@ const LocationManagement = () => {
         const tours = dataTour.find(d => d._id === id);
         return tours?.Name_Tour
     }
-    
+
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
             <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}>

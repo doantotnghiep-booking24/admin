@@ -8,7 +8,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-
+import { toast } from 'react-toastify';
 
 const CategoryManagement = () => {
     const [openEdit, setOpenEdit] = useState(false);
@@ -38,8 +38,9 @@ const CategoryManagement = () => {
             const Update_cate = async () => {
                 const res = await handleUpdateCategories(idUpdate, valueinput)
                 res.status === 200 ? window.location.reload() : console.log('Error When handle function Update');
-                 
+
                 handleCloseAdd()
+                notification("success", "Update categories successfully")
             }
             Update_cate()
         }
@@ -50,6 +51,7 @@ const CategoryManagement = () => {
                 const res = await handleCreateCategories(valueinput)
                 res.status === 200 ? window.location.reload() : console.log('Error When handle function Create');
                 handleCloseAdd()
+                notification("success", "Create categories successfully")
             }
             Create_cate()
         }
@@ -59,9 +61,10 @@ const CategoryManagement = () => {
             const res = await handleDeleteCategories(idDelete)
             res.status === 200 ? window.location.reload() : console.log('Error When handle function Delete');
             handleCloseAdd()
+            notification("success", "Delete categories successfully")
         }
         Delete_Cate()
-    },[idDelete])
+    }, [idDelete])
     useEffect(() => {
         const getCate = async () => {
             const data_categories = await handleGetCategories()
@@ -93,6 +96,19 @@ const CategoryManagement = () => {
     const handleCloseAdd = () => {
         setOpenAdd(false);
     };
+
+    const notification = (status, message) => {
+        return toast[status](message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        })
+    }
 
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
@@ -159,7 +175,7 @@ const CategoryManagement = () => {
                     <TextField
                         margin="dense"
                         label="Tên danh mục"
-                        onChange={(e) => getValueEdit (e.target.value)}
+                        onChange={(e) => getValueEdit(e.target.value)}
                     />
                 </DialogContent>
                 <DialogActions>

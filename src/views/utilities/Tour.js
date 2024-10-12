@@ -24,7 +24,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import axios from 'axios';
-
+import { toast } from 'react-toastify';
 const initialTours = [
     {
         id: 1,
@@ -205,6 +205,7 @@ const TourManagement = () => {
             .then(data => {
                 console.log(data);
                 handleClose()
+                notification("success", "Created Tour successfully")
                 getDataManagerTour();
 
             })
@@ -219,6 +220,7 @@ const TourManagement = () => {
 
 
         const formData = new FormData();
+
         for (let i = 0; i < nameImages.length; i++) {
             let file = nameImages[i];
             formData.append("Image_Tour", file)
@@ -248,7 +250,7 @@ const TourManagement = () => {
                 console.log(data);
                 handleClose()
                 getDataManagerTour();
-
+                notification("success", "Updated Tour successfully")
             })
             .catch(err => {
                 console.log(err);
@@ -274,6 +276,7 @@ const TourManagement = () => {
         try {
             const res = await axios.post(`${api}${id}`);
             getDataManagerTour()
+            notification("success", "Deleted Tour successfully")
         } catch (error) {
             console.log(error);
 
@@ -292,7 +295,8 @@ const TourManagement = () => {
     }
     const getNameVoucher = (id) => {
         const nameVoucher = dataVoucher.find(item => item._id === id)
-        return nameVoucher?.Discount
+        return nameVoucher?.Code_Voucher
+
 
     }
     useEffect(() => {
@@ -303,6 +307,19 @@ const TourManagement = () => {
         getDataManagerTour();
 
     }, [])
+
+    const notification = (status, message) => {
+        return toast[status](message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        })
+    }
 
 
 
@@ -388,7 +405,7 @@ const TourManagement = () => {
                             <TableCell>
                                 <Typography>
                                     <strong>Danh Mục:</strong>{getNameCategory(tour?.id_Category)}  <br />
-                                    <strong>Địa Điểm Nổi Bật:</strong> {tour.featuredLocation}<br />
+
 
                                 </Typography>
                             </TableCell>
@@ -501,7 +518,7 @@ const TourManagement = () => {
                     <FormControl fullWidth sx={{ mt: 1 }}>
                         <InputLabel>Voucher</InputLabel>
                         <Select defaultValue="" name='id_Voucher' onChange={handleValueInput}>
-                            {dataVoucher?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Discount}</MenuItem>)}
+                            {dataVoucher?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Code_Voucher}</MenuItem>)}
                             {/* <MenuItem value="Vourcher">10%</MenuItem>
                             <MenuItem value="Vourcher">20%</MenuItem> */}
                         </Select>
