@@ -19,7 +19,8 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
-
+import { toast } from 'react-toastify';
+import ModalHandleDelNews from '../../modals/ModalHandleDelNews';
 
 const initialArticles = [
     {
@@ -50,6 +51,9 @@ const ArticleManagement = () => {
     const [nameImages, setNameImages] = useState([]);
     const [isLoading, setIsLoading] = useState(false)
     const [dataNews, setDataNews] = useState([])
+    const [isModal, setIsModal] = useState(false)
+    const [deletedId, setDeletedId] = useState("")
+
     const [news, setNews] = useState({
         Name: "",
         Title: "",
@@ -111,6 +115,9 @@ const ArticleManagement = () => {
             .then(res => res.json())
             .then(data => {
                 console.log(data);
+                handleClose()
+                notification("success", "Add news successfully")
+                getNewsData()
             })
             .catch(err => {
                 console.log(err);
@@ -153,6 +160,7 @@ const ArticleManagement = () => {
 
         try {
             await axios.post(`http://localhost:3001/News/UpdateNew/${selectedArticle._id}`, formData);
+            notification("success", "Edit successfully")
             getNewsData()
             setOpenEdit(false);
         } catch (err) {
@@ -166,8 +174,9 @@ const ArticleManagement = () => {
         const api = "http://localhost:3001/News/DeleteNew/"
         try {
             const res = await axios.post(`${api}${id}`)
-            getNewsData()
 
+            getNewsData()
+            notification("error", "Delete successfully")
         } catch (error) {
             console.log(error);
 
@@ -176,6 +185,19 @@ const ArticleManagement = () => {
     useEffect(() => {
         getNewsData();
     }, [])
+    const notification = (status, message) => {
+        return toast[status](message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        })
+    }
+
 
 
 
@@ -232,7 +254,8 @@ const ArticleManagement = () => {
                                 <IconButton onClick={() => handleEditClickOpen(item)}>
                                     <EditIcon color="primary" />
                                 </IconButton>
-                                <IconButton onClick={() => handleDeleteNews(item._id)}>
+                                <IconButton onClick={() => (setIsModal(true), setDeletedId(item._id))}>
+
                                     <DeleteIcon color="secondary" />
                                 </IconButton>
                             </TableCell>
@@ -385,7 +408,11 @@ const ArticleManagement = () => {
                     <Button onClick={handleUpdateNews} color="primary">Lưu</Button>
                 </DialogActions>
             </Dialog>
-
+            <ModalHandleDelNews isModal={isModal} setIsModals={(value) => {
+                setIsModal(value)
+            }} deletedId={deletedId} handleDeleteNews={(id) => {
+                handleDeleteNews(id)
+            }} />
         </Paper>
     );
 };
