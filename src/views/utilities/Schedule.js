@@ -27,11 +27,10 @@ const ScheduleManagement = () => {
     const [dataSchedule, setDataSchedule] = useState([])
     const [valueInput, setValueInput] = useState({
         _id: null,
-        Departure_Time: "",
-        Name_Schedule: "",
+
         Location: "",
         means_of_transport: "",
-        Work: "",
+
     })
 
     const [isModal, setIsModal] = useState(false)
@@ -93,11 +92,9 @@ const ScheduleManagement = () => {
         try {
             const updatedType = {
                 ...editData,
-                Departure_Time: valueInput.Departure_Time || editData.Departure_Time,
-                Name_Schedule: valueInput.Name_Schedule || editData.Name_Schedule,
                 Location: valueInput.Location || editData.Location,
                 means_of_transport: valueInput.means_of_transport || editData.means_of_transport,
-                Work: valueInput.Work || editData.Work
+              
             };
             const res = await axios.post(`${api}${editData._id}`, updatedType)
             console.log(res);
@@ -163,16 +160,8 @@ const ScheduleManagement = () => {
                                 ID
                             </Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
-                            <Typography variant="subtitle2" fontWeight={600}>
-                                Thời Gian Khởi Hành
-                            </Typography>
-                        </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
-                            <Typography variant="subtitle2" fontWeight={600}>
-                                Tên Lịch Trình
-                            </Typography>
-                        </TableCell>
+                       
+                       
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
                                 Địa Điểm
@@ -183,11 +172,7 @@ const ScheduleManagement = () => {
                                 Phương Tiện Giao Thông
                             </Typography>
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
-                            <Typography variant="subtitle2" fontWeight={600}>
-                                Công Việc
-                            </Typography>
-                        </TableCell>
+                        
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }} align="right">
                             <Typography variant="subtitle2" fontWeight={600}>
                                 Hành Động
@@ -199,11 +184,11 @@ const ScheduleManagement = () => {
                     {dataSchedule.map((schedule) => (
                         <TableRow key={schedule.id}>
                             <TableCell>{schedule._id}</TableCell>
-                            <TableCell>{schedule.Departure_Time}</TableCell>
-                            <TableCell>{schedule?.Name_Schedule}</TableCell>
+                        
+                           
                             <TableCell>{schedule.Location}</TableCell>
                             <TableCell>{schedule.means_of_transport}</TableCell>
-                            <TableCell>{schedule.Work}</TableCell>
+                          
                             <TableCell align="right">
                                 <IconButton onClick={() => handleClickOpenEdit(schedule)}>
                                     <EditIcon color="primary" />
@@ -221,26 +206,8 @@ const ScheduleManagement = () => {
             <Dialog open={openAdd} onClose={handleCloseAdd}>
                 <DialogTitle>Thêm Lịch Trình</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        name='Departure_Time'
-                        label="Thời Gian Khởi Hành"
-                        fullWidth
-                        type="time"
-                        sx={{ mb: 2 }}
-                        InputProps={{
-                            startAdornment: (
-                                <AccessTimeIcon sx={{ marginRight: 1 }} />
-                            )
-                        }}
-                        onChange={handleGetValueInput}
-                    />
-                    <TextField
-                        name='Name_Schedule'
-                        label="Tên Lịch Trình"
-                        fullWidth
-                        sx={{ mb: 2 }}
-                        onChange={handleGetValueInput}
-                    />
+                    
+                   
 
                     <TextField
                         name='Location'
@@ -256,16 +223,7 @@ const ScheduleManagement = () => {
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
                     />
-                    <TextField
-                        name='Work'
-                        label="Công Việc"
-                        fullWidth
-                        sx={{ mb: 2 }}
-                        multiline
-                        rows={4}
-                        onChange={handleGetValueInput}
-
-                    />
+                    
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseAdd} color="primary">
@@ -281,28 +239,8 @@ const ScheduleManagement = () => {
             <Dialog open={openEdit} onClose={handleCloseEdit}>
                 <DialogTitle>Chỉnh Sửa Lịch Trình</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        name='Departure_Time'
-                        label="Thời Gian Khởi Hành"
-                        defaultValue={editData ? editData.Departure_Time : ''}
-                        fullWidth
-                        type="time"
-                        sx={{ mb: 2 }}
-                        InputProps={{
-                            startAdornment: (
-                                <AccessTimeIcon sx={{ marginRight: 1 }} />
-                            )
-                        }}
-                        onChange={handleGetValueInput}
-                    />
-                    <TextField
-                        name='Name_Schedule'
-                        label="Tên Lịch Trình"
-                        defaultValue={editData ? editData.Name_Schedule : ''}
-                        fullWidth
-                        sx={{ mb: 2 }}
-                        onChange={handleGetValueInput}
-                    />
+                   
+                   
 
                     <TextField
                         name='Location'
@@ -321,16 +259,7 @@ const ScheduleManagement = () => {
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
                     />
-                    <TextField
-                        name='Work'
-                        label="Công Việc"
-                        defaultValue={editData ? editData.Work : ''}
-                        fullWidth
-                        sx={{ mb: 2 }}
-                        multiline
-                        rows={4}
-                        onChange={handleGetValueInput}
-                    />
+                    
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseEdit} color="primary">
