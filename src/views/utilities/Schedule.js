@@ -13,9 +13,15 @@ import { toast } from 'react-toastify';
 const initialSchedules = [
     {
         id: 1,
-        Name_Schedule: "hanoi", Departure_Time: '08:00 AM', Location: 'Đà Nẵng', Means_of_Transport: 'Xe buýt', Work: 'Tham quan Bà Nà Hills'
+        Name_Schedule: "Đà Nẵng",
+        Location_map: "16.058571464796255, 108.13758074122495",
+        Time_Morning_Schedule: "08:00 AM",
+        Text_Schedule_Morning: "Tham quan Bà Nà Hills",
+        Time_Noon_Schedule: "12:00 PM",
+        Text_Schedule_Noon: "Ăn trưa tại nhà hàng địa phương",
+        Time_Afternoon_Schedule: "02:00 PM",
+        Text_Schedule_Afternoon: "Tham quan phố cổ",
     },
-
 ];
 
 const ScheduleManagement = () => {
@@ -27,9 +33,14 @@ const ScheduleManagement = () => {
     const [dataSchedule, setDataSchedule] = useState([])
     const [valueInput, setValueInput] = useState({
         _id: null,
-
-        Location: "",
-        means_of_transport: "",
+        Name_Schedule: "",
+        Location_map: "",
+        Time_Morning_Schedule: "",
+        Text_Schedule_Morning: "",
+        Time_Noon_Schedule: "",
+        Text_Schedule_Noon: "",
+        Time_Afternoon_Schedule: "",
+        Text_Schedule_Afternoon: "",
 
     })
 
@@ -60,7 +71,7 @@ const ScheduleManagement = () => {
         try {
             const res = await axios.get(api)
             const datas = await res.data
-
+            console.log(datas.Schedule_Travel);
             setDataSchedule(datas.Schedule_Travel)
         } catch (error) {
             console.log(error);
@@ -92,9 +103,14 @@ const ScheduleManagement = () => {
         try {
             const updatedType = {
                 ...editData,
-                Location: valueInput.Location || editData.Location,
-                means_of_transport: valueInput.means_of_transport || editData.means_of_transport,
-              
+                Name_Schedule: valueInput.Name_Schedule || editData.Name_Schedule,
+                Location_map: valueInput.Location_map || editData.Location_map,
+                Time_Morning_Schedule: valueInput.Time_Morning_Schedule || editData.Time_Morning_Schedule,
+                Text_Schedule_Morning: valueInput.Text_Schedule_Morning || editData.Text_Schedule_Morning,
+                Time_Noon_Schedule: valueInput.Time_Noon_Schedule || editData.Time_Noon_Schedule,
+                Text_Schedule_Noon: valueInput.Text_Schedule_Noon || editData.Text_Schedule_Noon,
+                Time_Afternoon_Schedule: valueInput.Time_Afternoon_Schedule || editData.Time_Afternoon_Schedule,
+                Text_Schedule_Afternoon: valueInput.Text_Schedule_Afternoon || editData.Text_Schedule_Afternoon,
             };
             const res = await axios.post(`${api}${editData._id}`, updatedType)
             console.log(res);
@@ -160,19 +176,33 @@ const ScheduleManagement = () => {
                                 ID
                             </Typography>
                         </TableCell>
-                       
-                       
+
+
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                Địa Điểm
+                                Tên lịch trình
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                Phương Tiện Giao Thông
+                                Vị trí trên bản đồ
                             </Typography>
                         </TableCell>
-                        
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>
+                                Buổi sáng
+                            </Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>
+                                Biểu trưa
+                            </Typography>
+                        </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>
+                                Buổi chiều
+                            </Typography>
+                        </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }} align="right">
                             <Typography variant="subtitle2" fontWeight={600}>
                                 Hành Động
@@ -181,14 +211,17 @@ const ScheduleManagement = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {dataSchedule.map((schedule) => (
-                        <TableRow key={schedule.id}>
+                
+                
+                    {dataSchedule.map((schedule) => (  
+                        <TableRow key={schedule._id}>
                             <TableCell>{schedule._id}</TableCell>
-                        
-                           
-                            <TableCell>{schedule.Location}</TableCell>
-                            <TableCell>{schedule.means_of_transport}</TableCell>
-                          
+                            <TableCell>{schedule.Name_Schedule}</TableCell>
+                            <TableCell>{schedule.Location_map}</TableCell>
+                            <TableCell>{schedule.Shedule_Morning[0].Time_Morning_Schedule} - {schedule.Shedule_Morning[0].Text_Schedule_Morning}</TableCell>
+                            <TableCell>{schedule.Shedule_Noon[0].Time_Noon_Schedule} - {schedule.Shedule_Noon[0].Text_Schedule_Noon}</TableCell>
+                            <TableCell>{schedule.Shedule_Afternoon[0].Time_Afternoon_Schedule} - {schedule.Shedule_Afternoon[0].Text_Schedule_Afternoon}</TableCell>
+
                             <TableCell align="right">
                                 <IconButton onClick={() => handleClickOpenEdit(schedule)}>
                                     <EditIcon color="primary" />
@@ -206,24 +239,66 @@ const ScheduleManagement = () => {
             <Dialog open={openAdd} onClose={handleCloseAdd}>
                 <DialogTitle>Thêm Lịch Trình</DialogTitle>
                 <DialogContent>
-                    
-                   
+                    <TextField
+                        name='Name_Schedule'
+                        label="Tên lịch trình"
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    />
+                    <TextField
+                        name='Location_map'
+                        label="Vị trí trên bản đồ"
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    />
+                    <TextField
+                        name='Time_Morning_Schedule'
+                        label="Thời gian buổi sáng"
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    />
 
                     <TextField
-                        name='Location'
-                        label="Địa Điểm"
+                        name='Text_Schedule_Morning'
+                        label="Buổi sáng làm gì"
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    />
+
+                    <TextField
+                        name='Time_Noon_Schedule'
+                        label="Thời gian buổi trưa"
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    />
+
+                    <TextField
+                        name='Text_Schedule_Noon'
+                        label="Buổi trưa làm gì"
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
                     />
                     <TextField
-                        name='means_of_transport'
-                        label="Phương Tiện Giao Thông"
+                        name='Time_Afternoon_Schedule'
+                        label="Thời gian buổi chiều"
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
                     />
-                    
+
+                    <TextField
+                        name='Text_Schedule_Afternoon'
+                        label="Buổi chiều làm gì"
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseAdd} color="primary">
@@ -239,27 +314,77 @@ const ScheduleManagement = () => {
             <Dialog open={openEdit} onClose={handleCloseEdit}>
                 <DialogTitle>Chỉnh Sửa Lịch Trình</DialogTitle>
                 <DialogContent>
-                   
-                   
-
                     <TextField
-                        name='Location'
-                        label="Địa Điểm"
-                        defaultValue={editData ? editData.Location : ''}
+                        name='Name_Schedule'
+                        label="Tên lịch trình"
+                        defaultValue={editData ? editData.Name_Schedule : ''}
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
                     />
                     <TextField
-                        name='means_of_transport'
-                        label="Phương Tiện Giao Thông"
-                        defaultValue={editData ? editData.means_of_transport
+                        name='Location_map'
+                        label="Vị trí trên bản đồ"
+                        defaultValue={editData ? editData.Location_map
                             : ''}
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
                     />
-                    
+                    <TextField
+                        name='Time_Morning_Schedule'
+                        label="Thời gian buổi sáng"
+                        defaultValue={editData ? editData.Time_Morning_Schedule
+                            : ''}
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    />
+                    <TextField
+                        name='Text_Schedule_Morning'
+                        label="Buổi sáng làm gì"
+                        defaultValue={editData ? editData.Text_Schedule_Morning
+                            : ''}
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    />
+
+                    <TextField
+                        name='Time_Noon_Schedule'
+                        label="Thời gian buổi trưa"
+                        defaultValue={editData ? editData.Time_Noon_Schedule
+                            : ''}
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    />
+                    <TextField
+                        name='Text_Schedule_Noon'
+                        label="Buổi trưa làm gì"
+                        defaultValue={editData ? editData.Text_Schedule_Noon
+                            : ''}
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    /><TextField
+                        name='Time_Afternoon_Schedule'
+                        label="Thời gian buổi chiều"
+                        defaultValue={editData ? editData.Time_Afternoon_Schedule
+                            : ''}
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    />
+                    <TextField
+                        name='Text_Schedule_Afternoon'
+                        label="Buổi chiều làm gì"
+                        defaultValue={editData ? editData.Text_Schedule_Afternoon
+                            : ''}
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseEdit} color="primary">
