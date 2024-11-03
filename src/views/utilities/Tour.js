@@ -364,6 +364,9 @@ const TourManagement = () => {
                             <Typography variant="subtitle2" fontWeight={600}>Lịch Trình</Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
+                        <Typography variant="subtitle2" fontWeight={600}>Lịch Trình Chi Tiết</Typography>
+                    </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Thông Tin Tour</Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }} align="right">
@@ -408,9 +411,12 @@ const TourManagement = () => {
                             </TableCell>
                             <TableCell>
                                 <Typography>
+                                    <strong>ID lịch trình chi tiết: </strong>{tour.id_Schedule_Travel}  <br />
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Typography>
                                     <strong>Danh Mục:</strong>{getNameCategory(tour?.id_Category)}  <br />
-
-
                                 </Typography>
                             </TableCell>
                             <TableCell align="right">
@@ -512,11 +518,9 @@ const TourManagement = () => {
                         onChange={handleValueInput}
                     />
                     <FormControl fullWidth sx={{ mt: 2 }}>
-                        <InputLabel>Lịch trình khởi hành</InputLabel>
+                        <InputLabel>Lịch trình chi tiết</InputLabel>
                         <Select defaultValue="" name='id_Schedule_Travel' onChange={handleValueInput}>
-                            {dataSchedule?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Departure_Time}</MenuItem>)}
-                            {/* <MenuItem value="Vourcher">Đà Nẵng</MenuItem>
-                            <MenuItem value="Vourcher">Hà Nội</MenuItem> */}
+                            {dataSchedule?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Schedule}</MenuItem>)}
                         </Select>
                     </FormControl>
                     <FormControl fullWidth sx={{ mt: 1 }}>
@@ -644,11 +648,9 @@ const TourManagement = () => {
                                 defaultValue={selectedTour.total_Date}
                             />
                             <FormControl fullWidth sx={{ mt: 2 }}>
-                                <InputLabel>Lịch trình khởi hành</InputLabel>
+                                <InputLabel>Lịch trình chi tiết</InputLabel>
                                 <Select defaultValue={selectedTour.id_Schedule_Travel} name='id_Schedule_Travel' onChange={handleValueInput}>
-                                    {dataSchedule?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Departure_Time}</MenuItem>)}
-                                    {/* <MenuItem value="Vourcher">Đà Nẵng</MenuItem>
-                            <MenuItem value="Vourcher">Hà Nội</MenuItem> */}
+                                    {dataSchedule?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Schedule}</MenuItem>)}
                                 </Select>
                             </FormControl>
                             <FormControl fullWidth sx={{ mt: 1 }}>
