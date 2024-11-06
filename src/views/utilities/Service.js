@@ -10,17 +10,17 @@ import AddIcon from '@mui/icons-material/Add';
 const initialServices = [
     {
         id: 1,
-        Name_Service: "Dọn phòng",
+        Name_Service: "Khách Sạn",
         Price_Service: "500,000 VND"
     },
     {
         id: 2,
-        Name_Service: "Giặt ủi",
+        Name_Service: "Ăn Uống",
         Price_Service: "300,000 VND"
     },
     {
         id: 3,
-        Name_Service: "Massage thư giãn",
+        Name_Service: "Đưa Đón",
         Price_Service: "1,200,000 VND"
     }
 ];

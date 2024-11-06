@@ -201,7 +201,6 @@ const TourManagement = () => {
 
         fetch(api, {
             method: 'POST',
-            credentials: 'include',
             body: formData
         })
 
@@ -364,8 +363,8 @@ const TourManagement = () => {
                             <Typography variant="subtitle2" fontWeight={600}>Lịch Trình</Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
-                        <Typography variant="subtitle2" fontWeight={600}>Lịch Trình Chi Tiết</Typography>
-                    </TableCell>
+                            <Typography variant="subtitle2" fontWeight={600}>Lịch Trình Chi Tiết</Typography>
+                        </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Thông Tin Tour</Typography>
                         </TableCell>
@@ -402,11 +401,15 @@ const TourManagement = () => {
                             <TableCell>{getNameVoucher(tour.id_Voucher)
                             }</TableCell>
                             <TableCell>
-                                <Typography>
-                                    <strong>Điểm bắt đầu:</strong> {tour.Start_Tour}<br />
-                                    <strong>Điểm kết thúc:</strong> {tour.End_Tour}<br />
-                                    <strong>Tổng ngày:</strong> {tour.total_Date}<br />
-                                    <strong>Loại tour:</strong> {getNameTypeTour(tour?.id_Type_Tour)}
+                                <Typography style={{ display: 'flex', }}>
+                                    <div>
+                                        <strong>Điểm bắt đầu:</strong> {tour.Start_Tour}<br />
+                                        <strong>Điểm kết thúc:</strong> {tour.End_Tour}<br />
+                                    </div>
+                                    <div>
+                                        <strong>Tổng ngày:</strong> {tour.total_Date}<br />
+                                        <strong>Loại tour:</strong> {getNameTypeTour(tour?.id_Type_Tour)}
+                                    </div>
                                 </Typography>
                             </TableCell>
                             <TableCell>
@@ -691,7 +694,7 @@ const TourManagement = () => {
                 setIsModal(value)
             }} actionId={deletedId} handleAction={(id) => {
                 handleDele(id)
-            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Tour này không!"/>
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Tour này không!" />
         </Paper >
     );
 };

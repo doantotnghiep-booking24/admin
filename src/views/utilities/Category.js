@@ -26,6 +26,8 @@ const CategoryManagement = () => {
     const getValueAdd = (data) => {
         setValueinput(data)
     }
+    console.log(valueinput);
+    
     const btn_edit = (type) => {
         setType_ButtonEdit(type)
     }
