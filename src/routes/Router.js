@@ -16,6 +16,7 @@ const Comment = Loadable(lazy(() => import('../views/utilities/Comment')))
 const Statistical= Loadable(lazy(() => import('../views/utilities/Statistical')))
 const Booktour= Loadable(lazy(() => import('../views/utilities/Booktour')))
 const Voucher= Loadable(lazy(() => import('../views/utilities/Voucher')))
+const Hotel = Loadable(lazy(() => import ('../views/utilities/Hotel')))
 const Featured_Location= Loadable(lazy(() => import('../views/utilities/Featured_Location')))
 const Type_tour= Loadable(lazy(() => import('../views/utilities/Type_tour')))
 const Customer= Loadable(lazy(() => import('../views/utilities/Customer')))
@@ -43,6 +44,7 @@ const Router = [
       { path: '/ui/Booktour', exact: true, element: <Booktour /> },
       { path: '/ui/Voucher', exact: true, element: <Voucher /> },
       { path: '/ui/location', exact: true, element: <Featured_Location /> },
+      { path: '/ui/Hotel', exact: true, element: <Hotel /> },
       { path: '/ui/typetour', exact: true, element: <Type_tour /> },
       { path: '/ui/service', exact: true, element: <Service /> },
       { path: '/ui/role', exact: true, element: <Role /> },

@@ -109,8 +109,8 @@ const ArticleManagement = () => {
 
         fetch('http://localhost:3001/News/CreateNew', {
             method: 'POST',
-            credentials: 'include',
-            body: formData
+            body: formData,
+            
         })
             .then(res => res.json())
             .then(data => {
@@ -136,9 +136,9 @@ const ArticleManagement = () => {
         try {
             const res = await axios.get(api);
             const datas = await res.data;
-            const { Featured_Location } = datas
+            const { News } = datas
 
-            setDataNews(Featured_Location)
+            setDataNews(News)
 
         } catch (error) {
             console.log(error);
