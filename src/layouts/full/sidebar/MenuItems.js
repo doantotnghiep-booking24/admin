@@ -3,7 +3,7 @@ import {
    IconUserPlus,IconUsers,
    IconChartPie,IconCategory,IconTicket,IconMessageReport,IconShoppingCart,
    IconNews,IconGift,IconMapPin,IconUser,IconLocationPin,IconCalendarMonth,
-   IconUserCircle,IconDeviceHeartMonitor
+   IconUserCircle,IconDeviceHeartMonitor,IconHotelService
 } from '@tabler/icons-react';
 
 import { uniqueId } from 'lodash';
@@ -77,6 +77,12 @@ const Menuitems = [
     title: 'Quản Lí Địa Điểm',
     icon: IconMapPin,
     href: '/ui/location',
+  },
+  {
+    id: uniqueId(),
+    title: 'Quản Lí Khách sạn',
+    icon: IconHotelService,
+    href: '/ui/Hotel',
   },
   {
     id: uniqueId(),
