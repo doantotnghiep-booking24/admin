@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import validator from 'validator';
 import { handleGetCategories, handleCreateCategories, handleDeleteCategories, handleUpdateCategories } from '../../service/index.js';
 import {
     Typography, Paper, Table, TableBody, TableCell, TableHead, TableRow,
@@ -14,93 +15,107 @@ const CategoryManagement = () => {
     const [openEdit, setOpenEdit] = useState(false);
     const [openAdd, setOpenAdd] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState({ id: '', name: '' });
-    const [getcategories, setGetcategories] = useState([])
-    const [valueinput, setValueinput] = useState()
-    const [idDelete, setIdDelete] = useState()
-    const [idUpdate, setIdUpdate] = useState()
-    const [type_ButtonAdd, setType_ButtonAdd] = useState()
-    const [type_ButtonEdit, setType_ButtonEdit] = useState()
+    const [getcategories, setGetcategories] = useState([]);
+    const [valueinput, setValueinput] = useState('');
+    const [idDelete, setIdDelete] = useState();
+    const [idUpdate, setIdUpdate] = useState();
+    const [type_ButtonAdd, setType_ButtonAdd] = useState();
+    const [type_ButtonEdit, setType_ButtonEdit] = useState();
+
+    // Hàm kiểm tra input hợp lệ sử dụng validator
+    const isValidCategory = (input) => {
+        return validator.isLength(input.trim(), { min: 3 });
+    };
+
     const getValueEdit = (data) => {
-        setValueinput(data)
-    }
+        setValueinput(data);
+    };
+
     const getValueAdd = (data) => {
-        setValueinput(data)
-    }
-    console.log(valueinput);
-    
+        setValueinput(data);
+    };
+
     const btn_edit = (type) => {
-        setType_ButtonEdit(type)
-    }
+        if (!isValidCategory(valueinput)) {
+            notification("error", "Tên danh mục không được để trống phải có ít nhất 3 kí tự");
+            return;
+        }
+        setType_ButtonEdit(type);
+    };
+
     const btn_add = (type) => {
-        setType_ButtonAdd(type)
-    }
+        if (!isValidCategory(valueinput)) {
+            notification("error", "Tên danh mục không được để trống phải có ít nhất 3 kí tự");
+            return;
+        }
+        setType_ButtonAdd(type);
+    };
 
     useEffect(() => {
-        if (valueinput, type_ButtonEdit) {
+        if (valueinput && type_ButtonEdit) {
             const Update_cate = async () => {
-                const res = await handleUpdateCategories(idUpdate, valueinput)
-                res.status === 200 ? window.location.reload() : console.log('Error When handle function Update');
+                const res = await handleUpdateCategories(idUpdate, valueinput);
+                res.status === 200 ? window.location.reload() : console.error('Error When handle function Update');
+                handleCloseAdd();
+                notification("success", "Update categories successfully");
+            };
+            Update_cate();
+        }
+    }, [type_ButtonEdit]);
 
-                handleCloseAdd()
-                notification("success", "Update categories successfully")
-            }
-            Update_cate()
-        }
-    }, [type_ButtonEdit])
     useEffect(() => {
-        if (valueinput, type_ButtonAdd) {
+        if (valueinput && type_ButtonAdd) {
             const Create_cate = async () => {
-                const res = await handleCreateCategories(valueinput)
-                res.status === 200 ? window.location.reload() : console.log('Error When handle function Create');
-                handleCloseAdd()
-                notification("success", "Create categories successfully")
-            }
-            Create_cate()
+                const res = await handleCreateCategories(valueinput);
+                res.status === 200 ? window.location.reload() : console.error('Error When handle function Create');
+                handleCloseAdd();
+                notification("success", "Create categories successfully");
+            };
+            Create_cate();
         }
-    }, [type_ButtonAdd])
+    }, [type_ButtonAdd]);
+
     useEffect(() => {
         const Delete_Cate = async () => {
-            const res = await handleDeleteCategories(idDelete)
-            res.status === 200 ? window.location.reload() : console.log('Error When handle function Delete');
-            handleCloseAdd()
-            notification("success", "Delete categories successfully")
-        }
-        Delete_Cate()
-    }, [idDelete])
+            const res = await handleDeleteCategories(idDelete);
+            res.status === 200 ? window.location.reload() : console.error('Error When handle function Delete');
+            handleCloseAdd();
+            notification("success", "Delete categories successfully");
+        };
+        Delete_Cate();
+    }, [idDelete]);
+
     useEffect(() => {
         const getCate = async () => {
-            const data_categories = await handleGetCategories()
-            setGetcategories(data_categories)
-        }
-        getCate()
-    }, [])
+            const data_categories = await handleGetCategories();
+            setGetcategories(data_categories);
+        };
+        getCate();
+    }, []);
+
     const handleDelete = (id) => {
-        setIdDelete(id)
-    }
-    // Mở form chỉnh sửa
+        setIdDelete(id);
+    };
+
     const handleEdit = (Name_Cate, _id, type) => {
-        // setSelectedCategory(Name_Cate);
-        setIdUpdate(_id)
+        setIdUpdate(_id);
         setOpenEdit(true);
     };
 
-    // Đóng form chỉnh sửa
     const handleCloseEdit = () => {
         setOpenEdit(false);
     };
 
-    // Mở form thêm danh mục
     const handleOpenAdd = (type) => {
         setOpenAdd(true);
     };
 
-    // Đóng form thêm danh mục
     const handleCloseAdd = () => {
         setOpenAdd(false);
     };
 
     const notification = (status, message) => {
-        return toast[status](message, {
+        toast[status](message, {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -109,17 +124,15 @@ const CategoryManagement = () => {
             draggable: true,
             progress: undefined,
             theme: "light",
-        })
-    }
+        });
+    };
 
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
-            {/* Tiêu đề được căn giữa */}
             <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}>
                 Quản Lý Danh Mục
             </Typography>
 
-            {/* Form thêm danh mục nằm bên trái */}
             <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
                 <Button
                     variant="contained"
@@ -131,7 +144,6 @@ const CategoryManagement = () => {
                 </Button>
             </Box>
 
-            {/* Bảng Danh Mục */}
             <Table aria-label="bảng danh mục">
                 <TableHead>
                     <TableRow>
@@ -170,7 +182,6 @@ const CategoryManagement = () => {
                 </TableBody>
             </Table>
 
-            {/* Form chỉnh sửa danh mục */}
             <Dialog open={openEdit} onClose={handleCloseEdit}>
                 <DialogTitle>Chỉnh sửa danh mục</DialogTitle>
                 <DialogContent>
@@ -186,7 +197,6 @@ const CategoryManagement = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* Form thêm danh mục */}
             <Dialog open={openAdd} onClose={handleCloseAdd}>
                 <DialogTitle>Thêm danh mục mới</DialogTitle>
                 <DialogContent>
