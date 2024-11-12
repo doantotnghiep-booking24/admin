@@ -26,6 +26,8 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import ModalCustom from '../../modals/ModalCustom';
+import validator from 'validator';
+
 const initialTours = [
     {
         id: 1,
@@ -55,7 +57,6 @@ const initialTours = [
         featuredLocation: "Bãi Biển Mỹ Khê",
         typeTour: "3 ngày 2 đêm"
     },
-    // Bạn có thể thêm nhiều tour hơn nữa
 ];
 
 const TourManagement = () => {
@@ -71,30 +72,94 @@ const TourManagement = () => {
     const [nameImages, setNameImages] = useState([])
     const [dataTours, setDataTours] = useState([])
     const [getValueInput, setGetValueInput] = useState({
-
         Name_Tour: "",
-
         Price_Tour: "",
-
         Title_Tour: "",
-
         Description_Tour: "",
-
         Start_Tour: "",
-
         End_Tour: "",
-
         total_Date: "",
         id_Voucher: "",
         id_Category: "",
         id_Schedule_Travel: "",
-
         id_Type_Tour: "",
-
     })
-
     const [isModal, setIsModal] = useState(false)
     const [deletedId, setDeletedId] = useState("")
+    const [errors, setErrors] = useState({
+        Name_Tour: '',
+        Title_Tour: '',
+        Description_Tour: '',
+        Price_Tour: '',
+        Start_Tour: '',
+        End_Tour: '',
+        total_Date: '',
+        id_Schedule_Travel: '',
+        id_Voucher: '',
+        id_Category: '',
+        id_Type_Tour: '',
+    });
+
+    const validateForm = (data) => {
+        const newErrors = {};
+        // check tên tour
+        if (validator.isEmpty(data.Name_Tour)) {
+            newErrors.Name_Tour = 'Tên Tour không được để trống!';
+        }
+
+        // check tiêu đề
+        if (validator.isEmpty(data.Title_Tour)) {
+            newErrors.Title_Tour = 'Tiêu đề không được để trống!';
+        }
+
+        // check mô tả
+        if (validator.isEmpty(data.Description_Tour)) {
+            newErrors.Description_Tour = 'Mô tả không được để trống!';
+        }
+
+        // check giá tour
+        if (!validator.isNumeric(data.Price_Tour) || Number(data.Price_Tour) <= 0) {
+            newErrors.Price_Tour = 'Giá tour phải là một số hợp lệ!';
+        }
+
+        // check địa điểm bắt đầu
+        if (validator.isEmpty(data.Start_Tour)) {
+            newErrors.Start_Tour = 'Địa điểm bắt đầu không được để trống!';
+        }
+
+        // check địa điểm kết thúc
+        if (validator.isEmpty(data.End_Tour)) {
+            newErrors.End_Tour = 'Địa điểm kết thúc không được để trống!';
+        }
+
+        // check tổng ngày
+        if (validator.isEmpty(data.total_Date)) {
+            newErrors.total_Date = 'Tổng ngày không được để trống!';
+        }
+
+        // check lựa chọn lịch trình
+        if (validator.isEmpty(data.id_Schedule_Travel)) {
+            newErrors.id_Schedule_Travel = 'Bạn cần chọn lịch trình chi tiết!';
+        }
+
+        // check lựa chọn voucher
+        if (validator.isEmpty(data.id_Voucher)) {
+            newErrors.id_Voucher = 'Bạn cần chọn voucher!';
+        }
+
+        // check lựa chọn danh mục
+        if (validator.isEmpty(data.id_Category)) {
+            newErrors.id_Category = 'Bạn cần chọn danh mục!';
+        }
+
+        //check lựa chọn loại tour
+        if (validator.isEmpty(data.id_Type_Tour)) {
+            newErrors.id_Type_Tour = 'Bạn cần chọn loại tour!';
+        }
+        return newErrors;
+    };
+
+
     const handleAddClickOpen = () => {
         setOpenAdd(true);
     };
@@ -105,7 +170,6 @@ const TourManagement = () => {
     };
 
 
-
     const handleClose = () => {
         setOpenAdd(false);
         setOpenEdit(false);
@@ -114,7 +178,20 @@ const TourManagement = () => {
     };
 
     const handleImageUpload = (event) => {
-        const files = Array.from(event.target.files);
+        
+        const files = Array.from(event.target.files);        
+        // Kiểm tra nếu không có ảnh nào được chọn
+        if (files.length === 0) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                Images: "Cần có ít nhất một ảnh"
+            }));
+        } else {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                Images: "" 
+            }));
+        }
         setNameImages(files)
         const newImages = files.map(file => URL.createObjectURL(file));
         setImages(prevImages => [...prevImages, ...newImages]);
@@ -178,6 +255,12 @@ const TourManagement = () => {
     }
 
     const handleAddNewTour = async () => {
+        const errors = validateForm(getValueInput);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
+
         const api = "http://localhost:3001/V1/Tours/CreateTour/"
 
 
@@ -219,6 +302,11 @@ const TourManagement = () => {
     }
 
     const handleEditTour = async () => {
+        const errors = validateForm(getValueInput);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
         const api = `http://localhost:3001/V1/Tours/Update/${selectedTour._id}`;
 
 
@@ -447,6 +535,8 @@ const TourManagement = () => {
                         variant="outlined"
                         name='Name_Tour'
                         onChange={handleValueInput}
+                        error={!!errors.Name_Tour}
+                        helperText={errors.Name_Tour}
                     />
                     <TextField
                         margin="dense"
@@ -455,6 +545,8 @@ const TourManagement = () => {
                         variant="outlined"
                         name='Title_Tour'
                         onChange={handleValueInput}
+                        error={!!errors.Title_Tour}
+                        helperText={errors.Title_Tour}
                     />
                     <input
                         type="file"
@@ -462,6 +554,7 @@ const TourManagement = () => {
                         onChange={handleImageUpload}
                         style={{ marginBottom: '16px' }}
                     />
+                    {errors.Image_Tour && <Typography color="error">{errors.Image_Tour}</Typography>}
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         {images.map((image, index) => (
                             <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -472,6 +565,7 @@ const TourManagement = () => {
                             </Box>
                         ))}
                     </Box>
+
                     <TextField
                         margin="dense"
                         label="Mô Tả"
@@ -481,6 +575,8 @@ const TourManagement = () => {
                         rows={2}
                         name='Description_Tour'
                         onChange={handleValueInput}
+                        error={!!errors.Description_Tour}
+                        helperText={errors.Description_Tour}
                     />
                     <TextField
                         margin="dense"
@@ -490,6 +586,8 @@ const TourManagement = () => {
                         type='number'
                         name='Price_Tour'
                         onChange={handleValueInput}
+                        error={!!errors.Price_Tour}
+                        helperText={errors.Price_Tour}
                     />
 
 
@@ -501,6 +599,8 @@ const TourManagement = () => {
                         type='text'
                         name='Start_Tour'
                         onChange={handleValueInput}
+                        error={!!errors.Start_Tour}
+                        helperText={errors.Start_Tour}
                     />
 
                     <TextField
@@ -511,6 +611,8 @@ const TourManagement = () => {
                         type='text'
                         name='End_Tour'
                         onChange={handleValueInput}
+                        error={!!errors.End_Tour}
+                        helperText={errors.End_Tour}
                     />
                     <TextField
                         margin="dense"
@@ -519,14 +621,16 @@ const TourManagement = () => {
                         variant="outlined"
                         name='total_Date'
                         onChange={handleValueInput}
+                        error={!!errors.total_Date}
+                        helperText={errors.total_Date}
                     />
-                    <FormControl fullWidth sx={{ mt: 2 }}>
+                    <FormControl fullWidth sx={{ mt: 2 }} error={!!errors.id_Schedule_Travel}>
                         <InputLabel>Lịch trình chi tiết</InputLabel>
                         <Select defaultValue="" name='id_Schedule_Travel' onChange={handleValueInput}>
                             {dataSchedule?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Schedule}</MenuItem>)}
                         </Select>
                     </FormControl>
-                    <FormControl fullWidth sx={{ mt: 1 }}>
+                    <FormControl fullWidth sx={{ mt: 1 }} error={!!errors.id_Voucher}>
                         <InputLabel>Voucher</InputLabel>
                         <Select defaultValue="" name='id_Voucher' onChange={handleValueInput}>
                             {dataVoucher?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Code_Voucher}</MenuItem>)}
@@ -534,7 +638,7 @@ const TourManagement = () => {
                             <MenuItem value="Vourcher">20%</MenuItem> */}
                         </Select>
                     </FormControl>
-                    <FormControl fullWidth sx={{ mt: 1 }}>
+                    <FormControl fullWidth sx={{ mt: 1 }} error={!!errors.id_Category}>
                         <InputLabel>Danh Mục</InputLabel>
                         <Select defaultValue="" name='id_Category' onChange={handleValueInput}>
                             {dataCategory?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Cate}</MenuItem>)}
@@ -543,7 +647,7 @@ const TourManagement = () => {
                         </Select>
                     </FormControl>
 
-                    <FormControl fullWidth sx={{ mt: 1 }}>
+                    <FormControl fullWidth sx={{ mt: 1 }} error={!!errors.id_Type_Tour}>
                         <InputLabel>Loại Tour</InputLabel>
                         <Select defaultValue="" name='id_Type_Tour' onChange={handleValueInput}>
                             {dataTypeTour?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Type}</MenuItem>)}
@@ -573,6 +677,8 @@ const TourManagement = () => {
                                 defaultValue={selectedTour.Name_Tour}
                                 name='Name_Tour'
                                 onChange={handleValueInput}
+                                error={!!errors.Name_Tour}
+                                helperText={errors.Name_Tour}
                             />
                             <TextField
                                 margin="dense"
@@ -582,6 +688,8 @@ const TourManagement = () => {
                                 defaultValue={selectedTour.Title_Tour}
                                 name='Title_Tour'
                                 onChange={handleValueInput}
+                                error={!!errors.Title_Tour}
+                                helperText={errors.Title_Tour}
                             />
                             <input
                                 type="file"
@@ -589,6 +697,8 @@ const TourManagement = () => {
                                 onChange={handleImageUpload}
                                 style={{ marginBottom: '16px' }}
                             />
+                            {errors.Image_Tour && <Typography color="error">{errors.Image_Tour}</Typography>}
+                            
                             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                                 {images.map((image, index) => (
                                     <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -609,6 +719,8 @@ const TourManagement = () => {
                                 defaultValue={selectedTour.Description_Tour}
                                 name='Description_Tour'
                                 onChange={handleValueInput}
+                                error={!!errors.Description_Tour}
+                                helperText={errors.Description_Tour}
                             />
                             <TextField
                                 margin="dense"
@@ -619,6 +731,8 @@ const TourManagement = () => {
                                 name='Price_Tour'
                                 onChange={handleValueInput}
                                 defaultValue={selectedTour.Price_Tour}
+                                error={!!errors.Price_Tour}
+                                helperText={errors.Price_Tour}
                             />
                             <TextField
                                 margin="dense"
@@ -629,6 +743,8 @@ const TourManagement = () => {
                                 name='Start_Tour'
                                 onChange={handleValueInput}
                                 defaultValue={selectedTour.Start_Tour}
+                                error={!!errors.Start_Tour}
+                                helperText={errors.Start_Tour}
                             />
 
                             <TextField
@@ -640,6 +756,8 @@ const TourManagement = () => {
                                 name='End_Tour'
                                 onChange={handleValueInput}
                                 defaultValue={selectedTour.End_Tour}
+                                error={!!errors.End_Tour}
+                                helperText={errors.End_Tour}
                             />
                             <TextField
                                 margin="dense"
@@ -649,14 +767,16 @@ const TourManagement = () => {
                                 name='total_Date'
                                 onChange={handleValueInput}
                                 defaultValue={selectedTour.total_Date}
+                                error={!!errors.total_Date}
+                                helperText={errors.total_Date}
                             />
-                            <FormControl fullWidth sx={{ mt: 2 }}>
+                            <FormControl fullWidth sx={{ mt: 2 }} error={!!errors.id_Schedule_Travel}>
                                 <InputLabel>Lịch trình chi tiết</InputLabel>
                                 <Select defaultValue={selectedTour.id_Schedule_Travel} name='id_Schedule_Travel' onChange={handleValueInput}>
                                     {dataSchedule?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Schedule}</MenuItem>)}
                                 </Select>
                             </FormControl>
-                            <FormControl fullWidth sx={{ mt: 1 }}>
+                            <FormControl fullWidth sx={{ mt: 1 }} error={!!errors.id_Voucher}>
                                 <InputLabel>Voucher</InputLabel>
                                 <Select defaultValue={selectedTour.id_Voucher} name='id_Voucher' onChange={handleValueInput}>
                                     {dataVoucher?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Discount}</MenuItem>)}
@@ -664,7 +784,7 @@ const TourManagement = () => {
                             <MenuItem value="Vourcher">20%</MenuItem> */}
                                 </Select>
                             </FormControl>
-                            <FormControl fullWidth sx={{ mt: 1 }}>
+                            <FormControl fullWidth sx={{ mt: 1 }} error={!!errors.id_Category}>
                                 <InputLabel>Danh Mục</InputLabel>
                                 <Select defaultValue={selectedTour.id_Category} name='id_Category' onChange={handleValueInput}>
                                     {dataCategory?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Cate}</MenuItem>)}
@@ -673,7 +793,7 @@ const TourManagement = () => {
                                 </Select>
                             </FormControl>
 
-                            <FormControl fullWidth sx={{ mt: 1 }}>
+                            <FormControl fullWidth sx={{ mt: 1 }} error={!!errors.id_Type_Tour}>
                                 <InputLabel>Loại Tour</InputLabel>
                                 <Select defaultValue={selectedTour.id_Type_Tour} name='id_Type_Tour' onChange={handleValueInput}>
                                     {dataTypeTour?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Type}</MenuItem>)}
@@ -698,5 +818,4 @@ const TourManagement = () => {
         </Paper >
     );
 };
-
 export default TourManagement;

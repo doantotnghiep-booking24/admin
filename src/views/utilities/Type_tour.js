@@ -10,6 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import ModalCustom from '../../modals/ModalCustom';
 import { toast } from 'react-toastify';
+import validator from 'validator';
 const initialTourTypes = [
     { id: 1, Name_Type: "Du lịch mạo hiểm" },
     { id: 2, Name_Type: "Du lịch văn hóa" },
@@ -26,6 +27,21 @@ const TourTypeManagement = () => {
     const [valueInput, setValueInput] = useState({
         Name_Type: ""
     })
+
+    const [errors, setErrors] = useState({
+        Name_Type: '',
+    })
+
+    const validateForm = (data) => {
+        const newErrors = {};
+        // name
+        if (validator.isEmpty(data.Name_Type)) {
+            newErrors.Name_Type = 'Tên địa điểm không được để trống!'
+        }
+        return newErrors;
+    }
+
+
     const [isModal, setIsModal] = useState(false)
     const [deletedId, setDeletedId] = useState("")
     const handleOpenAddDialog = () => setOpenAddDialog(true);
@@ -57,6 +73,12 @@ const TourTypeManagement = () => {
     }
 
     const handleAddTypeTours = async () => {
+        const errors = validateForm(valueInput);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
+
         const api = "http://localhost:3001/V2/TypeTour/CreateTypeTour"
 
         try {
@@ -76,6 +98,11 @@ const TourTypeManagement = () => {
         setValueInput({ ...valueInput, [name]: value })
     }
     const handleUpdateTypeTour = async () => {
+        const errors = validateForm(valueInput);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
         const api = "http://localhost:3001/V2/TypeTour/UpdateTypeTour/"
         try {
 
@@ -190,6 +217,8 @@ const TourTypeManagement = () => {
                         name="Name_Type"
 
                         onChange={handleGetValueInput}
+                        error={!!errors.Name_Type}
+                        helperText={errors.Name_Type}
                     />
                 </DialogContent>
                 <DialogActions>
@@ -216,6 +245,8 @@ const TourTypeManagement = () => {
                         name="Name_Type"
                         onChange={handleGetValueInput}
                         defaultValue={selectedType?.Name_Type}
+                        error={!!errors.Name_Type}
+                        helperText={errors.Name_Type}
                     />
                 </DialogContent>
                 <DialogActions>

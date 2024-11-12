@@ -21,6 +21,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import ModalCustom from '../../modals/ModalCustom';
+import validator from 'validator';
 
 const initialArticles = [
     {
@@ -39,10 +40,10 @@ const initialArticles = [
         imageNew: ["https://via.placeholder.com/150"],
         createdAt: "2024-10-01"
     },
-    // Bạn có thể thêm nhiều bài viết hơn nữa
 ];
 
 const ArticleManagement = () => {
+    const [errors, setErrors] = useState({});
     const [articles] = useState(initialArticles);
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
@@ -60,7 +61,24 @@ const ArticleManagement = () => {
         Content: ""
     })
 
-
+    const validateForm = () => {
+        const newErrors = {};
+        if (!news.Name) {
+            newErrors.Name = 'Tên bài viết không được bỏ trống ';
+        }
+        if (!news.Title) {
+            newErrors.Title = 'Tiêu đề không được bỏ trống';
+        }
+        if (!news.Content) {
+            newErrors.Content = 'Nội dung không được bỏ trống';
+        }
+        if (nameImages.length === 0) {
+            newErrors.Images = 'Cần có ít nhất một ảnh';
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+    
 
 
     const handleAddClickOpen = () => {
@@ -82,21 +100,35 @@ const ArticleManagement = () => {
     };
 
     const handleImageChange = async (event) => {
-        const files = Array.from(event.target.files)
-        setNameImages(files)
-
-        const filesDisplay = files.map(item => URL.createObjectURL(item))
-
-
+        const files = Array.from(event.target.files);
+        
+        // Kiểm tra nếu không có ảnh nào được chọn
+        if (files.length === 0) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                Images: "Cần có ít nhất một ảnh"
+            }));
+        } else {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                Images: "" 
+            }));
+        }
+    
+        setNameImages(files);
+    
+        const filesDisplay = files.map((item) => URL.createObjectURL(item));
+    
         setNewImages(filesDisplay);
-
     };
+    
 
     const handleRemoveImage = (index) => {
         setNewImages(prevImages => prevImages.filter((_, i) => i !== index));
     };
 
     const handleAddNews = async () => {
+         if (!validateForm()) { return; }
         const api = "http://localhost:3001/News/CreateNew"
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
@@ -149,6 +181,7 @@ const ArticleManagement = () => {
     }
 
     const handleUpdateNews = async () => {
+        if (!validateForm()) { return; }
         setIsLoading(true);
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
@@ -277,6 +310,8 @@ const ArticleManagement = () => {
                         name='Name'
 
                         onChange={(e) => handleGetValueInput(e)}
+                        error={!!errors.Name}  
+                        helperText={errors.Name}  
                     />
                     <TextField
                         margin="dense"
@@ -286,6 +321,9 @@ const ArticleManagement = () => {
                         name='Title'
 
                         onChange={(e) => handleGetValueInput(e)}
+
+                        error={!!errors.Title}
+                        helperText={errors.Title}
                     />
                     <TextField
                         margin="dense"
@@ -297,6 +335,8 @@ const ArticleManagement = () => {
                         name='Content'
 
                         onChange={(e) => handleGetValueInput(e)}
+                        error={!!errors.Content}
+                        helperText={errors.Content}
                     />
                     <input
                         type="file"
@@ -304,6 +344,7 @@ const ArticleManagement = () => {
                         multiple="multiple"
                         onChange={(e) => handleImageChange(e)}
                     />
+                    {errors.Images && <Typography color="error">{errors.Images}</Typography>}
                     <div style={{ marginTop: '10px' }}>
                         {newImages.map((image, index) => (
                             <div key={index} style={{ display: 'inline-block', position: 'relative', marginRight: '10px' }}>

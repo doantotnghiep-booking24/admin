@@ -27,6 +27,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import axios from 'axios';
 import ModalCustom from '../../modals/ModalCustom';
 import { toast } from 'react-toastify';
+import validator from 'validator';
 const initialLocations = [
     {
         id: 1,
@@ -59,19 +60,62 @@ const LocationManagement = () => {
     const [nameImages, setNameImages] = useState([]);
     const [dataTour, setDataTours] = useState([])
     const [location, setLocation] = useState({
-
         Name_Location: "",
-
         Address_Location: "",
-
         Description: "",
         Type_Location: "",
-
         Nationnal: "",
-
         City_Location: "",
         id_tour: ""
     })
+
+    const [errors, setErrors] = useState({
+        Name_Location: '',
+        Address_Location: '',
+        Description: '',
+        Type_Location: '',
+        Nationnal: '',
+        City_Location: '',
+        id_tour: ''
+    })
+
+    const validateForm = (data) => {
+        const newErrors = {};
+        // name
+        if (validator.isEmpty(data.Name_Location)) {
+            newErrors.Name_Location = 'Tên địa điểm không được để trống!'
+        }
+        // address
+        if (validator.isEmpty(data.Address_Location)) {
+            newErrors.Address_Location = 'Địa chỉ không được để trống!'
+        }
+        // description
+        if (validator.isEmpty(data.Description)) {
+            newErrors.Description = 'Mô tả không được để trống'
+        }
+        // type
+        if (validator.isEmpty(data.Type_Location)) {
+            newErrors.Type_Location = 'Không được bỏ trống'
+        }
+        // national
+        if (validator.isEmpty(data.Nationnal)) {
+            newErrors.Nationnal = 'Quốc gia không được để trống'
+        }
+        // city
+        if (validator.isEmpty(data.City_Location)) {
+            newErrors.City_Location = 'Thành phố không được để trống'
+        }
+        // id_tour
+        if (validator.isEmpty(data.id_tour)) {
+            newErrors.id_tour = 'Phải chọn lịch khởi hành'
+        }
+        ///image
+        if (nameImages.length === 0) {
+            newErrors.images = 'Vui lòng tải lên ít nhất một hình ảnh!';
+        }
+        return newErrors;
+    }
+
     const [isModal, setIsModal] = useState(false)
     const [deletedId, setDeletedId] = useState("")
 
@@ -93,6 +137,10 @@ const LocationManagement = () => {
 
     const handleImageUpload = (event) => {
         const files = Array.from(event.target.files);
+        if (files.length === 0) {
+            toast.error('Vui lòng tải lên ít nhất một hình ảnh!');
+            return; // Dừng lại nếu không có ảnh
+        }
         setNameImages(files)
         const imageUrls = files.map((file) => URL.createObjectURL(file));
         setImages(imageUrls);
@@ -135,6 +183,12 @@ const LocationManagement = () => {
 
 
     const handleAddLocation = async () => {
+        const errors = validateForm(location);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
+
         const api = "http://localhost:3001/V2/Featured_Location/CreateFeatured_Location"
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
@@ -168,6 +222,12 @@ const LocationManagement = () => {
     }
 
     const handleUpdateNews = async () => {
+        const errors = validateForm(location);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
+
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
             formData.append("Image_Location", nameImages[i]);
@@ -305,6 +365,8 @@ const LocationManagement = () => {
                         variant="outlined"
                         name="Name_Location"
                         onChange={handleGetValueInput}
+                        error={!!errors.Name_Location}
+                        helperText={errors.Name_Location}
                     />
                     <TextField
                         margin="dense"
@@ -313,6 +375,8 @@ const LocationManagement = () => {
                         variant="outlined"
                         name="Address_Location"
                         onChange={handleGetValueInput}
+                        error={!!errors.Address_Location}
+                        helperText={errors.Address_Location}
                     />
                     <input
                         type="file"
@@ -320,6 +384,7 @@ const LocationManagement = () => {
                         onChange={handleImageUpload}
                         style={{ marginBottom: '16px' }}
                     />
+                    {images.length === 0 && <Typography color="error">Vui lòng tải lên ít nhất một hình ảnh!</Typography>}
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         {images.map((image, index) => (
                             <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -337,6 +402,8 @@ const LocationManagement = () => {
                         variant="outlined"
                         name="Description"
                         onChange={handleGetValueInput}
+                        error={!!errors.Description}
+                        helperText={errors.Description}
                     />
                     <TextField
                         margin="dense"
@@ -345,6 +412,8 @@ const LocationManagement = () => {
                         variant="outlined"
                         name="Type_Location"
                         onChange={handleGetValueInput}
+                        error={!!errors.Type_Location}
+                        helperText={errors.Type_Location}
                     />
                     <TextField
                         margin="dense"
@@ -353,6 +422,8 @@ const LocationManagement = () => {
                         variant="outlined"
                         name="Nationnal"
                         onChange={handleGetValueInput}
+                        error={!!errors.Name_Location}
+                        helperText={errors.Name_Location}
                     />
                     <TextField
                         margin="dense"
@@ -361,9 +432,11 @@ const LocationManagement = () => {
                         variant="outlined"
                         name="City_Location"
                         onChange={handleGetValueInput}
+                        error={!!errors.City_Location}
+                        helperText={errors.City_Location}
                     />
 
-                    <FormControl fullWidth sx={{ mt: 2 }}>
+                    <FormControl fullWidth sx={{ mt: 2 }} error={!!errors.id_tour}>
                         <InputLabel>Lịch trình khởi hành</InputLabel>
                         <Select defaultValue="" name='id_tour' onChange={handleGetValueInput}>
                             {dataTour.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Tour}</MenuItem>)}
@@ -393,6 +466,8 @@ const LocationManagement = () => {
                                 defaultValue={selectedLocation.Name_Location}
                                 name="Name_Location"
                                 onChange={handleGetValueInput}
+                                error={!!errors.Name_Location}
+                                helperText={errors.Name_Location}
                             />
                             <TextField
                                 margin="dense"
@@ -402,6 +477,8 @@ const LocationManagement = () => {
                                 defaultValue={selectedLocation.Address_Location}
                                 name="Address_Location"
                                 onChange={handleGetValueInput}
+                                error={!!errors.Address_Location}
+                                helperText={errors.Address_Location}
                             />
                             <input
                                 type="file"
@@ -409,6 +486,7 @@ const LocationManagement = () => {
                                 onChange={handleImageUpload}
                                 style={{ marginBottom: '16px' }}
                             />
+                            {images.length === 0 && <Typography color="error">Vui lòng tải lên ít nhất một hình ảnh!</Typography>}
                             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                                 {images.map((image, index) => (
                                     <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -418,6 +496,7 @@ const LocationManagement = () => {
                                         </IconButton>
                                     </Box>
                                 ))}
+                                {errors.images && <Typography color="error" sx={{ mt: 1 }}>{errors.images}</Typography>}
                             </Box>
                             <TextField
                                 margin="dense"
@@ -427,6 +506,8 @@ const LocationManagement = () => {
                                 defaultValue={selectedLocation.Description}
                                 name="Description"
                                 onChange={handleGetValueInput}
+                                error={!!errors.Description}
+                                helperText={errors.Description}
                             />
                             <TextField
                                 margin="dense"
@@ -436,6 +517,8 @@ const LocationManagement = () => {
                                 defaultValue={selectedLocation.Type_Location}
                                 name="Type_Location"
                                 onChange={handleGetValueInput}
+                                error={!!errors.Type_Location}
+                                helperText={errors.Type_Location}
                             />
                             <TextField
                                 margin="dense"
@@ -445,6 +528,8 @@ const LocationManagement = () => {
                                 defaultValue={selectedLocation.Nationnal}
                                 name="Nationnal"
                                 onChange={handleGetValueInput}
+                                error={!!errors.Name_Location}
+                                helperText={errors.Nationnal}
                             />
                             <TextField
                                 margin="dense"
@@ -454,8 +539,10 @@ const LocationManagement = () => {
                                 defaultValue={selectedLocation.City_Location}
                                 name="City_Location"
                                 onChange={handleGetValueInput}
+                                error={!!errors.City_Location}
+                                helperText={errors.City_Location}
                             />
-                            <FormControl fullWidth sx={{ mt: 2 }}>
+                            <FormControl fullWidth sx={{ mt: 2 }} error={!!errors.id_tour}>
                                 <InputLabel>Lịch trình khởi hành</InputLabel>
                                 <Select defaultValue={selectedLocation.id_tour} name='id_tour' onChange={handleGetValueInput}>
                                     {dataTour.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Tour}</MenuItem>)}

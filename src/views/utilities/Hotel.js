@@ -26,6 +26,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import ModalCustom from '../../modals/ModalCustom';
+import validator from 'validator';
 
 
 const HotelManagement = () => {
@@ -36,8 +37,46 @@ const HotelManagement = () => {
     const [dataHotel, setDataHotel] = useState([])
     const [nameImages, setNameImages] = useState([])
     const [getValueInput, setGetValueInput] = useState({
-        Name_Hotel: '', Price_Hotel: '', Adress_Hotel: '', Description_Hotel: '', Image_Hotel: ''
+        Name_Hotel: '',
+        Price_Hotel: '',
+        Adress_Hotel: '',
+        Description_Hotel: '',
+        Image_Hotel: ''
     })
+
+    const [errors, setErrors] = useState({
+        Name_Hotel: '',
+        Price_Hotel: '',
+        Adress_Hotel: '',
+        Description_Hotel: '',
+        Image_Hotel: '',
+    })
+
+    const validateForm = (data) => {
+        const newErrors = {};
+        // name
+        if (validator.isEmpty(data.Name_Hotel)) {
+            newErrors.Name_Hotel = 'Tên khách sạn không được để trống!'
+        }
+        // price
+        if (!validator.isNumeric(data.Price_Hotel) || Number(data.Price_Hotel) <= 0) {
+            newErrors.Price_Hotel = 'Giá khách sạn không được để trống!'
+        }
+        // address
+        if (validator.isEmpty(data.Adress_Hotel)) {
+            newErrors.Adress_Hotel = 'Địa chỉ không được để trống'
+        }
+        // type
+        if (validator.isEmpty(data.Description_Hotel)) {
+            newErrors.Description_Hotel = 'Mô tả không được bỏ trống'
+        }
+        ///image
+        if (nameImages.length === 0) {
+            newErrors.images = 'Vui lòng tải lên ít nhất một hình ảnh!';
+        }
+        return newErrors;
+    }
+
 
     const [isModal, setIsModal] = useState(false)
     const [deletedId, setDeletedId] = useState("")
@@ -78,13 +117,16 @@ const HotelManagement = () => {
     }
     const handleValueInput = (e) => {
         const { name, value } = e.target
-
-
         setGetValueInput({ ...getValueInput, [name]: value })
     }
 
 
     const handleAddNewHotel = async () => {
+        const errors = validateForm(getValueInput);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
         const api = "http://localhost:3001/Hotel/CreateHotel"
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
@@ -114,6 +156,11 @@ const HotelManagement = () => {
     }
 
     const handleEditHotel = async () => {
+        const errors = validateForm(getValueInput);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
         const api = `http://localhost:3001/Hotel/UpdateHotel/${selectedHotel._id}`;
         const formData = new FormData();
 
@@ -188,7 +235,7 @@ const HotelManagement = () => {
                 <TableHead>
                     <TableRow>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
-                            <Typography variant="subtitle2" fontWeight={600}>STT</Typography>
+                            <Typography variant="subtitle2" fontWeight={600}>ID</Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Tên Khách Sạn</Typography>
@@ -205,6 +252,9 @@ const HotelManagement = () => {
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>Mô Tả</Typography>
                         </TableCell>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
+                        <Typography variant="subtitle2" fontWeight={600}>Hành Động</Typography>
+                    </TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -223,6 +273,8 @@ const HotelManagement = () => {
                                 ))}
 
                             </TableCell>
+                            <TableCell>{hotel.Price_Hotel}</TableCell>
+                            <TableCell>{hotel.Adress_Hotel}</TableCell>
                             <TableCell style={{
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap',
@@ -256,6 +308,8 @@ const HotelManagement = () => {
                         variant="outlined"
                         name='Name_Hotel'
                         onChange={handleValueInput}
+                        error={!!errors.Name_Hotel}
+                        helperText={errors.Name_Hotel}
                     />
                     <TextField
                         margin="dense"
@@ -264,6 +318,8 @@ const HotelManagement = () => {
                         variant="outlined"
                         name='Price_Hotel'
                         onChange={handleValueInput}
+                        error={!!errors.Price_Hotel}
+                        helperText={errors.Price_Hotel}
                     />
                     <input
                         type="file"
@@ -271,6 +327,7 @@ const HotelManagement = () => {
                         onChange={handleImageUpload}
                         style={{ marginBottom: '16px' }}
                     />
+                    {images.length === 0 && <Typography color="error">Vui lòng tải lên ít nhất một hình ảnh!</Typography>}
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         {images.map((image, index) => (
                             <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -290,6 +347,8 @@ const HotelManagement = () => {
                         rows={2}
                         name='Adress_Hotel'
                         onChange={handleValueInput}
+                        error={!!errors.Adress_Hotel}
+                        helperText={errors.Adress_Hotel}
                     />
                     <TextField
                         margin="dense"
@@ -300,6 +359,8 @@ const HotelManagement = () => {
                         type='number'
                         name='Description_Hotel'
                         onChange={handleValueInput}
+                        error={!!errors.Description_Hotel}
+                        helperText={errors.Description_Hotel}
                     />
                 </DialogContent>
                 <DialogActions>
@@ -323,6 +384,8 @@ const HotelManagement = () => {
                                 defaultValue={selectedHotel.Name_Hotel}
                                 name='Name_Hotel'
                                 onChange={handleValueInput}
+                                error={!!errors.Name_Hotel}
+                                helperText={errors.Name_Hotel}
                             />
                             <TextField
                                 margin="dense"
@@ -332,6 +395,8 @@ const HotelManagement = () => {
                                 defaultValue={selectedHotel.Price_Hotel}
                                 name='Price_Hotel'
                                 onChange={handleValueInput}
+                                error={!!errors.Price_Hotel}
+                                helperText={errors.Price_Hotel}
                             />
                             <input
                                 type="file"
@@ -339,6 +404,7 @@ const HotelManagement = () => {
                                 onChange={handleImageUpload}
                                 style={{ marginBottom: '16px' }}
                             />
+                            {images.length === 0 && <Typography color="error">Vui lòng tải lên ít nhất một hình ảnh!</Typography>}
                             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                                 {images.map((image, index) => (
                                     <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -356,9 +422,11 @@ const HotelManagement = () => {
                                 variant="outlined"
                                 multiline
                                 rows={2}
-                                defaultValue={selectedHotel.Description_Hotel}
+                                defaultValue={selectedHotel.Adress_Hotel}
                                 name='Adress_Hotel'
                                 onChange={handleValueInput}
+                                error={!!errors.Adress_Hotel}
+                                helperText={errors.Adress_Hotel}
                             />
                             <TextField
                                 margin="dense"
@@ -369,7 +437,9 @@ const HotelManagement = () => {
                                 type='number'
                                 name='Description_Hotel'
                                 onChange={handleValueInput}
-                                defaultValue={selectedHotel.Price_Hotel}
+                                defaultValue={selectedHotel.Description_Hotel}
+                                error={!!errors.Description_Hotel}
+                                helperText={errors.Description_Hotel}
                             />
                         </>
                     )}

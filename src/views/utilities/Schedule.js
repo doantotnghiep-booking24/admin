@@ -10,6 +10,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import axios from 'axios';
 import ModalCustom from '../../modals/ModalCustom';
 import { toast } from 'react-toastify';
+import validator from 'validator';
 const initialSchedules = [
     {
         id: 1,
@@ -43,6 +44,55 @@ const ScheduleManagement = () => {
         Text_Schedule_Afternoon: "",
 
     })
+
+    const [errors, setErrors] = useState({
+        Name_Schedule: "",
+        Location_map: "",
+        Time_Morning_Schedule: "",
+        Text_Schedule_Morning: "",
+        Time_Noon_Schedule: "",
+        Text_Schedule_Noon: "",
+        Time_Afternoon_Schedule: "",
+        Text_Schedule_Afternoon: "",
+    })
+
+    const validateForm = (data) => {
+        const newErrors = {};
+        // name
+        if (validator.isEmpty(data.Name_Schedule)) {
+            newErrors.Name_Schedule = 'Tên lịch trình không được để trống!'
+        }
+        // location map
+        if (validator.isEmpty(data.Location_map)) {
+            newErrors.Location_map = 'Vị trí trê bản đồ không được để trống!'
+        }
+        // Tgian buổi sáng
+        if (validator.isEmpty(data.Time_Morning_Schedule)) {
+            newErrors.Time_Morning_Schedule = 'Thời giann buổi sáng không được để trống'
+        }
+        // Lịch trình buổi sáng
+        if (validator.isEmpty(data.Text_Schedule_Morning)) {
+            newErrors.Text_Schedule_Morning = 'Lịch trình buổi sáng không được bỏ trống'
+        }
+        // Thời gian buổi trưa
+        if (validator.isEmpty(data.Time_Noon_Schedule)) {
+            newErrors.Time_Noon_Schedule = 'Thời gian buổi trưa không được để trống'
+        }
+        // lịch trình buổi trưa
+        if (validator.isEmpty(data.Text_Schedule_Noon)) {
+            newErrors.Text_Schedule_Noon = 'Lịch trình buổi trưa không được để trống'
+        }
+        // thời gian buổi chiều
+        if (validator.isEmpty(data.Time_Afternoon_Schedule)) {
+            newErrors.Time_Afternoon_Schedule = 'Thời gian buổi chiều không được bỏ trống'
+        }
+        // lịch trình buổi chiều 
+        if (validator.isEmpty(data.Text_Schedule_Afternoon)) {
+            newErrors.Text_Schedule_Afternoon = 'Lịch trình buổi chiều không được để trống';
+        }
+        return newErrors;
+    }
+
 
     const [isModal, setIsModal] = useState(false)
     const [deletedId, setDeletedId] = useState("")
@@ -80,7 +130,12 @@ const ScheduleManagement = () => {
         }
     }
 
-    const handleAddTypeTours = async () => {
+    const handleAddSchedule = async () => {
+        const errors = validateForm(valueInput);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
         const api = "http://localhost:3001/Schedules/CreateSchedule"
         try {
             const res = await axios.post(api, valueInput)
@@ -98,7 +153,13 @@ const ScheduleManagement = () => {
         const { name, value } = e.target;
         setValueInput({ ...valueInput, [name]: value })
     }
-    const handleUpdateTypeTour = async () => {
+    
+    const handleUpdateSchedule = async () => {
+        const errors = validateForm(valueInput);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
         const api = "http://localhost:3001/Schedules/UpdateSchedule/"
         try {
             const updatedType = {
@@ -245,6 +306,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Name_Schedule}
+                        helperText={errors.Name_Schedule}
                     />
                     <TextField
                         name='Location_map'
@@ -252,6 +315,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Location_map}
+                        helperText={errors.Location_map}
                     />
                     <TextField
                         name='Time_Morning_Schedule'
@@ -259,6 +324,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Time_Morning_Schedule}
+                        helperText={errors.Time_Morning_Schedule}
                     />
 
                     <TextField
@@ -267,6 +334,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Text_Schedule_Morning}
+                        helperText={errors.Text_Schedule_Morning}
                     />
 
                     <TextField
@@ -275,6 +344,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Time_Noon_Schedule}
+                        helperText={errors.Time_Noon_Schedule}
                     />
 
                     <TextField
@@ -283,6 +354,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Text_Schedule_Noon}
+                        helperText={errors.Text_Schedule_Noon}
                     />
                     <TextField
                         name='Time_Afternoon_Schedule'
@@ -290,6 +363,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Time_Afternoon_Schedule}
+                        helperText={errors.Time_Afternoon_Schedule}
                     />
 
                     <TextField
@@ -298,13 +373,15 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Text_Schedule_Afternoon}
+                        helperText={errors.Text_Schedule_Afternoon}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseAdd} color="primary">
                         Hủy
                     </Button>
-                    <Button onClick={handleAddTypeTours} color="primary">
+                    <Button onClick={handleAddSchedule} color="primary">
                         Lưu
                     </Button>
                 </DialogActions>
@@ -321,6 +398,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Name_Schedule}
+                        helperText={errors.Name_Schedule}
                     />
                     <TextField
                         name='Location_map'
@@ -330,6 +409,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Location_map}
+                        helperText={errors.Location_map}
                     />
                     <TextField
                         name='Time_Morning_Schedule'
@@ -339,6 +420,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Time_Morning_Schedule}
+                        helperText={errors.Time_Morning_Schedule}
                     />
                     <TextField
                         name='Text_Schedule_Morning'
@@ -348,6 +431,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Text_Schedule_Morning}
+                        helperText={errors.Text_Schedule_Morning}
                     />
 
                     <TextField
@@ -358,6 +443,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Time_Noon_Schedule}
+                        helperText={errors.Time_Noon_Schedule}
                     />
                     <TextField
                         name='Text_Schedule_Noon'
@@ -367,7 +454,10 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
-                    /><TextField
+                        error={!!errors.Text_Schedule_Noon}
+                        helperText={errors.Text_Schedule_Noon}
+                    />
+                    <TextField
                         name='Time_Afternoon_Schedule'
                         label="Thời gian buổi chiều"
                         defaultValue={editData ? editData.Time_Afternoon_Schedule
@@ -375,6 +465,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Time_Afternoon_Schedule}
+                        helperText={errors.Time_Afternoon_Schedule}
                     />
                     <TextField
                         name='Text_Schedule_Afternoon'
@@ -384,13 +476,15 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Text_Schedule_Afternoon}
+                        helperText={errors.Text_Schedule_Afternoon}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseEdit} color="primary">
                         Hủy
                     </Button>
-                    <Button onClick={handleUpdateTypeTour} color="primary">
+                    <Button onClick={handleUpdateSchedule} color="primary">
                         Lưu
                     </Button>
                 </DialogActions>
