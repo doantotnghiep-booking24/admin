@@ -57,8 +57,11 @@ const CategoryManagement = () => {
         }
     }, [type_ButtonAdd])
     useEffect(() => {
+        console.log(idDelete);
+        
         const Delete_Cate = async () => {
             const res = await handleDeleteCategories(idDelete)
+            console.log(res.status)
             res.status === 200 ? window.location.reload() : console.log('Error When handle function Delete');
             handleCloseAdd()
             notification("success", "Delete categories successfully")
