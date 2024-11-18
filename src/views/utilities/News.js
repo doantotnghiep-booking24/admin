@@ -68,6 +68,10 @@ const ArticleManagement = () => {
         Content: ""
     })
 
+
+    useEffect(() => {
+        getNewsData();
+    }, [])
     const validateForm = () => {
         const newErrors = {};
         if (!news.Name) {
@@ -85,7 +89,7 @@ const ArticleManagement = () => {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-    
+
 
 
     const handleAddClickOpen = () => {
@@ -108,7 +112,7 @@ const ArticleManagement = () => {
 
     const handleImageChange = async (event) => {
         const files = Array.from(event.target.files);
-        
+
         // Kiểm tra nếu không có ảnh nào được chọn
         if (files.length === 0) {
             setErrors((prevErrors) => ({
@@ -118,24 +122,24 @@ const ArticleManagement = () => {
         } else {
             setErrors((prevErrors) => ({
                 ...prevErrors,
-                Images: "" 
+                Images: ""
             }));
         }
-    
+
         setNameImages(files);
-    
+
         const filesDisplay = files.map((item) => URL.createObjectURL(item));
-    
+
         setNewImages(filesDisplay);
     };
-    
+
 
     const handleRemoveImage = (index) => {
         setNewImages(prevImages => prevImages.filter((_, i) => i !== index));
     };
 
     const handleAddNews = async () => {
-         if (!validateForm()) { return; }
+        if (!validateForm()) { return; }
         const api = "http://localhost:3001/News/CreateNew"
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
@@ -149,7 +153,7 @@ const ArticleManagement = () => {
         fetch('http://localhost:3001/News/CreateNew', {
             method: 'POST',
             body: formData,
-            
+
         })
             .then(res => res.json())
             .then(data => {
@@ -176,6 +180,8 @@ const ArticleManagement = () => {
             const res = await axios.get(api, { withCredentials: true });
             const datas = await res.data;
             const { News } = datas
+            console.log(News.Schedule_Travel);
+
             const news = News.filter(t => t.isDeleted === false);
             const newsDeleted = News.filter(t => t.isDeleted === true);
             setNewsTrash(newsDeleted)
@@ -396,8 +402,8 @@ const ArticleManagement = () => {
                         name='Name'
 
                         onChange={(e) => handleGetValueInput(e)}
-                        error={!!errors.Name}  
-                        helperText={errors.Name}  
+                        error={!!errors.Name}
+                        helperText={errors.Name}
                     />
                     <TextField
                         margin="dense"

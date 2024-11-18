@@ -215,7 +215,6 @@ const TourManagement = () => {
         try {
             const res = await fetch(api, { credentials: "include" })
             const data = await res.json();
-            console.log(data);
 
             setDataSchedule(data.Schedule_Travel)
         } catch (e) {

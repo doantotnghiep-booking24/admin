@@ -91,7 +91,7 @@ const ServiceManagement = () => {
         setIsLoading(true)
         const api = "http://localhost:3001/Services/GetAllService"
         try {
-            const res = await axios.get(api)
+            const res = await axios.get(api, { withCredentials: true})
             const datas = await res.data
             console.log(datas.Services);
             setDataService(datas.Services)
