@@ -1,6 +1,6 @@
 import axios from 'axios'
 export const handleGetCategories = async () => {
-    const Categories = await fetch('http://localhost:3001/V2/Category/getCategories')
+    const Categories = await fetch('http://localhost:3001/V2/Category/getCategories', { credentials: "include" })
         .then(res => res.json())
     return Categories.Categories
 }
@@ -18,9 +18,14 @@ export const handleCreateCategories = async (data) => {
     return CreateCategories
 }
 export const handleDeleteCategories = async (id) => {
-    const DeleteCategories = await axios.post(`http://localhost:3001/V2/Category/DeleteCategory/${id}`,
+
+    const DeleteCategories = await fetch(`http://localhost:3001/V2/Category/DeleteCategory/${id}`,
         {
-            withCredentials: "include"
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
         },
     )
     return DeleteCategories

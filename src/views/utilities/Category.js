@@ -76,6 +76,8 @@ const CategoryManagement = () => {
     }, [type_ButtonAdd]);
 
     useEffect(() => {
+        console.log(idDelete);
+        
         const Delete_Cate = async () => {
             const res = await handleDeleteCategories(idDelete);
             res.status === 200 ? window.location.reload() : console.error('Error When handle function Delete');

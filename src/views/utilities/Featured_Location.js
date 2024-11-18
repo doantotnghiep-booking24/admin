@@ -28,6 +28,11 @@ import axios from 'axios';
 import ModalCustom from '../../modals/ModalCustom';
 import { toast } from 'react-toastify';
 import validator from 'validator';
+import RestoreIcon from '@mui/icons-material/Restore';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import RecyclingIcon from '@mui/icons-material/Recycling';
+import ModalRestore from '../../modals/ModalRestore';
 const initialLocations = [
     {
         id: 1,
@@ -59,6 +64,7 @@ const LocationManagement = () => {
     const [images, setImages] = useState([]);
     const [nameImages, setNameImages] = useState([]);
     const [dataTour, setDataTours] = useState([])
+    const [dataTrash, setDataTrash] = useState([]);
     const [location, setLocation] = useState({
         Name_Location: "",
         Address_Location: "",
@@ -118,6 +124,9 @@ const LocationManagement = () => {
 
     const [isModal, setIsModal] = useState(false)
     const [deletedId, setDeletedId] = useState("")
+    const [openTrash, setOpenTrash] = useState(false);
+    const [isModalRestore, setIsModalRestore] = useState(false);
+    const [restoreId, setRestoreId] = useState("")
 
     const handleAddClickOpen = () => {
         setOpenAdd(true);
@@ -155,8 +164,15 @@ const LocationManagement = () => {
         const api = "http://localhost:3001/V2/Featured_Location/GetFeatured_Location"
 
         try {
-            const res = await axios.get(api)
-            setDataLocation(res.data.Featured_Location)
+            const res = await axios.get(api, { withCredentials: true })
+            const datas = await res.data;
+
+
+            const dataUndeleted = datas.Featured_Location.filter(t => t.isDeleted === false);
+            const dataDeleted = datas.Featured_Location.filter(t => t.isDeleted === true);
+            setDataTrash(dataDeleted)
+
+            setDataLocation(dataUndeleted)
 
         } catch (error) {
             console.log(error);
@@ -165,15 +181,36 @@ const LocationManagement = () => {
     }
     const handleDeleteLocation = async (id) => {
         const api = `http://localhost:3001/V2/Featured_Location/DeleteFeatured_Location/${id}`
-
+        const apiRemove = `http://localhost:3001/V2/Featured_Location/RemoveFeatured_Location/${id}`
         try {
-            const res = await axios.post(api)
-            getDataManagerLocation();
-            notification("success", "Deleted News successfully")
+            if (openTrash) {
+                const res = await axios.post(api, {}, { withCredentials: true })
+                await getDataManagerLocation();
+                notification("success", "Deleted News successfully")
+            } else {
+                const res = await axios.post(apiRemove, {}, { withCredentials: true })
+                await getDataManagerLocation();
+                notification("success", "Deleted News successfully")
+            }
+
         } catch (error) {
             console.log(error);
 
         }
+    }
+
+    const handleRestore = async (id) => {
+        const api = `http://localhost:3001/V2/Featured_Location/RestoreFeatured_Location/${id}`
+
+        try {
+            const result = await axios.post(api, {}, { withCredentials: true });
+            await getDataManagerLocation()
+            notification("success", "Khôi phục  Tour thành công")
+        } catch (e) {
+            console.log(e);
+
+        }
+
     }
 
     const handleGetValueInput = (e) => {
@@ -240,7 +277,7 @@ const LocationManagement = () => {
         formData.append("City_Location", location.City_Location || selectedLocation.City_Location)
         formData.append("id_tour", location.id_tour || selectedLocation.id_tour)
         try {
-            await axios.post(`http://localhost:3001/V2/Featured_Location/UpdateFeatured_Location/${selectedLocation._id}`, formData);
+            await axios.post(`http://localhost:3001/V2/Featured_Location/UpdateFeatured_Location/${selectedLocation._id}`, formData, { withCredentials: true });
             getDataManagerLocation()
             handleClose()
             notification("success", "Updated News successfully")
@@ -254,8 +291,10 @@ const LocationManagement = () => {
         const api = "http://localhost:3001/V1/Tours/GetTours"
 
         try {
-            const res = await axios.get(api)
-            setDataTours(res.data.Tours.datas)
+            const res = await axios.get(api, { withCredentials: true })
+            const dataManager = await res.data;
+
+            setDataTours(dataManager.Tours.datas)
         } catch (error) {
             console.log(error);
 
@@ -290,10 +329,31 @@ const LocationManagement = () => {
                 Quản Lý Địa Điểm
             </Typography>
 
-            <Button variant="contained" color="primary" onClick={handleAddClickOpen}>
-                Thêm Địa Điểm
-            </Button>
 
+
+            <Box sx={{
+                display: "flex",
+                gap: 2
+            }}>
+                {!openTrash && <Button variant="contained" color="primary" onClick={handleAddClickOpen}>
+                    Thêm Địa Điểm
+                </Button>}
+
+                <Button variant="contained" sx={{
+                    bgcolor: openTrash ? "blue" : "red"
+                }} onClick={() => setOpenTrash(!openTrash)} >
+                    {openTrash ? (
+                        <>
+                            Quay lại
+                            <ArrowBackIcon sx={{ fontSize: "17px" }} />
+                        </>
+                    ) : (
+                        <>
+                            Thùng rác
+                            <RecyclingIcon sx={{ fontSize: "17px" }} />
+                        </>
+                    )}
+                </Button></Box>
             <Table aria-label="bảng địa điểm" sx={{ mt: 2 }}>
                 <TableHead>
                     <TableRow>
@@ -326,31 +386,71 @@ const LocationManagement = () => {
                         </TableCell>
                     </TableRow>
                 </TableHead>
-                <TableBody>
-                    {dataLocation.map((location) => (
-                        <TableRow key={location._id}>
-                            <TableCell>{location._id}</TableCell>
-                            <TableCell>{displayTourById(location?.id_tour)}</TableCell>
-                            <TableCell>{location.Name_Location}</TableCell>
-                            <TableCell>{location.Address_Location}</TableCell>
-                            <TableCell>
-                                {location?.Image_Location?.slice(0, 1).map((item) => <img key={item.path} src={item.path} alt={location.originalname} style={{ width: '50px', height: 'auto' }} />)}
+                {openTrash ? (
+                    dataTrash && dataTrash.length > 0 ? (
+                        <TableBody>
+                            {dataTrash.map((location) => (
+                                <TableRow key={location._id}>
+                                    <TableCell>{location._id}</TableCell>
+                                    <TableCell>{displayTourById(location?.id_tour)}</TableCell>
+                                    <TableCell>{location.Name_Location}</TableCell>
+                                    <TableCell>{location.Address_Location}</TableCell>
+                                    <TableCell>
+                                        {location?.Image_Location?.slice(0, 1).map((item) => (
+                                            <img key={item.path} src={item.path} alt={location.originalname} style={{ width: '50px', height: 'auto' }} />
+                                        ))}
+                                    </TableCell>
+                                    <TableCell>{location.Type_Location}</TableCell>
+                                    <TableCell>{location.Nationnal}</TableCell>
+                                    <TableCell>{location.City_Location}</TableCell>
+                                    <TableCell align="right">
+                                        <IconButton onClick={() => (setRestoreId(location._id), setIsModalRestore(true))}>
+                                            <EditIcon color="primary" />
+                                        </IconButton>
+                                        <IconButton onClick={() => (setIsModal(true), setDeletedId(location._id))}>
+                                            <DeleteIcon color="secondary" />
+                                        </IconButton>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    ) : (
+                        <TableBody>
+                            <TableRow>
+                                <TableCell colSpan={9} align="center">Thùng rác rỗng</TableCell>
+                            </TableRow>
+                        </TableBody>
+                    )
+                ) : (
+                    <TableBody>
+                        {dataLocation.map((location) => (
+                            <TableRow key={location._id}>
+                                <TableCell>{location._id}</TableCell>
+                                <TableCell>{displayTourById(location?.id_tour)}</TableCell>
+                                <TableCell>{location.Name_Location}</TableCell>
+                                <TableCell>{location.Address_Location}</TableCell>
+                                <TableCell>
+                                    {location?.Image_Location?.slice(0, 1).map((item) => (
+                                        <img key={item.path} src={item.path} alt={location.originalname} style={{ width: '50px', height: 'auto' }} />
+                                    ))}
+                                </TableCell>
+                                <TableCell>{location.Type_Location}</TableCell>
+                                <TableCell>{location.Nationnal}</TableCell>
+                                <TableCell>{location.City_Location}</TableCell>
+                                <TableCell align="right">
+                                    <IconButton onClick={() => handleEditClickOpen(location)}>
+                                        <EditIcon color="primary" />
+                                    </IconButton>
+                                    <IconButton onClick={() => (setIsModal(true), setDeletedId(location._id))}>
+                                        <DeleteIcon color="secondary" />
+                                    </IconButton>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                )}
 
-                            </TableCell>
-                            <TableCell>{location.Type_Location}</TableCell>
-                            <TableCell>{location.Nationnal}</TableCell>
-                            <TableCell>{location.City_Location}</TableCell>
-                            <TableCell align="right">
-                                <IconButton onClick={() => handleEditClickOpen(location)}>
-                                    <EditIcon color="primary" />
-                                </IconButton>
-                                <IconButton onClick={() => (setIsModal(true), setDeletedId(location._id))}>
-                                    <DeleteIcon color="secondary" />
-                                </IconButton>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
+
             </Table>
 
             {/* Form Thêm Địa Điểm */}
@@ -564,6 +664,11 @@ const LocationManagement = () => {
             }} actionId={deletedId} handleAction={(id) => {
                 handleDeleteLocation(id)
             }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Địa điểm này không!" />
+            <ModalRestore isModalRestore={isModalRestore} setIsModalRestore={(value) => {
+                setIsModalRestore(value)
+            }} actionId={restoreId} handleAction={(id) => {
+                handleRestore(id)
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn khôi phục Địa điểm này không!" />
         </Paper>
     );
 };

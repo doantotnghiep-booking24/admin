@@ -14,6 +14,7 @@ import {
     DialogContent,
     DialogActions,
     TextField,
+    Box
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -22,6 +23,11 @@ import ModalCustom from '../../modals/ModalCustom';
 import { toast } from 'react-toastify';
 import validator from 'validator';
 
+import RestoreIcon from '@mui/icons-material/Restore';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import RecyclingIcon from '@mui/icons-material/Recycling';
+import ModalRestore from '../../modals/ModalRestore';
 const initialVouchers = [
     {
         id: 1,
@@ -107,6 +113,10 @@ const VoucherManagement = () => {
     };
 
 
+    const [openTrash, setOpenTrash] = useState(false);
+    const [voucherTrash, setVoucherTrash] = useState([])
+    const [isModalRestore, setIsModalRestore] = useState(false);
+    const [restoreId, setRestoreId] = useState("")
     const handleAddClickOpen = () => {
         setOpenAdd(true);
     };
@@ -143,9 +153,12 @@ const VoucherManagement = () => {
 
         const api = "http://localhost:3001/Vouchers/GetAllVoucher"
         try {
-            const res = await axios.get(api)
-            const datas = await res.data
-            setDataVoucher(datas.Voucher)
+            const res = await axios.get(api, { withCredentials: true })
+            const datas = await res.data;
+            const dataVoucherUnDeleted = datas.Voucher.filter(t => t.isDeleted === false)
+            const voucherDeleted = datas.Voucher.filter(t => t.isDeleted === true)
+            setVoucherTrash(voucherDeleted)
+            setDataVoucher(dataVoucherUnDeleted)
 
 
         } catch (error) {
@@ -163,7 +176,7 @@ const VoucherManagement = () => {
         const api = "http://localhost:3001/Vouchers/CreateVoucher"
         try {
 
-            const res = await axios.post(api, valueInput)
+            const res = await axios.post(api, valueInput, { withCredentials: true })
 
             setValueInput({})
             getAllVoucher()
@@ -195,7 +208,7 @@ const VoucherManagement = () => {
                 Condition: valueInput.Condition || selectedVoucher.Condition,
             };
 
-            const res = await axios.post(`${api}${selectedVoucher._id}`, updatedType)
+            const res = await axios.post(`${api}${selectedVoucher._id}`, updatedType, { withCredentials: true })
             console.log(res);
             getAllVoucher()
             handleClose()
@@ -210,18 +223,39 @@ const VoucherManagement = () => {
 
     const handleDeleteVoucher = async (id) => {
         const api = "http://localhost:3001/Vouchers/DeleteVoucher/"
+        const apiRemove = "http://localhost:3001/Vouchers/RemoveVoucher/"
         try {
             if (id) {
-                const res = await axios.post(`${api}${id}`)
-                console.log(res);
-                getAllVoucher();
-                notification("success", "Deleted Voucher successfully")
+                if (openTrash) {
+                    const res = await axios.post(`${api}${id}`, {}, { withCredentials: true })
+
+                    await getAllVoucher();
+                    notification("success", "Deleted Voucher successfully")
+                } else {
+                    const res = await axios.post(`${apiRemove}${id}`, {}, { withCredentials: true })
+                    await getAllVoucher();
+                    notification("success", "Deleted Voucher successfully")
+                }
+
             }
         } catch (error) {
             console.log(error);
         }
     }
 
+    const handleRestore = async (id) => {
+        const api = `http://localhost:3001/Vouchers/RestoreVoucher/${id}`
+
+        try {
+            const result = await axios.post(api, {}, { withCredentials: true });
+            await getAllVoucher()
+            notification("success", "Khôi phục  Tour thành công")
+        } catch (e) {
+            console.log(e);
+
+        }
+
+    }
     useEffect(() => {
         getAllVoucher();
     }, [])
@@ -245,9 +279,31 @@ const VoucherManagement = () => {
                 Quản Lý Voucher
             </Typography>
 
-            <Button variant="contained" color="primary" onClick={handleAddClickOpen}>
-                Thêm Voucher
-            </Button>
+
+
+            <Box sx={{
+                display: "flex",
+                gap: 2
+            }}>
+                {!openTrash && <Button variant="contained" color="primary" onClick={handleAddClickOpen}>
+                    Thêm Khuyến mãi
+                </Button>}
+
+                <Button variant="contained" sx={{
+                    bgcolor: openTrash ? "blue" : "red"
+                }} onClick={() => setOpenTrash(!openTrash)} >
+                    {openTrash ? (
+                        <>
+                            Quay lại
+                            <ArrowBackIcon sx={{ fontSize: "17px" }} />
+                        </>
+                    ) : (
+                        <>
+                            Thùng rác
+                            <RecyclingIcon sx={{ fontSize: "17px" }} />
+                        </>
+                    )}
+                </Button></Box>
 
             <Table aria-label="bảng voucher" sx={{ mt: 2 }}>
                 <TableHead>
@@ -284,40 +340,68 @@ const VoucherManagement = () => {
                         </TableCell>
                     </TableRow>
                 </TableHead>
-                <TableBody>
-                    {dataVoucher.map((voucher) => (
-                        <TableRow key={voucher._id}>
-                            <TableCell>{voucher._id}</TableCell>
-                            <TableCell>{voucher.Code_Voucher}</TableCell>
-                            <TableCell>{voucher.
-                                Description}</TableCell>
-                            <TableCell>{voucher.Discount}</TableCell>
-                            <TableCell>{voucher.Type}</TableCell>
-                            <TableCell>{voucher.Start_Date}</TableCell>
-                            <TableCell>{voucher.End_Date
-                            }</TableCell>
-                            <TableCell>{voucher.Max_Usage}</TableCell>
-                            <TableCell>
-                                {
-                                voucher.Condition ? 
-                                `Yêu cầu tên tour: ${voucher.Condition.Name_tour},
-                                 Min giá tour: ${voucher.Condition.Min_tour_value},
-                                 Loại tour: ${voucher.Condition.Tour_categories}` 
-                                 : "Không có thông tin"
-                                }
-                            </TableCell>
 
-                            <TableCell align="right">
-                                <IconButton onClick={() => handleEditClickOpen(voucher)}>
-                                    <EditIcon color="primary" />
-                                </IconButton>
-                                <IconButton onClick={() => (setIsModal(true), setDeletedId(voucher._id))}>
-                                    <DeleteIcon color="secondary" />
-                                </IconButton>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
+                {openTrash ? (
+                    <TableBody>
+                        {voucherTrash?.length > 0 ? (
+                            voucherTrash.map((voucher) => (
+                                <TableRow key={voucher._id}>
+                                    <TableCell>{voucher._id}</TableCell>
+                                    <TableCell>{voucher.Code_Voucher}</TableCell>
+                                    <TableCell>{voucher.Description}</TableCell>
+                                    <TableCell>{voucher.Discount}</TableCell>
+                                    <TableCell>{voucher.Type}</TableCell>
+                                    <TableCell>{voucher.Start_Date}</TableCell>
+                                    <TableCell>{voucher.End_Date}</TableCell>
+                                    <TableCell>{voucher.Max_Usage}</TableCell>
+                                    <TableCell>
+                                        {`Yêu cầu tên tour: ${voucher.Condition?.Name_tour || ''}, ${voucher.Condition?.Min_tour_value || ''}, ${voucher.Condition?.Tour_categories || ''}`}
+                                    </TableCell>
+                                    <TableCell align="right">
+                                        <IconButton onClick={() => (setRestoreId(voucher._id), setIsModalRestore(true))}>
+                                            <RestoreIcon />
+                                        </IconButton>
+                                        <IconButton onClick={() => (setIsModal(true), setDeletedId(voucher._id))}>
+                                            <DeleteForeverIcon />
+                                        </IconButton>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={10} align="center">Thùng rác rỗng</TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                ) : (
+                    <TableBody>
+                        {dataVoucher?.map((voucher) => (
+                            <TableRow key={voucher._id}>
+                                <TableCell>{voucher._id}</TableCell>
+                                <TableCell>{voucher.Code_Voucher}</TableCell>
+                                <TableCell>{voucher.Description}</TableCell>
+                                <TableCell>{voucher.Discount}</TableCell>
+                                <TableCell>{voucher.Type}</TableCell>
+                                <TableCell>{voucher.Start_Date}</TableCell>
+                                <TableCell>{voucher.End_Date}</TableCell>
+                                <TableCell>{voucher.Max_Usage}</TableCell>
+                                <TableCell>
+                                    {`Yêu cầu tên tour: ${voucher.Condition?.Name_tour || ''}, ${voucher.Condition?.Min_tour_value || ''}, ${voucher.Condition?.Tour_categories || ''}`}
+                                </TableCell>
+                                <TableCell align="right">
+                                    <IconButton onClick={() => handleEditClickOpen(voucher)}>
+                                        <EditIcon color="primary" />
+                                    </IconButton>
+                                    <IconButton onClick={() => (setIsModal(true), setDeletedId(voucher._id))}>
+                                        <DeleteIcon color="secondary" />
+                                    </IconButton>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                )}
+
+
             </Table>
 
             {/* Form Thêm Voucher */}
@@ -526,7 +610,13 @@ const VoucherManagement = () => {
                 setIsModal(value)
             }} actionId={deletedId} handleAction={(id) => {
                 handleDeleteVoucher(id)
-            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Voucher này không!" />
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Voucher này không!" openTrash={openTrash} />
+
+            <ModalRestore isModalRestore={isModalRestore} setIsModalRestore={(value) => {
+                setIsModalRestore(value)
+            }} actionId={restoreId} handleAction={(id) => {
+                handleRestore(id)
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn khôi phục Voucher này không!" />
         </Paper>
     );
 };

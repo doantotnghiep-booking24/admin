@@ -6,18 +6,18 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 
-export default function ModalCustom({
-  isModal,
-  setIsModals,
+
+export default function ModalRestore({
+    isModalRestore,
+    setIsModalRestore,
   handleAction,
   description,
   confirmText,
   cancelText,
   actionId,
-  openTrash,
 }) {
   const handleClose = () => {
-    setIsModals(false);
+    setIsModalRestore(false);
   };
 
   const handleAgree = () => {
@@ -28,14 +28,14 @@ export default function ModalCustom({
   return (
     <React.Fragment>
       <Dialog
-        open={isModal}
+        open={isModalRestore}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            {openTrash ? "Bạn có muốn xóa vĩnh viễn không?" : description}
+            {description }
           </DialogContentText>
         </DialogContent>
         <DialogActions>
