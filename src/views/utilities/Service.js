@@ -110,7 +110,7 @@ const ServiceManagement = () => {
         }
         const api = "http://localhost:3001/Services/CreateService";
         try {
-            const res = await axios.post(api, valueInput)
+            const res = await axios.post(api, valueInput, { withCredentials: true})
             handleCloseAdd()
             getAllService()
             notification("success", "Created Schedule successfully")

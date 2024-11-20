@@ -242,7 +242,8 @@ const LocationManagement = () => {
 
         fetch(api, {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'include'
         })
             .then(res => res.json())
             .then(data => {

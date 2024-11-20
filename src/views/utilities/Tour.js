@@ -174,6 +174,8 @@ const TourManagement = () => {
     };
 
     const handleEditClickOpen = (tour) => {
+
+
         setSelectedTour(tour);
         setOpenEdit(true);
     };
@@ -187,8 +189,8 @@ const TourManagement = () => {
     };
 
     const handleImageUpload = (event) => {
-        
-        const files = Array.from(event.target.files);        
+
+        const files = Array.from(event.target.files);
         // Kiểm tra nếu không có ảnh nào được chọn
         if (files.length === 0) {
             setErrors((prevErrors) => ({
@@ -198,7 +200,7 @@ const TourManagement = () => {
         } else {
             setErrors((prevErrors) => ({
                 ...prevErrors,
-                Images: "" 
+                Images: ""
             }));
         }
         setNameImages(files)
@@ -295,7 +297,8 @@ const TourManagement = () => {
 
         fetch(api, {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: "include"
         })
 
             .then(res => res.json())
@@ -314,10 +317,15 @@ const TourManagement = () => {
 
     const handleEditTour = async () => {
         const errors = validateForm(getValueInput);
+        console.log(errors);
+
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;
         }
+
+
+
         const api = `http://localhost:3001/V1/Tours/Update/${selectedTour._id}`;
 
 
@@ -718,7 +726,7 @@ const TourManagement = () => {
                         <FormControl fullWidth sx={{ mt: 2 }}>
                             <InputLabel>Lịch trình khởi hành</InputLabel>
                             <Select defaultValue="" name='id_Schedule_Travel' onChange={handleValueInput}>
-                                {dataSchedule?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Departure_Time}</MenuItem>)}
+                                {dataSchedule?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Schedule}</MenuItem>)}
                                 {/* <MenuItem value="Vourcher">Đà Nẵng</MenuItem>
                     <MenuItem value="Vourcher">Hà Nội</MenuItem> */}
                             </Select>
@@ -850,7 +858,7 @@ const TourManagement = () => {
                                 <FormControl fullWidth sx={{ mt: 2 }}>
                                     <InputLabel>Lịch trình khởi hành</InputLabel>
                                     <Select defaultValue={selectedTour.id_Schedule_Travel} name='id_Schedule_Travel' onChange={handleValueInput}>
-                                        {dataSchedule?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Departure_Time}</MenuItem>)}
+                                        {dataSchedule?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Schedule}</MenuItem>)}
                                         {/* <MenuItem value="Vourcher">Đà Nẵng</MenuItem>
                     <MenuItem value="Vourcher">Hà Nội</MenuItem> */}
                                     </Select>

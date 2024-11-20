@@ -225,7 +225,7 @@ function Statistics() {
                   }}
                 >
                   <Avatar
-                    src={tour.Image_Tour[0].path}
+                    src={tour?.Image_Tour[0]?.path}
                     alt={tour.Name_Tour}
                     sx={{ width: 72, height: 72, marginRight: 3 }}
                   />

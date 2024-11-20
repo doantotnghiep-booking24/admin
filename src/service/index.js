@@ -12,7 +12,7 @@ export const handleCreateCategories = async (data) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ NameCate: data }),
-            
+            credentials: "include"
         },
     )
     return CreateCategories
@@ -37,7 +37,8 @@ export const handleUpdateCategories = async (id, data) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ NameCate: data })
+            body: JSON.stringify({ NameCate: data }),
+            credentials: 'include',
         },
     )
     return UpdateCategories
