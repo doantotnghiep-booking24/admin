@@ -141,7 +141,7 @@ const ticketManagement = () => {
                                     <strong>Tổng thời gian:</strong> {ticket.Total_DateTrip}
                                 </Typography>
                             </TableCell>
-                            <TableCell sx={{ fontSize: '13px', fontFamily: 'Arial' }}>{ticket.Created_at_Booking.slice(0, 10)}</TableCell>
+                            <TableCell sx={{ fontSize: '13px', fontFamily: 'Arial' }}>{ticket?.Created_at_Booking?.slice(0, 10)}</TableCell>
                             <TableCell sx={{ fontSize: '13px', fontFamily: 'Arial' }}>
                                 <Chip
                                     label={ticket.Status_Payment}

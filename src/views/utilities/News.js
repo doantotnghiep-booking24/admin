@@ -153,7 +153,7 @@ const ArticleManagement = () => {
         fetch('http://localhost:3001/News/CreateNew', {
             method: 'POST',
             body: formData,
-
+            credentials: "include"
         })
             .then(res => res.json())
             .then(data => {
@@ -180,7 +180,7 @@ const ArticleManagement = () => {
             const res = await axios.get(api, { withCredentials: true });
             const datas = await res.data;
             const { News } = datas
-            console.log(News.Schedule_Travel);
+            console.log(News);
 
             const news = News.filter(t => t.isDeleted === false);
             const newsDeleted = News.filter(t => t.isDeleted === true);
