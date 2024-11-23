@@ -50,12 +50,20 @@ export const handleGetTickets = async () => {
 export const handleUpdate_StatusTickets = async (data) => {
     const res = await axios.post(`http://localhost:3001/Ticket/Update_StatusTickets`, data)
     return res.data
-} 
+}
 export const handleCustommers = async () => {
     const res = await axios.get(`http://localhost:3001/Custommer/GetCustommers`)
     return res.data
-} 
+}
 export const handleVouchers = async () => {
-    const res = await axios.get(`http://localhost:3001/Vouchers/GetAllVoucher`)
+    const res = await axios.get(`http://localhost:3001/Vouchers/GetAllVoucher`, {}, { withCredentials: true })
+    return res.data
+}
+export const handleGetUsers = async () => {
+    const res = await axios.get(`http://localhost:3001/User/GetAllUsers`)
+    return res.data
+}
+export const handleConfirmCancleTicket = async (id, idCus) => {
+    const res = await axios.post(`http://localhost:3001/Ticket/ConfirmCancleTicket/${id}`, { idCus })
     return res.data
 }
