@@ -153,7 +153,7 @@ const VoucherManagement = () => {
 
         const api = "http://localhost:3001/Vouchers/GetAllVoucher"
         try {
-            const res = await axios.get(api, { withCredentials: true })
+            const res = await axios.get(api)
             const datas = await res.data;
             const dataVoucherUnDeleted = datas.Voucher.filter(t => t.isDeleted === false)
             const voucherDeleted = datas.Voucher.filter(t => t.isDeleted === true)
