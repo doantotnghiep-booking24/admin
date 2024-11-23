@@ -6,19 +6,15 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { handleGetUsers } from '../../service';
+import { useEffect } from 'react';
 
 // Dữ liệu cứng ban đầu
-const initialCustomers = [
-    { id: 1, name: "Nguyễn Văn A", email: "nguyenvana@example.com", password: "password123", role: "admin" },
-    { id: 2, name: "Trần Thị B", email: "tranthib@example.com", password: "pass456", role: "nhân viên" },
-    { id: 3, name: "Lê Minh C", email: "leminhc@example.com", password: "mypassword789", role: "user" },
-];
 
 const CustomerManagement = () => {
-    const [customers] = useState(initialCustomers);
     const [openEdit, setOpenEdit] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState({ id: '', name: '', email: '', password: '', role: '' });
-
+    const [custommer, setCustommers] = useState([])
     // Mở form chỉnh sửa
     const handleEdit = (customer) => {
         setSelectedCustomer(customer);
@@ -29,7 +25,13 @@ const CustomerManagement = () => {
     const handleCloseEdit = () => {
         setOpenEdit(false);
     };
-
+    useEffect(() => {
+        const handleCallUser = async () => {
+            const res = await handleGetUsers()
+            setCustommers(res.Users)
+        }
+        handleCallUser()
+    }, [])
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
             {/* Tiêu đề được căn giữa */}
@@ -43,7 +45,7 @@ const CustomerManagement = () => {
                     <TableRow>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                                Mã khách hàng
+                               STT
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
@@ -74,12 +76,12 @@ const CustomerManagement = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {customers.map((customer) => (
-                        <TableRow key={customer.id}>
-                            <TableCell>{customer.id}</TableCell>
-                            <TableCell>{customer.name}</TableCell>
-                            <TableCell>{customer.email}</TableCell>
-                            <TableCell>{customer.password}</TableCell>
+                    {custommer.map((customer,index) => (
+                        <TableRow key={index}>
+                            <TableCell>{index}</TableCell>
+                            <TableCell>{customer.Name}</TableCell>
+                            <TableCell>{customer.Email}</TableCell>
+                            <TableCell>{customer.Password}</TableCell>
                             <TableCell>{customer.role}</TableCell>
                             <TableCell align="right">
                                 <IconButton onClick={() => handleEdit(customer)}>

@@ -400,7 +400,7 @@ const TourManagement = () => {
     }
 
     const handleDele = async (id) => {
-        console.log(id);
+        // console.log(id);
 
         const api = `http://localhost:3001/V1/Tours/Delete/${id}`
         const apiRemove = `http://localhost:3001/V1/Tours/Remove/`
@@ -411,13 +411,13 @@ const TourManagement = () => {
                 notification("success", "Deleted Tour successfully")
             } else {
                 const res = await axios.post(api, {}, { withCredentials: true });
+                notification("success", "Deleted Tour successfully, if you want to restore. please check into trash can")
                 getDataManagerTour()
-                notification("success", "Deleted Tour successfully")
             }
 
         } catch (error) {
             console.log(error);
-
+            notification("warning", "Trip have been booked, cannot delete")
         }
     }
 
