@@ -10,6 +10,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import ModalCustom from '../../modals/ModalCustom';
 import { toast } from 'react-toastify';
+import validator from 'validator';
+import RestoreIcon from '@mui/icons-material/Restore';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import RecyclingIcon from '@mui/icons-material/Recycling';
+import ModalRestore from '../../modals/ModalRestore';
 const initialTourTypes = [
     { id: 1, Name_Type: "Du lịch mạo hiểm" },
     { id: 2, Name_Type: "Du lịch văn hóa" },
@@ -26,8 +32,31 @@ const TourTypeManagement = () => {
     const [valueInput, setValueInput] = useState({
         Name_Type: ""
     })
+
+    const [errors, setErrors] = useState({
+        Name_Type: '',
+    })
+
+    const validateForm = (data) => {
+        const newErrors = {};
+        // name
+        if (validator.isEmpty(data.Name_Type)) {
+            newErrors.Name_Type = 'Tên địa điểm không được để trống!'
+        }
+        return newErrors;
+    }
+
+
     const [isModal, setIsModal] = useState(false)
     const [deletedId, setDeletedId] = useState("")
+    const [openTrash, setOpenTrash] = useState(false);
+    const [typeTourTrash, setTypeTourTrash] = useState([])
+    const [isModalRestore, setIsModalRestore] = useState(false);
+    const [restoreId, setRestoreId] = useState("")
+
+    useEffect(() => {
+        getAllTypeTours();
+    }, [])
     const handleOpenAddDialog = () => setOpenAddDialog(true);
     const handleCloseAddDialog = () => setOpenAddDialog(false);
 
@@ -44,11 +73,15 @@ const TourTypeManagement = () => {
         setIsLoading(true)
         const api = "http://localhost:3001/V2/TypeTour/GetAllTypeTour"
         try {
-            const res = await axios.get(api)
+            const res = await axios.get(api, { withCredentials: true })
             const datas = await res.data
             const { TypeTour } = datas
+            const typeTourDeleted = TypeTour.filter(t => t.isDeleted === true);
+            const typeTourUndeleted = TypeTour.filter(t => t.isDeleted === false);
+            setTypeTourTrash(typeTourDeleted)
 
-            setTypeTours(TypeTour)
+
+            setTypeTours(typeTourUndeleted)
         } catch (error) {
             console.log(error);
         } finally {
@@ -57,10 +90,16 @@ const TourTypeManagement = () => {
     }
 
     const handleAddTypeTours = async () => {
+        const errors = validateForm(valueInput);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
+
         const api = "http://localhost:3001/V2/TypeTour/CreateTypeTour"
 
         try {
-            const res = await axios.post(api, valueInput)
+            const res = await axios.post(api, valueInput, { withCredentials: true })
             setOpenAddDialog(false)
             getAllTypeTours()
             notification("success", "Created Type Tour successfully")
@@ -76,11 +115,16 @@ const TourTypeManagement = () => {
         setValueInput({ ...valueInput, [name]: value })
     }
     const handleUpdateTypeTour = async () => {
+        const errors = validateForm(valueInput);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
         const api = "http://localhost:3001/V2/TypeTour/UpdateTypeTour/"
         try {
 
             const updatedType = valueInput.Name_Type === "" ? { Name_Type: selectedType.Name_Type } : valueInput;
-            const res = await axios.post(`${api}${selectedType._id}`, updatedType)
+            const res = await axios.post(`${api}${selectedType._id}`, updatedType, { withCredentials: true })
             setOpenEditDialog(false)
             getAllTypeTours()
             notification("success", "Updated Type Tour successfully")
@@ -92,19 +136,39 @@ const TourTypeManagement = () => {
 
     const handleDeleteTypeTour = async (id) => {
         const api = "http://localhost:3001/V2/TypeTour/DeleteTypeTour/"
+        const apiRemove = 'http://localhost:3001/V2/TypeTour/RemoveTypeTour/'
         try {
             if (id) {
-                const res = await axios.post(`${api}${id}`)
-                getAllTypeTours()
-                notification("success", "Deleted Type Tour successfully")
+                if (openTrash) {
+                    const res = await axios.post(`${api}${id}`, {}, { withCredentials: true })
+                    await getAllTypeTours()
+                    notification("success", "Deleted Type Tour successfully")
+                } else {
+                    const res = await axios.post(`${apiRemove}${id}`, {}, { withCredentials: true })
+                    await getAllTypeTours()
+                    notification("success", "Deleted Type Tour successfully")
+                }
+
             }
         } catch (error) {
             console.log(error);
         }
     }
-    useEffect(() => {
-        getAllTypeTours();
-    }, [])
+
+    const handleRestore = async (id) => {
+        const api = `http://localhost:3001/V2/TypeTour/RestoreTypeTour/${id}`
+
+        try {
+            const result = await axios.post(api, {}, { withCredentials: true });
+            await getAllTypeTours()
+            notification("success", "Khôi phục  Tour thành công")
+        } catch (e) {
+            console.log(e);
+
+        }
+
+    }
+
     const notification = (status, message) => {
         return toast[status](message, {
             position: "top-right",
@@ -127,11 +191,30 @@ const TourTypeManagement = () => {
             </Typography>
 
             {/* Nút thêm loại tour nằm bên dưới tiêu đề */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 3 }}>
-                <Button variant="contained" color="primary" onClick={handleOpenAddDialog}>
+            <Box sx={{
+                display: "flex",
+                gap: 2,
+                marginBottom: 3
+            }}>
+                {!openTrash && <Button variant="contained" color="primary" onClick={handleOpenAddDialog}>
                     Thêm Loại Tour
-                </Button>
-            </Box>
+                </Button>}
+
+                <Button variant="contained" sx={{
+                    bgcolor: openTrash ? "blue" : "red"
+                }} onClick={() => setOpenTrash(!openTrash)} >
+                    {openTrash ? (
+                        <>
+                            Quay lại
+                            <ArrowBackIcon sx={{ fontSize: "17px" }} />
+                        </>
+                    ) : (
+                        <>
+                            Thùng rác
+                            <RecyclingIcon sx={{ fontSize: "17px" }} />
+                        </>
+                    )}
+                </Button></Box>
 
             <Table aria-label="bảng loại tour">
                 <TableHead>
@@ -153,7 +236,30 @@ const TourTypeManagement = () => {
                         </TableCell>
                     </TableRow>
                 </TableHead>
-                <TableBody>
+                {openTrash ? <TableBody>
+                    {isLoading && <CircularProgress />}
+                    {typeTourTrash.length > 0 ? typeTourTrash?.map((type) => (
+                        <TableRow key={type._id}>
+                            <TableCell>
+                                <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>
+                                    {type._id}
+                                </Typography>
+                            </TableCell>
+                            <TableCell>{type.Name_Type}</TableCell>
+                            <TableCell align="right">
+                                <IconButton onClick={() => (setIsModalRestore(true), setRestoreId(type._id))}>
+                                    <RestoreIcon color="primary" />
+                                </IconButton>
+                                <IconButton onClick={() => (setIsModal(true), setDeletedId(type._id))}>
+                                    <DeleteForeverIcon color="secondary" />
+                                </IconButton>
+                            </TableCell>
+                        </TableRow>
+                    )) : <TableRow>
+                        <TableCell colSpan={10} align="center">Thùng rác rỗng</TableCell>
+                    </TableRow>}
+
+                </TableBody> : <TableBody>
                     {isLoading && <CircularProgress />}
                     {typeTours?.map((type) => (
                         <TableRow key={type._id}>
@@ -173,7 +279,8 @@ const TourTypeManagement = () => {
                             </TableCell>
                         </TableRow>
                     ))}
-                </TableBody>
+                </TableBody>}
+
             </Table>
 
             {/* Form thêm loại tour */}
@@ -190,6 +297,8 @@ const TourTypeManagement = () => {
                         name="Name_Type"
 
                         onChange={handleGetValueInput}
+                        error={!!errors.Name_Type}
+                        helperText={errors.Name_Type}
                     />
                 </DialogContent>
                 <DialogActions>
@@ -216,6 +325,8 @@ const TourTypeManagement = () => {
                         name="Name_Type"
                         onChange={handleGetValueInput}
                         defaultValue={selectedType?.Name_Type}
+                        error={!!errors.Name_Type}
+                        helperText={errors.Name_Type}
                     />
                 </DialogContent>
                 <DialogActions>
@@ -232,6 +343,11 @@ const TourTypeManagement = () => {
             }} actionId={deletedId} handleAction={(id) => {
                 handleDeleteTypeTour(id)
             }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Loại Tour này không!" />
+            <ModalRestore isModalRestore={isModalRestore} setIsModalRestore={(value) => {
+                setIsModalRestore(value)
+            }} actionId={restoreId} handleAction={(id) => {
+                handleRestore(id)
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn khôi phục Loại Tour này không!" />
         </Paper>
     );
 };

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Typography, Paper, Table, TableBody, TableCell, TableHead, TableRow,
     IconButton, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField
@@ -6,6 +6,10 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import validator from 'validator';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import ModalCustom from '../../modals/ModalCustom';
 
 const initialServices = [
     {
@@ -30,6 +34,35 @@ const ServiceManagement = () => {
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [editData, setEditData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false)
+    const [dataService, setDataService] = useState([])
+    const [valueInput, setValueInput] = useState({
+        _id: null,
+        Name_Service: "",
+        Price_Service: ''
+    })
+
+    const [errors, setErrors] = useState({
+        _id: null,
+        Name_Service: "",
+        Price_Service: ''
+    })
+
+    const validateForm = (data) => {
+        const newErrors = {};
+        //name
+        if(validator.isEmpty(data.Name_Service)) {
+            newErrors.Name_Service = 'Tên dịch vụ không được để trống'
+        }
+        // price
+        if (!validator.isNumeric(data.Price_Service) || Number(data.Price_Service) <= 0) {
+            newErrors.Price_Service = 'Giá dịch vụ không được để trống'
+        }
+        return newErrors;
+    }
+
+    const [isModal, setIsModal] = useState(false)
+    const [deletedId, setDeletedId] = useState("")
 
     const handleClickOpenAdd = () => {
         setOpenAdd(true);
@@ -41,12 +74,113 @@ const ServiceManagement = () => {
 
     const handleClickOpenEdit = (service) => {
         setEditData(service);
+        setValueInput({
+            _id: service._id,
+            Name_Service: service.Name_Service,
+            Price_Service: service.Price_Service
+        });
         setOpenEdit(true);
     };
 
     const handleCloseEdit = () => {
         setOpenEdit(false);
     };
+
+
+    const getAllService = async () => {
+        setIsLoading(true)
+        const api = "http://localhost:3001/Services/GetAllService"
+        try {
+            const res = await axios.get(api, { withCredentials: true})
+            const datas = await res.data
+            console.log(datas.Services);
+            setDataService(datas.Services)
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleAddService = async () => {
+        const validationErrors = validateForm(valueInput);
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+        const api = "http://localhost:3001/Services/CreateService";
+        try {
+            const res = await axios.post(api, valueInput, { withCredentials: true})
+            handleCloseAdd()
+            getAllService()
+            notification("success", "Created Schedule successfully")
+        } catch (error) {
+            console.log(error);
+
+        }
+    };
+    
+    
+
+     const handleGetValueInput = (e) => {
+        const { name, value } = e.target;
+        setValueInput({ ...valueInput, [name]: value })
+    }
+
+    const handleUpdateService = async () => {
+        const validationErrors = validateForm(valueInput);
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+        const api = "http://localhost:3001/Services/UpdateService/"
+        try {
+            const updatedType = {
+                ...editData,
+                Name_Service: valueInput.Name_Service || editData.Name_Service,
+                Price_Service: valueInput.Price_Service || editData.Price_Service,
+                
+            };
+            const res = await axios.post(`${api}${editData._id}`, updatedType)
+            console.log(res);
+            getAllService();
+            handleCloseEdit();  // Đóng form edit
+            notification("success", "Updated Schedule successfully")
+
+        } catch (error) {
+            console.log(error);
+
+        }
+    }
+
+    const handleDeleteService = async (id) => {
+        const api = "http://localhost:3001/Services/DeleteService/"
+        try {
+            if (id) {
+                const res = await axios.post(`${api}${id}`)
+                getAllService()
+                notification("success", "Deleted Schedule successfully")
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    useEffect(() => {
+        getAllService();
+    }, [])
+
+    const notification = (status, message) => {
+        return toast[status](message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        })
+    }
 
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
@@ -91,19 +225,19 @@ const ServiceManagement = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {services.map((service) => (
-                        <TableRow key={service.id}>
-                            <TableCell>{service.id}</TableCell>
+                    {dataService.map((service) => (
+                        <TableRow key={service._id}>
+                            <TableCell>{service._id}</TableCell>
                             <TableCell>{service.Name_Service}</TableCell>
                             <TableCell>{service.Price_Service}</TableCell>
                             <TableCell align="right">
-                                <IconButton onClick={() => handleClickOpenEdit(service)}>
-                                    <EditIcon color="primary" />
-                                </IconButton>
-                                <IconButton>
-                                    <DeleteIcon color="secondary" />
-                                </IconButton>
-                            </TableCell>
+                            <IconButton onClick={() => handleClickOpenEdit(service)}>
+                                <EditIcon color="primary" />
+                            </IconButton>
+                            <IconButton onClick={() => (setIsModal(true), setDeletedId(service._id))}>
+                                <DeleteIcon color="secondary" />
+                            </IconButton>
+                        </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
@@ -114,21 +248,29 @@ const ServiceManagement = () => {
                 <DialogTitle>Thêm Dịch Vụ</DialogTitle>
                 <DialogContent>
                     <TextField
+                        name='Name_Service'
                         label="Tên Dịch Vụ"
                         fullWidth
                         sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                        error={!!errors.Name_Service}  
+                        helperText={errors.Name_Service} 
                     />
                     <TextField
+                    name='Price_Service'
                         label="Giá Dịch Vụ"
                         fullWidth
                         sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                        error={!!errors.Price_Service}
+                        helperText={errors.Price_Service}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseAdd} color="primary">
                         Hủy
                     </Button>
-                    <Button onClick={handleCloseAdd} color="primary">
+                    <Button onClick={handleAddService} color="primary">
                         Lưu
                     </Button>
                 </DialogActions>
@@ -139,27 +281,40 @@ const ServiceManagement = () => {
                 <DialogTitle>Chỉnh Sửa Dịch Vụ</DialogTitle>
                 <DialogContent>
                     <TextField
+                        name='Name_Service'
                         label="Tên Dịch Vụ"
-                        value={editData ? editData.Name_Service : ''}
+                        value={valueInput.Name_Service}
                         fullWidth
                         sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                        error={!!errors.Name_Service}
+                        helperText={errors.Name_Service}
                     />
                     <TextField
+                        name='Price_Service'
                         label="Giá Dịch Vụ"
-                        value={editData ? editData.Price_Service : ''}
+                        value={valueInput.Price_Service}
                         fullWidth
                         sx={{ mb: 2 }}
+                        onChange={handleGetValueInput}
+                        error={!!errors.Price_Service}
+                        helperText={errors.Price_Service}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseEdit} color="primary">
                         Hủy
                     </Button>
-                    <Button onClick={handleCloseEdit} color="primary">
+                    <Button onClick={handleUpdateService} color="primary">
                         Lưu
                     </Button>
                 </DialogActions>
             </Dialog>
+            <ModalCustom isModal={isModal} setIsModals={(value) => {
+                setIsModal(value)
+            }} actionId={deletedId} handleAction={(id) => {
+                handleDeleteService(id)
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Lịch trình này không!" />
         </Paper>
     );
 };

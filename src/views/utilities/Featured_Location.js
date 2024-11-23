@@ -27,6 +27,12 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import axios from 'axios';
 import ModalCustom from '../../modals/ModalCustom';
 import { toast } from 'react-toastify';
+import validator from 'validator';
+import RestoreIcon from '@mui/icons-material/Restore';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import RecyclingIcon from '@mui/icons-material/Recycling';
+import ModalRestore from '../../modals/ModalRestore';
 const initialLocations = [
     {
         id: 1,
@@ -58,22 +64,69 @@ const LocationManagement = () => {
     const [images, setImages] = useState([]);
     const [nameImages, setNameImages] = useState([]);
     const [dataTour, setDataTours] = useState([])
+    const [dataTrash, setDataTrash] = useState([]);
     const [location, setLocation] = useState({
-
         Name_Location: "",
-
         Address_Location: "",
-
         Description: "",
         Type_Location: "",
-
         Nationnal: "",
-
         City_Location: "",
         id_tour: ""
     })
+
+    const [errors, setErrors] = useState({
+        Name_Location: '',
+        Address_Location: '',
+        Description: '',
+        Type_Location: '',
+        Nationnal: '',
+        City_Location: '',
+        id_tour: ''
+    })
+
+    const validateForm = (data) => {
+        const newErrors = {};
+        // name
+        if (validator.isEmpty(data.Name_Location)) {
+            newErrors.Name_Location = 'Tên địa điểm không được để trống!'
+        }
+        // address
+        if (validator.isEmpty(data.Address_Location)) {
+            newErrors.Address_Location = 'Địa chỉ không được để trống!'
+        }
+        // description
+        if (validator.isEmpty(data.Description)) {
+            newErrors.Description = 'Mô tả không được để trống'
+        }
+        // type
+        if (validator.isEmpty(data.Type_Location)) {
+            newErrors.Type_Location = 'Không được bỏ trống'
+        }
+        // national
+        if (validator.isEmpty(data.Nationnal)) {
+            newErrors.Nationnal = 'Quốc gia không được để trống'
+        }
+        // city
+        if (validator.isEmpty(data.City_Location)) {
+            newErrors.City_Location = 'Thành phố không được để trống'
+        }
+        // id_tour
+        if (validator.isEmpty(data.id_tour)) {
+            newErrors.id_tour = 'Phải chọn lịch khởi hành'
+        }
+        ///image
+        if (nameImages.length === 0) {
+            newErrors.images = 'Vui lòng tải lên ít nhất một hình ảnh!';
+        }
+        return newErrors;
+    }
+
     const [isModal, setIsModal] = useState(false)
     const [deletedId, setDeletedId] = useState("")
+    const [openTrash, setOpenTrash] = useState(false);
+    const [isModalRestore, setIsModalRestore] = useState(false);
+    const [restoreId, setRestoreId] = useState("")
 
     const handleAddClickOpen = () => {
         setOpenAdd(true);
@@ -93,6 +146,10 @@ const LocationManagement = () => {
 
     const handleImageUpload = (event) => {
         const files = Array.from(event.target.files);
+        if (files.length === 0) {
+            toast.error('Vui lòng tải lên ít nhất một hình ảnh!');
+            return; // Dừng lại nếu không có ảnh
+        }
         setNameImages(files)
         const imageUrls = files.map((file) => URL.createObjectURL(file));
         setImages(imageUrls);
@@ -107,8 +164,15 @@ const LocationManagement = () => {
         const api = "http://localhost:3001/V2/Featured_Location/GetFeatured_Location"
 
         try {
-            const res = await axios.get(api)
-            setDataLocation(res.data.Featured_Location)
+            const res = await axios.get(api, { withCredentials: true })
+            const datas = await res.data;
+
+
+            const dataUndeleted = datas.Featured_Location.filter(t => t.isDeleted === false);
+            const dataDeleted = datas.Featured_Location.filter(t => t.isDeleted === true);
+            setDataTrash(dataDeleted)
+
+            setDataLocation(dataUndeleted)
 
         } catch (error) {
             console.log(error);
@@ -117,15 +181,36 @@ const LocationManagement = () => {
     }
     const handleDeleteLocation = async (id) => {
         const api = `http://localhost:3001/V2/Featured_Location/DeleteFeatured_Location/${id}`
-
+        const apiRemove = `http://localhost:3001/V2/Featured_Location/RemoveFeatured_Location/${id}`
         try {
-            const res = await axios.post(api)
-            getDataManagerLocation();
-            notification("success", "Deleted News successfully")
+            if (openTrash) {
+                const res = await axios.post(api, {}, { withCredentials: true })
+                await getDataManagerLocation();
+                notification("success", "Deleted News successfully")
+            } else {
+                const res = await axios.post(apiRemove, {}, { withCredentials: true })
+                await getDataManagerLocation();
+                notification("success", "Deleted News successfully")
+            }
+
         } catch (error) {
             console.log(error);
 
         }
+    }
+
+    const handleRestore = async (id) => {
+        const api = `http://localhost:3001/V2/Featured_Location/RestoreFeatured_Location/${id}`
+
+        try {
+            const result = await axios.post(api, {}, { withCredentials: true });
+            await getDataManagerLocation()
+            notification("success", "Khôi phục  Tour thành công")
+        } catch (e) {
+            console.log(e);
+
+        }
+
     }
 
     const handleGetValueInput = (e) => {
@@ -135,6 +220,12 @@ const LocationManagement = () => {
 
 
     const handleAddLocation = async () => {
+        const errors = validateForm(location);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
+
         const api = "http://localhost:3001/V2/Featured_Location/CreateFeatured_Location"
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
@@ -151,7 +242,8 @@ const LocationManagement = () => {
 
         fetch(api, {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'include'
         })
             .then(res => res.json())
             .then(data => {
@@ -168,6 +260,12 @@ const LocationManagement = () => {
     }
 
     const handleUpdateNews = async () => {
+        const errors = validateForm(location);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
+
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
             formData.append("Image_Location", nameImages[i]);
@@ -180,7 +278,7 @@ const LocationManagement = () => {
         formData.append("City_Location", location.City_Location || selectedLocation.City_Location)
         formData.append("id_tour", location.id_tour || selectedLocation.id_tour)
         try {
-            await axios.post(`http://localhost:3001/V2/Featured_Location/UpdateFeatured_Location/${selectedLocation._id}`, formData);
+            await axios.post(`http://localhost:3001/V2/Featured_Location/UpdateFeatured_Location/${selectedLocation._id}`, formData, { withCredentials: true });
             getDataManagerLocation()
             handleClose()
             notification("success", "Updated News successfully")
@@ -194,8 +292,10 @@ const LocationManagement = () => {
         const api = "http://localhost:3001/V1/Tours/GetTours"
 
         try {
-            const res = await axios.get(api)
-            setDataTours(res.data.Tours.datas)
+            const res = await axios.get(api, { withCredentials: true })
+            const dataManager = await res.data;
+
+            setDataTours(dataManager.Tours.datas)
         } catch (error) {
             console.log(error);
 
@@ -230,10 +330,31 @@ const LocationManagement = () => {
                 Quản Lý Địa Điểm
             </Typography>
 
-            <Button variant="contained" color="primary" onClick={handleAddClickOpen}>
-                Thêm Địa Điểm
-            </Button>
 
+
+            <Box sx={{
+                display: "flex",
+                gap: 2
+            }}>
+                {!openTrash && <Button variant="contained" color="primary" onClick={handleAddClickOpen}>
+                    Thêm Địa Điểm
+                </Button>}
+
+                <Button variant="contained" sx={{
+                    bgcolor: openTrash ? "blue" : "red"
+                }} onClick={() => setOpenTrash(!openTrash)} >
+                    {openTrash ? (
+                        <>
+                            Quay lại
+                            <ArrowBackIcon sx={{ fontSize: "17px" }} />
+                        </>
+                    ) : (
+                        <>
+                            Thùng rác
+                            <RecyclingIcon sx={{ fontSize: "17px" }} />
+                        </>
+                    )}
+                </Button></Box>
             <Table aria-label="bảng địa điểm" sx={{ mt: 2 }}>
                 <TableHead>
                     <TableRow>
@@ -266,31 +387,71 @@ const LocationManagement = () => {
                         </TableCell>
                     </TableRow>
                 </TableHead>
-                <TableBody>
-                    {dataLocation.map((location) => (
-                        <TableRow key={location._id}>
-                            <TableCell>{location._id}</TableCell>
-                            <TableCell>{displayTourById(location?.id_tour)}</TableCell>
-                            <TableCell>{location.Name_Location}</TableCell>
-                            <TableCell>{location.Address_Location}</TableCell>
-                            <TableCell>
-                                {location?.Image_Location?.slice(0, 1).map((item) => <img key={item.path} src={item.path} alt={location.originalname} style={{ width: '50px', height: 'auto' }} />)}
+                {openTrash ? (
+                    dataTrash && dataTrash.length > 0 ? (
+                        <TableBody>
+                            {dataTrash.map((location) => (
+                                <TableRow key={location._id}>
+                                    <TableCell>{location._id}</TableCell>
+                                    <TableCell>{displayTourById(location?.id_tour)}</TableCell>
+                                    <TableCell>{location.Name_Location}</TableCell>
+                                    <TableCell>{location.Address_Location}</TableCell>
+                                    <TableCell>
+                                        {location?.Image_Location?.slice(0, 1).map((item) => (
+                                            <img key={item.path} src={item.path} alt={location.originalname} style={{ width: '50px', height: 'auto' }} />
+                                        ))}
+                                    </TableCell>
+                                    <TableCell>{location.Type_Location}</TableCell>
+                                    <TableCell>{location.Nationnal}</TableCell>
+                                    <TableCell>{location.City_Location}</TableCell>
+                                    <TableCell align="right">
+                                        <IconButton onClick={() => (setRestoreId(location._id), setIsModalRestore(true))}>
+                                            <EditIcon color="primary" />
+                                        </IconButton>
+                                        <IconButton onClick={() => (setIsModal(true), setDeletedId(location._id))}>
+                                            <DeleteIcon color="secondary" />
+                                        </IconButton>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    ) : (
+                        <TableBody>
+                            <TableRow>
+                                <TableCell colSpan={9} align="center">Thùng rác rỗng</TableCell>
+                            </TableRow>
+                        </TableBody>
+                    )
+                ) : (
+                    <TableBody>
+                        {dataLocation.map((location) => (
+                            <TableRow key={location._id}>
+                                <TableCell>{location._id}</TableCell>
+                                <TableCell>{displayTourById(location?.id_tour)}</TableCell>
+                                <TableCell>{location.Name_Location}</TableCell>
+                                <TableCell>{location.Address_Location}</TableCell>
+                                <TableCell>
+                                    {location?.Image_Location?.slice(0, 1).map((item) => (
+                                        <img key={item.path} src={item.path} alt={location.originalname} style={{ width: '50px', height: 'auto' }} />
+                                    ))}
+                                </TableCell>
+                                <TableCell>{location.Type_Location}</TableCell>
+                                <TableCell>{location.Nationnal}</TableCell>
+                                <TableCell>{location.City_Location}</TableCell>
+                                <TableCell align="right">
+                                    <IconButton onClick={() => handleEditClickOpen(location)}>
+                                        <EditIcon color="primary" />
+                                    </IconButton>
+                                    <IconButton onClick={() => (setIsModal(true), setDeletedId(location._id))}>
+                                        <DeleteIcon color="secondary" />
+                                    </IconButton>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                )}
 
-                            </TableCell>
-                            <TableCell>{location.Type_Location}</TableCell>
-                            <TableCell>{location.Nationnal}</TableCell>
-                            <TableCell>{location.City_Location}</TableCell>
-                            <TableCell align="right">
-                                <IconButton onClick={() => handleEditClickOpen(location)}>
-                                    <EditIcon color="primary" />
-                                </IconButton>
-                                <IconButton onClick={() => (setIsModal(true), setDeletedId(location._id))}>
-                                    <DeleteIcon color="secondary" />
-                                </IconButton>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
+
             </Table>
 
             {/* Form Thêm Địa Điểm */}
@@ -305,6 +466,8 @@ const LocationManagement = () => {
                         variant="outlined"
                         name="Name_Location"
                         onChange={handleGetValueInput}
+                        error={!!errors.Name_Location}
+                        helperText={errors.Name_Location}
                     />
                     <TextField
                         margin="dense"
@@ -313,6 +476,8 @@ const LocationManagement = () => {
                         variant="outlined"
                         name="Address_Location"
                         onChange={handleGetValueInput}
+                        error={!!errors.Address_Location}
+                        helperText={errors.Address_Location}
                     />
                     <input
                         type="file"
@@ -320,6 +485,7 @@ const LocationManagement = () => {
                         onChange={handleImageUpload}
                         style={{ marginBottom: '16px' }}
                     />
+                    {images.length === 0 && <Typography color="error">Vui lòng tải lên ít nhất một hình ảnh!</Typography>}
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         {images.map((image, index) => (
                             <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -337,6 +503,8 @@ const LocationManagement = () => {
                         variant="outlined"
                         name="Description"
                         onChange={handleGetValueInput}
+                        error={!!errors.Description}
+                        helperText={errors.Description}
                     />
                     <TextField
                         margin="dense"
@@ -345,6 +513,8 @@ const LocationManagement = () => {
                         variant="outlined"
                         name="Type_Location"
                         onChange={handleGetValueInput}
+                        error={!!errors.Type_Location}
+                        helperText={errors.Type_Location}
                     />
                     <TextField
                         margin="dense"
@@ -353,6 +523,8 @@ const LocationManagement = () => {
                         variant="outlined"
                         name="Nationnal"
                         onChange={handleGetValueInput}
+                        error={!!errors.Name_Location}
+                        helperText={errors.Name_Location}
                     />
                     <TextField
                         margin="dense"
@@ -361,9 +533,11 @@ const LocationManagement = () => {
                         variant="outlined"
                         name="City_Location"
                         onChange={handleGetValueInput}
+                        error={!!errors.City_Location}
+                        helperText={errors.City_Location}
                     />
 
-                    <FormControl fullWidth sx={{ mt: 2 }}>
+                    <FormControl fullWidth sx={{ mt: 2 }} error={!!errors.id_tour}>
                         <InputLabel>Lịch trình khởi hành</InputLabel>
                         <Select defaultValue="" name='id_tour' onChange={handleGetValueInput}>
                             {dataTour.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Tour}</MenuItem>)}
@@ -393,6 +567,8 @@ const LocationManagement = () => {
                                 defaultValue={selectedLocation.Name_Location}
                                 name="Name_Location"
                                 onChange={handleGetValueInput}
+                                error={!!errors.Name_Location}
+                                helperText={errors.Name_Location}
                             />
                             <TextField
                                 margin="dense"
@@ -402,6 +578,8 @@ const LocationManagement = () => {
                                 defaultValue={selectedLocation.Address_Location}
                                 name="Address_Location"
                                 onChange={handleGetValueInput}
+                                error={!!errors.Address_Location}
+                                helperText={errors.Address_Location}
                             />
                             <input
                                 type="file"
@@ -409,6 +587,7 @@ const LocationManagement = () => {
                                 onChange={handleImageUpload}
                                 style={{ marginBottom: '16px' }}
                             />
+                            {images.length === 0 && <Typography color="error">Vui lòng tải lên ít nhất một hình ảnh!</Typography>}
                             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                                 {images.map((image, index) => (
                                     <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -418,6 +597,7 @@ const LocationManagement = () => {
                                         </IconButton>
                                     </Box>
                                 ))}
+                                {errors.images && <Typography color="error" sx={{ mt: 1 }}>{errors.images}</Typography>}
                             </Box>
                             <TextField
                                 margin="dense"
@@ -427,6 +607,8 @@ const LocationManagement = () => {
                                 defaultValue={selectedLocation.Description}
                                 name="Description"
                                 onChange={handleGetValueInput}
+                                error={!!errors.Description}
+                                helperText={errors.Description}
                             />
                             <TextField
                                 margin="dense"
@@ -436,6 +618,8 @@ const LocationManagement = () => {
                                 defaultValue={selectedLocation.Type_Location}
                                 name="Type_Location"
                                 onChange={handleGetValueInput}
+                                error={!!errors.Type_Location}
+                                helperText={errors.Type_Location}
                             />
                             <TextField
                                 margin="dense"
@@ -445,6 +629,8 @@ const LocationManagement = () => {
                                 defaultValue={selectedLocation.Nationnal}
                                 name="Nationnal"
                                 onChange={handleGetValueInput}
+                                error={!!errors.Name_Location}
+                                helperText={errors.Nationnal}
                             />
                             <TextField
                                 margin="dense"
@@ -454,8 +640,10 @@ const LocationManagement = () => {
                                 defaultValue={selectedLocation.City_Location}
                                 name="City_Location"
                                 onChange={handleGetValueInput}
+                                error={!!errors.City_Location}
+                                helperText={errors.City_Location}
                             />
-                            <FormControl fullWidth sx={{ mt: 2 }}>
+                            <FormControl fullWidth sx={{ mt: 2 }} error={!!errors.id_tour}>
                                 <InputLabel>Lịch trình khởi hành</InputLabel>
                                 <Select defaultValue={selectedLocation.id_tour} name='id_tour' onChange={handleGetValueInput}>
                                     {dataTour.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Tour}</MenuItem>)}
@@ -477,6 +665,11 @@ const LocationManagement = () => {
             }} actionId={deletedId} handleAction={(id) => {
                 handleDeleteLocation(id)
             }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Địa điểm này không!" />
+            <ModalRestore isModalRestore={isModalRestore} setIsModalRestore={(value) => {
+                setIsModalRestore(value)
+            }} actionId={restoreId} handleAction={(id) => {
+                handleRestore(id)
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn khôi phục Địa điểm này không!" />
         </Paper>
     );
 };

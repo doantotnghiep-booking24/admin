@@ -14,6 +14,7 @@ import {
     DialogContent,
     DialogActions,
     TextField,
+    Box
 } from '@mui/material';
 
 import EditIcon from '@mui/icons-material/Edit';
@@ -21,7 +22,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import ModalCustom from '../../modals/ModalCustom';
+import validator from 'validator';
 
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import RecyclingIcon from '@mui/icons-material/Recycling';
+import ModalRestore from '../../modals/ModalRestore';
 const initialArticles = [
     {
         id: 1,
@@ -39,10 +44,10 @@ const initialArticles = [
         imageNew: ["https://via.placeholder.com/150"],
         createdAt: "2024-10-01"
     },
-    // Bạn có thể thêm nhiều bài viết hơn nữa
 ];
 
 const ArticleManagement = () => {
+    const [errors, setErrors] = useState({});
     const [articles] = useState(initialArticles);
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
@@ -53,13 +58,37 @@ const ArticleManagement = () => {
     const [dataNews, setDataNews] = useState([])
     const [isModal, setIsModal] = useState(false)
     const [deletedId, setDeletedId] = useState("")
-
+    const [openTrash, setOpenTrash] = useState(false)
+    const [newsTrash, setNewsTrash] = useState([])
+    const [isModalRestore, setIsModalRestore] = useState(false)
+    const [restoreId, setRestoreId] = useState("")
     const [news, setNews] = useState({
         Name: "",
         Title: "",
         Content: ""
     })
 
+
+    useEffect(() => {
+        getNewsData();
+    }, [])
+    const validateForm = () => {
+        const newErrors = {};
+        if (!news.Name) {
+            newErrors.Name = 'Tên bài viết không được bỏ trống ';
+        }
+        if (!news.Title) {
+            newErrors.Title = 'Tiêu đề không được bỏ trống';
+        }
+        if (!news.Content) {
+            newErrors.Content = 'Nội dung không được bỏ trống';
+        }
+        if (nameImages.length === 0) {
+            newErrors.Images = 'Cần có ít nhất một ảnh';
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
 
 
@@ -82,21 +111,35 @@ const ArticleManagement = () => {
     };
 
     const handleImageChange = async (event) => {
-        const files = Array.from(event.target.files)
-        setNameImages(files)
+        const files = Array.from(event.target.files);
 
-        const filesDisplay = files.map(item => URL.createObjectURL(item))
+        // Kiểm tra nếu không có ảnh nào được chọn
+        if (files.length === 0) {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                Images: "Cần có ít nhất một ảnh"
+            }));
+        } else {
+            setErrors((prevErrors) => ({
+                ...prevErrors,
+                Images: ""
+            }));
+        }
 
+        setNameImages(files);
+
+        const filesDisplay = files.map((item) => URL.createObjectURL(item));
 
         setNewImages(filesDisplay);
-
     };
+
 
     const handleRemoveImage = (index) => {
         setNewImages(prevImages => prevImages.filter((_, i) => i !== index));
     };
 
     const handleAddNews = async () => {
+        if (!validateForm()) { return; }
         const api = "http://localhost:3001/News/CreateNew"
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
@@ -110,7 +153,7 @@ const ArticleManagement = () => {
         fetch('http://localhost:3001/News/CreateNew', {
             method: 'POST',
             body: formData,
-            
+            credentials: "include"
         })
             .then(res => res.json())
             .then(data => {
@@ -134,11 +177,15 @@ const ArticleManagement = () => {
         const api = "http://localhost:3001/News/GetAllNews"
         setIsLoading(true)
         try {
-            const res = await axios.get(api);
+            const res = await axios.get(api, { withCredentials: true });
             const datas = await res.data;
             const { News } = datas
+            console.log(News);
 
-            setDataNews(News)
+            const news = News.filter(t => t.isDeleted === false);
+            const newsDeleted = News.filter(t => t.isDeleted === true);
+            setNewsTrash(newsDeleted)
+            setDataNews(news)
 
         } catch (error) {
             console.log(error);
@@ -149,6 +196,7 @@ const ArticleManagement = () => {
     }
 
     const handleUpdateNews = async () => {
+        if (!validateForm()) { return; }
         setIsLoading(true);
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
@@ -159,7 +207,9 @@ const ArticleManagement = () => {
         formData.append("Content", news.Content === "" ? selectedArticle.Content : news.Content);
 
         try {
-            await axios.post(`http://localhost:3001/News/UpdateNew/${selectedArticle._id}`, formData);
+            await axios.post(`http://localhost:3001/News/UpdateNew/${selectedArticle._id}`, formData, {
+                withCredentials: true
+            });
             notification("success", "Edit successfully")
             getNewsData()
             setOpenEdit(false);
@@ -172,19 +222,40 @@ const ArticleManagement = () => {
 
     const handleDeleteNews = async (id) => {
         const api = "http://localhost:3001/News/DeleteNew/"
+        const apiRemove = "http://localhost:3001/News/Remove/"
         try {
-            const res = await axios.post(`${api}${id}`)
+            if (openTrash) {
+                const res = await axios.post(`${api}${id}`, {}, { withCredentials: true })
+                await getNewsData()
+                notification("error", "Đã xóa vĩnh viễn")
+            } else {
+                const res = await axios.post(`${apiRemove}${id}`, {}, { withCredentials: true })
+                getNewsData()
+                notification("error", "Đã xóa thành công ")
+            }
 
-            getNewsData()
-            notification("error", "Delete successfully")
+
         } catch (error) {
             console.log(error);
 
         }
     }
-    useEffect(() => {
-        getNewsData();
-    }, [])
+
+
+    const handleRestore = async (id) => {
+        const api = `http://localhost:3001/News/Restore/${id}`
+
+        try {
+            const result = await axios.post(api, {}, { withCredentials: true });
+            await getNewsData();
+            notification("success", "Khôi phục  Tour thành công")
+        } catch (e) {
+            console.log(e);
+
+        }
+
+    }
+
     const notification = (status, message) => {
         return toast[status](message, {
             position: "top-right",
@@ -201,16 +272,36 @@ const ArticleManagement = () => {
 
 
 
+
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
             <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}>
                 Quản Lý Bài Viết
             </Typography>
 
-            <Button variant="contained" color="primary" onClick={handleAddClickOpen}>
-                Thêm Bài Viết
-            </Button>
+            <Box sx={{
+                display: "flex",
+                gap: 2
+            }}>
+                {!openTrash && <Button variant="contained" color="primary" onClick={handleAddClickOpen}>
+                    Thêm Bài Viết
+                </Button>}
 
+                <Button variant="contained" sx={{
+                    bgcolor: openTrash ? "blue" : "red"
+                }} onClick={() => setOpenTrash(!openTrash)} >
+                    {openTrash ? (
+                        <>
+                            Quay lại
+                            <ArrowBackIcon sx={{ fontSize: "17px" }} />
+                        </>
+                    ) : (
+                        <>
+                            Thùng rác
+                            <RecyclingIcon sx={{ fontSize: "17px" }} />
+                        </>
+                    )}
+                </Button></Box>
             <Table aria-label="bảng bài viết" sx={{ mt: 2 }}>
                 <TableHead>
                     <TableRow>
@@ -237,31 +328,65 @@ const ArticleManagement = () => {
                         </TableCell>
                     </TableRow>
                 </TableHead>
-                <TableBody>
-                    {dataNews?.map((item) => (
-                        <TableRow key={item._id}>
-                            <TableCell>{item._id}</TableCell>
-                            <TableCell>{item.Name}</TableCell>
-                            <TableCell>{item.Title}</TableCell>
-                            <TableCell>
-                                {item?.Image?.slice(0, 1).map((image, index) => (
-                                    <img key={index} src={image.path} alt={item.nameNew} style={{ width: 50, height: 50, marginRight: 5 }} />
-                                ))}
-                            </TableCell>
-                            <TableCell>{item.Content}</TableCell>
-                            <TableCell>{item?.Cretate_At?.split("T")[0]}</TableCell>
-                            <TableCell align="right">
-                                <IconButton onClick={() => handleEditClickOpen(item)}>
-                                    <EditIcon color="primary" />
-                                </IconButton>
-                                <IconButton onClick={() => (setIsModal(true), setDeletedId(item._id))}>
+                {openTrash ? (
+                    <TableBody>
+                        {newsTrash?.length > 0 ? (
+                            newsTrash.map((item) => (
+                                <TableRow key={item._id}>
+                                    <TableCell>{item._id}</TableCell>
+                                    <TableCell>{item.Name}</TableCell>
+                                    <TableCell>{item.Title}</TableCell>
+                                    <TableCell>
+                                        {item?.Image?.slice(0, 1).map((image, index) => (
+                                            <img key={index} src={image.path} alt={item.nameNew} style={{ width: 50, height: 50, marginRight: 5 }} />
+                                        ))}
+                                    </TableCell>
+                                    <TableCell>{item.Content}</TableCell>
+                                    <TableCell>{item?.Cretate_At?.split("T")[0]}</TableCell>
+                                    <TableCell align="right">
+                                        <IconButton onClick={() => (setIsModalRestore(true), setRestoreId(item._id))}>
+                                            <EditIcon color="primary" />
+                                        </IconButton>
+                                        <IconButton onClick={() => (setIsModal(true), setDeletedId(item._id))}>
+                                            <DeleteIcon color="secondary" />
+                                        </IconButton>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={7} align="center">Thùng rác rỗng</TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                ) : (
+                    <TableBody>
+                        {dataNews?.map((item) => (
+                            <TableRow key={item._id}>
+                                <TableCell>{item._id}</TableCell>
+                                <TableCell>{item.Name}</TableCell>
+                                <TableCell>{item.Title}</TableCell>
+                                <TableCell>
+                                    {item?.Image?.slice(0, 1).map((image, index) => (
+                                        <img key={index} src={image.path} alt={item.nameNew} style={{ width: 50, height: 50, marginRight: 5 }} />
+                                    ))}
+                                </TableCell>
+                                <TableCell>{item.Content}</TableCell>
+                                <TableCell>{item?.Cretate_At?.split("T")[0]}</TableCell>
+                                <TableCell align="right">
+                                    <IconButton onClick={() => handleEditClickOpen(item)}>
+                                        <EditIcon color="primary" />
+                                    </IconButton>
+                                    <IconButton onClick={() => (setIsModal(true), setDeletedId(item._id))}>
+                                        <DeleteIcon color="secondary" />
+                                    </IconButton>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                )}
 
-                                    <DeleteIcon color="secondary" />
-                                </IconButton>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
+
             </Table>
 
             {/* Form Thêm Bài Viết */}
@@ -277,6 +402,8 @@ const ArticleManagement = () => {
                         name='Name'
 
                         onChange={(e) => handleGetValueInput(e)}
+                        error={!!errors.Name}
+                        helperText={errors.Name}
                     />
                     <TextField
                         margin="dense"
@@ -286,6 +413,9 @@ const ArticleManagement = () => {
                         name='Title'
 
                         onChange={(e) => handleGetValueInput(e)}
+
+                        error={!!errors.Title}
+                        helperText={errors.Title}
                     />
                     <TextField
                         margin="dense"
@@ -297,6 +427,8 @@ const ArticleManagement = () => {
                         name='Content'
 
                         onChange={(e) => handleGetValueInput(e)}
+                        error={!!errors.Content}
+                        helperText={errors.Content}
                     />
                     <input
                         type="file"
@@ -304,6 +436,7 @@ const ArticleManagement = () => {
                         multiple="multiple"
                         onChange={(e) => handleImageChange(e)}
                     />
+                    {errors.Images && <Typography color="error">{errors.Images}</Typography>}
                     <div style={{ marginTop: '10px' }}>
                         {newImages.map((image, index) => (
                             <div key={index} style={{ display: 'inline-block', position: 'relative', marginRight: '10px' }}>
@@ -412,7 +545,13 @@ const ArticleManagement = () => {
                 setIsModal(value)
             }} actionId={deletedId} handleAction={(id) => {
                 handleDeleteNews(id)
-            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Bài viết này không!"/>
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Bài viết này không!" openTrash={openTrash} />
+            <ModalRestore isModalRestore={isModalRestore} setIsModalRestore={(value) => {
+                setIsModalRestore(value)
+            }} actionId={restoreId} handleAction={(id) => {
+                handleRestore(id)
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn khôi phục Tour này không!" />
+
         </Paper>
     );
 };

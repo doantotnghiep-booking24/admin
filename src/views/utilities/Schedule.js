@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
     Typography, Paper, Table, TableBody, TableCell, TableHead, TableRow,
-    IconButton, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField
+    IconButton, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Box
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -10,6 +10,12 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import axios from 'axios';
 import ModalCustom from '../../modals/ModalCustom';
 import { toast } from 'react-toastify';
+import validator from 'validator';
+import RestoreIcon from '@mui/icons-material/Restore';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import RecyclingIcon from '@mui/icons-material/Recycling';
+import ModalRestore from '../../modals/ModalRestore';
 const initialSchedules = [
     {
         id: 1,
@@ -44,9 +50,61 @@ const ScheduleManagement = () => {
 
     })
 
+    const [errors, setErrors] = useState({
+        Name_Schedule: "",
+        Location_map: "",
+        Time_Morning_Schedule: "",
+        Text_Schedule_Morning: "",
+        Time_Noon_Schedule: "",
+        Text_Schedule_Noon: "",
+        Time_Afternoon_Schedule: "",
+        Text_Schedule_Afternoon: "",
+    })
+
+    const validateForm = (data) => {
+        const newErrors = {};
+        // name
+        if (validator.isEmpty(data.Name_Schedule)) {
+            newErrors.Name_Schedule = 'Tên lịch trình không được để trống!'
+        }
+        // location map
+        if (validator.isEmpty(data.Location_map)) {
+            newErrors.Location_map = 'Vị trí trê bản đồ không được để trống!'
+        }
+        // Tgian buổi sáng
+        if (validator.isEmpty(data.Time_Morning_Schedule)) {
+            newErrors.Time_Morning_Schedule = 'Thời giann buổi sáng không được để trống'
+        }
+        // Lịch trình buổi sáng
+        if (validator.isEmpty(data.Text_Schedule_Morning)) {
+            newErrors.Text_Schedule_Morning = 'Lịch trình buổi sáng không được bỏ trống'
+        }
+        // Thời gian buổi trưa
+        if (validator.isEmpty(data.Time_Noon_Schedule)) {
+            newErrors.Time_Noon_Schedule = 'Thời gian buổi trưa không được để trống'
+        }
+        // lịch trình buổi trưa
+        if (validator.isEmpty(data.Text_Schedule_Noon)) {
+            newErrors.Text_Schedule_Noon = 'Lịch trình buổi trưa không được để trống'
+        }
+        // thời gian buổi chiều
+        if (validator.isEmpty(data.Time_Afternoon_Schedule)) {
+            newErrors.Time_Afternoon_Schedule = 'Thời gian buổi chiều không được bỏ trống'
+        }
+        // lịch trình buổi chiều 
+        if (validator.isEmpty(data.Text_Schedule_Afternoon)) {
+            newErrors.Text_Schedule_Afternoon = 'Lịch trình buổi chiều không được để trống';
+        }
+        return newErrors;
+    }
+
+
     const [isModal, setIsModal] = useState(false)
     const [deletedId, setDeletedId] = useState("")
-
+    const [openTrash, setOpenTrash] = useState(false);
+    const [scheduleTrash, setScheduleTrash] = useState([])
+    const [isModalRestore, setIsModalRestore] = useState(false);
+    const [restoreId, setRestoreId] = useState("")
     const handleClickOpenAdd = () => {
         setOpenAdd(true);
     };
@@ -69,10 +127,13 @@ const ScheduleManagement = () => {
         setIsLoading(true)
         const api = "http://localhost:3001/Schedules/GetAllSchedule"
         try {
-            const res = await axios.get(api)
+            const res = await axios.get(api, { withCredentials: true })
             const datas = await res.data
+            const dataUndelete = datas.Schedule_Travel.filter(t => t.isDeleted === false);
+            const dataDeleted = datas.Schedule_Travel.filter(t => t.isDeleted === true);
             console.log(datas.Schedule_Travel);
-            setDataSchedule(datas.Schedule_Travel)
+            setScheduleTrash(dataDeleted);
+            setDataSchedule(dataUndelete)
         } catch (error) {
             console.log(error);
         } finally {
@@ -80,10 +141,15 @@ const ScheduleManagement = () => {
         }
     }
 
-    const handleAddTypeTours = async () => {
+    const handleAddSchedule = async () => {
+        const errors = validateForm(valueInput);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
         const api = "http://localhost:3001/Schedules/CreateSchedule"
         try {
-            const res = await axios.post(api, valueInput)
+            const res = await axios.post(api, valueInput, { withCredentials: true })
             handleCloseAdd()
             getAllSchedule()
             notification("success", "Created Schedule successfully")
@@ -98,7 +164,13 @@ const ScheduleManagement = () => {
         const { name, value } = e.target;
         setValueInput({ ...valueInput, [name]: value })
     }
-    const handleUpdateTypeTour = async () => {
+    
+    const handleUpdateSchedule = async () => {
+        const errors = validateForm(valueInput);
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
         const api = "http://localhost:3001/Schedules/UpdateSchedule/"
         try {
             const updatedType = {
@@ -126,15 +198,37 @@ const ScheduleManagement = () => {
 
     const handleDeleteSchedule = async (id) => {
         const api = "http://localhost:3001/Schedules/DeleteSchedule/"
+        const apiRemove = "http://localhost:3001/Schedules/RemoveSchedule/"
         try {
             if (id) {
-                const res = await axios.post(`${api}${id}`)
-                getAllSchedule()
-                notification("success", "Deleted Schedule successfully")
+                if (openTrash) {
+                    const res = await axios.post(`${api}${id}`, {}, { withCredentials: true })
+                    await getAllSchedule()
+                    notification("success", "Deleted Schedule successfully")
+                } else {
+                    const res = await axios.post(`${apiRemove}${id}`, {}, { withCredentials: true })
+                    await getAllSchedule()
+                    notification("success", "Deleted Schedule successfully")
+                }
+
             }
         } catch (error) {
             console.log(error);
         }
+    }
+
+    const handleRestore = async (id) => {
+        const api = `http://localhost:3001/Schedules/RemoveSchedule/${id}`
+
+        try {
+            const result = await axios.post(api, {}, { withCredentials: true });
+            await getAllSchedule()
+            notification("success", "Khôi phục  Tour thành công")
+        } catch (e) {
+            console.log(e);
+
+        }
+
     }
     useEffect(() => {
         getAllSchedule();
@@ -159,15 +253,32 @@ const ScheduleManagement = () => {
                 Quản Lý Lịch Trình
             </Typography>
 
-            <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleClickOpenAdd}
-                sx={{ mb: 2 }}
-            >
-                Thêm Lịch Trình
-            </Button>
 
+
+            <Box sx={{
+                display: "flex",
+                gap: 2,
+                mb: 2
+            }}>
+                {!openTrash && <Button variant="contained" color="primary" onClick={handleClickOpenAdd}>
+                    Thêm Lịch Trình
+                </Button>}
+
+                <Button variant="contained" sx={{
+                    bgcolor: openTrash ? "blue" : "red"
+                }} onClick={() => setOpenTrash(!openTrash)} >
+                    {openTrash ? (
+                        <>
+                            Quay lại
+                            <ArrowBackIcon sx={{ fontSize: "17px" }} />
+                        </>
+                    ) : (
+                        <>
+                            Thùng rác
+                            <RecyclingIcon sx={{ fontSize: "17px" }} />
+                        </>
+                    )}
+                </Button></Box>
             <Table aria-label="bảng lịch trình">
                 <TableHead>
                     <TableRow>
@@ -210,10 +321,34 @@ const ScheduleManagement = () => {
                         </TableCell>
                     </TableRow>
                 </TableHead>
-                <TableBody>
-                
-                
-                    {dataSchedule.map((schedule) => (  
+                {openTrash ? <TableBody>
+
+                    {scheduleTrash?.length > 0 ? scheduleTrash?.map((schedule) => (
+                        <TableRow key={schedule._id}>
+                            <TableCell>{schedule._id}</TableCell>
+                            <TableCell>{schedule.Name_Schedule}</TableCell>
+                            <TableCell>{schedule.Location_map}</TableCell>
+                            <TableCell>{schedule.Shedule_Morning[0].Time_Morning_Schedule} - {schedule.Shedule_Morning[0].Text_Schedule_Morning}</TableCell>
+                            <TableCell>{schedule.Shedule_Noon[0].Time_Noon_Schedule} - {schedule.Shedule_Noon[0].Text_Schedule_Noon}</TableCell>
+                            <TableCell>{schedule.Shedule_Afternoon[0].Time_Afternoon_Schedule} - {schedule.Shedule_Afternoon[0].Text_Schedule_Afternoon}</TableCell>
+
+                            <TableCell align="right">
+                                <IconButton onClick={() => (setRestoreId(schedule._id), setIsModalRestore(true))}>
+                                    <EditIcon color="primary" />
+                                </IconButton>
+                                <IconButton onClick={() => (setIsModal(true), setDeletedId(schedule._id))}>
+                                    <DeleteIcon color="secondary" />
+                                </IconButton>
+                            </TableCell>
+                        </TableRow>
+                    )) : <TableRow>
+                        <TableCell colSpan={10} align="center">Thùng rác rỗng</TableCell>
+                    </TableRow>}
+
+                </TableBody> : <TableBody>
+
+
+                    {dataSchedule.map((schedule) => (
                         <TableRow key={schedule._id}>
                             <TableCell>{schedule._id}</TableCell>
                             <TableCell>{schedule.Name_Schedule}</TableCell>
@@ -232,7 +367,8 @@ const ScheduleManagement = () => {
                             </TableCell>
                         </TableRow>
                     ))}
-                </TableBody>
+                </TableBody>}
+
             </Table>
 
             {/* Form Thêm Lịch Trình */}
@@ -245,6 +381,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Name_Schedule}
+                        helperText={errors.Name_Schedule}
                     />
                     <TextField
                         name='Location_map'
@@ -252,6 +390,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Location_map}
+                        helperText={errors.Location_map}
                     />
                     <TextField
                         name='Time_Morning_Schedule'
@@ -259,6 +399,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Time_Morning_Schedule}
+                        helperText={errors.Time_Morning_Schedule}
                     />
 
                     <TextField
@@ -267,6 +409,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Text_Schedule_Morning}
+                        helperText={errors.Text_Schedule_Morning}
                     />
 
                     <TextField
@@ -275,6 +419,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Time_Noon_Schedule}
+                        helperText={errors.Time_Noon_Schedule}
                     />
 
                     <TextField
@@ -283,6 +429,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Text_Schedule_Noon}
+                        helperText={errors.Text_Schedule_Noon}
                     />
                     <TextField
                         name='Time_Afternoon_Schedule'
@@ -290,6 +438,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Time_Afternoon_Schedule}
+                        helperText={errors.Time_Afternoon_Schedule}
                     />
 
                     <TextField
@@ -298,13 +448,15 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Text_Schedule_Afternoon}
+                        helperText={errors.Text_Schedule_Afternoon}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseAdd} color="primary">
                         Hủy
                     </Button>
-                    <Button onClick={handleAddTypeTours} color="primary">
+                    <Button onClick={handleAddSchedule} color="primary">
                         Lưu
                     </Button>
                 </DialogActions>
@@ -321,6 +473,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Name_Schedule}
+                        helperText={errors.Name_Schedule}
                     />
                     <TextField
                         name='Location_map'
@@ -330,6 +484,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Location_map}
+                        helperText={errors.Location_map}
                     />
                     <TextField
                         name='Time_Morning_Schedule'
@@ -339,6 +495,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Time_Morning_Schedule}
+                        helperText={errors.Time_Morning_Schedule}
                     />
                     <TextField
                         name='Text_Schedule_Morning'
@@ -348,6 +506,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Text_Schedule_Morning}
+                        helperText={errors.Text_Schedule_Morning}
                     />
 
                     <TextField
@@ -358,6 +518,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Time_Noon_Schedule}
+                        helperText={errors.Time_Noon_Schedule}
                     />
                     <TextField
                         name='Text_Schedule_Noon'
@@ -367,7 +529,10 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
-                    /><TextField
+                        error={!!errors.Text_Schedule_Noon}
+                        helperText={errors.Text_Schedule_Noon}
+                    />
+                    <TextField
                         name='Time_Afternoon_Schedule'
                         label="Thời gian buổi chiều"
                         defaultValue={editData ? editData.Time_Afternoon_Schedule
@@ -375,6 +540,8 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Time_Afternoon_Schedule}
+                        helperText={errors.Time_Afternoon_Schedule}
                     />
                     <TextField
                         name='Text_Schedule_Afternoon'
@@ -384,13 +551,15 @@ const ScheduleManagement = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         onChange={handleGetValueInput}
+                        error={!!errors.Text_Schedule_Afternoon}
+                        helperText={errors.Text_Schedule_Afternoon}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseEdit} color="primary">
                         Hủy
                     </Button>
-                    <Button onClick={handleUpdateTypeTour} color="primary">
+                    <Button onClick={handleUpdateSchedule} color="primary">
                         Lưu
                     </Button>
                 </DialogActions>
@@ -399,7 +568,12 @@ const ScheduleManagement = () => {
                 setIsModal(value)
             }} actionId={deletedId} handleAction={(id) => {
                 handleDeleteSchedule(id)
-            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Lịch trình này không!" />
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn xóa Lịch trình này không!" openTrash={openTrash}/>
+            <ModalRestore isModalRestore={isModalRestore} setIsModalRestore={(value) => {
+                setIsModalRestore(value)
+            }} actionId={restoreId} handleAction={(id) => {
+                handleRestore(id)
+            }} cancelText="Hủy" confirmText="Đồng ý" description="Bạn có muốn khôi phục Lịch trình này không!" />
         </Paper>
     );
 };

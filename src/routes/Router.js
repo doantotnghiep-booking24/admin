@@ -1,4 +1,4 @@
-import  { lazy } from 'react';
+import { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
 import Loadable from '../layouts/full/shared/loadable/Loadable';
 
@@ -27,41 +27,40 @@ const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
 
-const Router = [
+const Router = (isAuth) => [
   {
-    path: '/',
-    element: <FullLayout />,
+    path: "/",
+    element: isAuth ? <FullLayout /> : <Navigate to="/auth/login" />,
     children: [
-      { path: '/', element: <Navigate to="/dashboard" /> },
-      { path: '/dashboard', exact: true, element: <Dashboard /> },
-      { path: '/ui/category', exact: true, element: <Category /> },
-      { path: '/ui/statistical', exact: true, element: <Statistical /> },
-      { path: '/ui/user', exact: true, element: <User /> },
-      { path: '/ui/customer', exact: true, element: <Customer /> },
-      { path: '/ui/news', exact: true, element: <News /> },
-      { path: '/ui/tour', exact: true, element: <Tour /> },
-      { path: '/ui/comment', exact: true, element: <Comment /> },
-      { path: '/ui/Booktour', exact: true, element: <Booktour /> },
-      { path: '/ui/Voucher', exact: true, element: <Voucher /> },
-      { path: '/ui/location', exact: true, element: <Featured_Location /> },
-      { path: '/ui/Hotel', exact: true, element: <Hotel /> },
-      { path: '/ui/typetour', exact: true, element: <Type_tour /> },
-      { path: '/ui/service', exact: true, element: <Service /> },
-      { path: '/ui/role', exact: true, element: <Role /> },
-      { path: '/ui/schedule', exact: true, element: <Schedule /> },
-      { path: '*', element: <Navigate to="/auth/404" /> },
+      { index: true, element: <Navigate to="/dashboard" /> },
+      { path: "dashboard", element: <Dashboard /> },
+      { path: "ui/category", element: <Category /> },
+      { path: "ui/statistical", element: <Statistical /> },
+      { path: "ui/user", element: <User /> },
+      { path: "ui/customer", element: <Customer /> },
+      { path: "ui/news", element: <News /> },
+      { path: "ui/tour", element: <Tour /> },
+      { path: "ui/comment", element: <Comment /> },
+      { path: "ui/Booktour", element: <Booktour /> },
+      { path: "ui/Voucher", element: <Voucher /> },
+      { path: "ui/location", element: <Featured_Location /> },
+      { path: "ui/typetour", element: <Type_tour /> },
+      { path: "ui/service", element: <Service /> },
+      { path: "ui/role", element: <Role /> },
+      { path: "ui/schedule", element: <Schedule /> },
+      { path: "*", element: <Navigate to="/auth/404" /> },
     ],
   },
   {
-    path: '/auth',
-    element: <BlankLayout />,
+    path: "/auth",
+    element: !isAuth ? <BlankLayout /> : < Navigate to="/" />,
     children: [
-      { path: '404', element: <Error /> },
-      { path: '/auth/register', element: <Register /> },
-      { path: '/auth/login', element: <Login /> },
-      { path: '*', element: <Navigate to="/auth/404" /> },
+      { path: "login", element: <Login /> },
     ],
   },
 ];
 
+
 export default Router;
+
+
