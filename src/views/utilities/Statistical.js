@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  Modal,
   Box,
   Card,
   Typography,
@@ -11,8 +12,7 @@ import {
   Divider,
   Avatar,
   Rating,
-  Pagination,
-  // Tooltip,
+  Pagination, // Tooltip,
 } from "@mui/material";
 import axios from "axios";
 import { Pie, Bar } from "react-chartjs-2";
@@ -28,7 +28,6 @@ import {
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import ArticleIcon from "@mui/icons-material/Article";
-
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -56,6 +55,9 @@ function Statistics() {
   const [pageTopRated, setPageTopRated] = useState(1);
   const [pageUsersBooked, setPageUsersBooked] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(3);
+
+  const [selectedData, setSelectedData] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     axios
@@ -127,7 +129,16 @@ function Statistics() {
         },
       },
     },
+    onClick: (event, elements) => {
+      if (elements.length > 0) {
+        const index = elements[0].index;
+        const revenue = totalRevenueData[index];
+        setSelectedData(revenue);
+        setOpenModal(true);
+      }
+    },
   };
+  const handleClose = () => setOpenModal(false);
 
   return (
     <Box
@@ -247,6 +258,41 @@ function Statistics() {
           </Paper>
         </Grid>
       </Grid>
+
+      {/* Modal hiển thị chi tiết */}
+      <Modal open={openModal} onClose={handleClose}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography variant="h6" component="h2">
+            Chi tiết doanh thu
+          </Typography>
+          {selectedData && (
+            <Box mt={2}>
+              <Typography>
+                Ngày: {new Date(selectedData._id).toLocaleDateString("vi-VN")}
+              </Typography>
+              <Typography>
+                Doanh thu:{" "}
+                {selectedData.totalRevenuePerDay.toLocaleString("vi-VN")} VND
+              </Typography>
+              <Typography>
+                Số vé đã đặt: {selectedData.totalTicketsPerDay}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </Modal>
       {/* Top Chuyến Đi Được Đánh Giá Cao Nhất  */}
       <Grid item xs={12} marginTop={4}>
         <Paper
