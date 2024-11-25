@@ -42,6 +42,7 @@ const Router = (isAuth) => [
       { path: "ui/tour", element: <Tour /> },
       { path: "ui/comment", element: <Comment /> },
       { path: "ui/Booktour", element: <Booktour /> },
+      { path: "ui/Hotel", element: <Hotel/> },
       { path: "ui/Voucher", element: <Voucher /> },
       { path: "ui/location", element: <Featured_Location /> },
       { path: "ui/typetour", element: <Type_tour /> },
