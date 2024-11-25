@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  Modal,
   Box,
   Card,
   Typography,
@@ -11,7 +12,7 @@ import {
   Divider,
   Avatar,
   Rating,
-  // Tooltip,
+  Pagination, // Tooltip,
 } from "@mui/material";
 import axios from "axios";
 import { Pie, Bar } from "react-chartjs-2";
@@ -27,8 +28,14 @@ import {
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import ArticleIcon from "@mui/icons-material/Article";
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, ChartTooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  ChartTooltip,
+  Legend
+);
 
 function Statistics() {
   const [data, setData] = useState({
@@ -40,8 +47,17 @@ function Statistics() {
     topRatedTours: [],
     topRatedTourCount: 0,
     topToursByBookings: [],
+    usersBookedTour: [],
   });
   const [totalRevenueData, setTotalRevenueData] = useState([]);
+  console.log(totalRevenueData);
+
+  const [pageTopRated, setPageTopRated] = useState(1);
+  const [pageUsersBooked, setPageUsersBooked] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(3);
+
+  const [selectedData, setSelectedData] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     axios
@@ -49,9 +65,29 @@ function Statistics() {
       .then((response) => {
         setData(response.data);
         setTotalRevenueData(response.data.totalRevenue);
+        console.log(response.data);
       })
       .catch((error) => console.error(error));
   }, []);
+
+  const handlePageChangeTopRated = (event, value) => {
+    setPageTopRated(value);
+  };
+
+  const handlePageChangeUsersBooked = (event, value) => {
+    setPageUsersBooked(value);
+  };
+
+  // Paginate data
+  const paginatedTopRatedTours = data.topRatedTours.slice(
+    (pageTopRated - 1) * itemsPerPage,
+    pageTopRated * itemsPerPage
+  );
+
+  const paginatedUsersBookedTours = data.usersBookedTour.slice(
+    (pageUsersBooked - 1) * itemsPerPage,
+    pageUsersBooked * itemsPerPage
+  );
 
   const pieData = {
     labels: ["Chuyến đi", "Bài viết", "Vé đã đặt"],
@@ -71,14 +107,38 @@ function Statistics() {
     }),
     datasets: [
       {
-        label: "Doanh thu (VND)",
+        label: "Doanh thu và số vé đã đặt",
         data: totalRevenueData.map((revenue) => revenue.totalRevenuePerDay),
-        backgroundColor: "#5e35b1",
-        borderColor: "#4527a0",
+        backgroundColor: "#42a5f5",
+        borderColor: "#1e88e5",
         borderWidth: 1,
       },
     ],
   };
+
+  const barOptions = {
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            const revenue = totalRevenueData[context.dataIndex];
+            return `Doanh thu: ${revenue.totalRevenuePerDay.toLocaleString(
+              "vi-VN"
+            )} VND   Số vé đã đặt: ${revenue.totalTicketsPerDay}`;
+          },
+        },
+      },
+    },
+    onClick: (event, elements) => {
+      if (elements.length > 0) {
+        const index = elements[0].index;
+        const revenue = totalRevenueData[index];
+        setSelectedData(revenue);
+        setOpenModal(true);
+      }
+    },
+  };
+  const handleClose = () => setOpenModal(false);
 
   return (
     <Box
@@ -89,7 +149,11 @@ function Statistics() {
         minHeight: "100vh",
       }}
     >
-      <Typography variant="h4" align="center" sx={{ fontWeight: 700, marginBottom: 4 }}>
+      <Typography
+        variant="h4"
+        align="center"
+        sx={{ fontWeight: 700, marginBottom: 4 }}
+      >
         Trang Thống Kê
       </Typography>
       <Grid container spacing={3}>
@@ -97,7 +161,9 @@ function Statistics() {
           {
             label: "Tất cả chuyến đi",
             value: data.totalTours,
-            icon: <EventAvailableIcon sx={{ fontSize: 40, color: "#42a5f5" }} />,
+            icon: (
+              <EventAvailableIcon sx={{ fontSize: 40, color: "#42a5f5" }} />
+            ),
           },
           {
             label: "Tất cả bài viết",
@@ -129,10 +195,18 @@ function Statistics() {
             >
               <Box>{item.icon}</Box>
               <Box textAlign="right">
-                <Typography variant="subtitle1" color="textSecondary" sx={{ fontWeight: 600 }}>
+                <Typography
+                  variant="subtitle1"
+                  color="textSecondary"
+                  sx={{ fontWeight: 600 }}
+                >
                   {item.label}
                 </Typography>
-                <Typography variant="h5" color="primary" sx={{ fontWeight: 700 }}>
+                <Typography
+                  variant="h5"
+                  color="primary"
+                  sx={{ fontWeight: 700 }}
+                >
                   {item.value}
                 </Typography>
               </Box>
@@ -178,154 +252,274 @@ function Statistics() {
               gutterBottom
               sx={{ fontWeight: 700 }}
             >
-              Biểu đồ doanh thu theo ngày
+              Biểu đồ doanh thu và số tour đã đặt theo ngày
             </Typography>
-            <Bar data={barData} />
+            <Bar data={barData} options={barOptions} />
           </Paper>
         </Grid>
       </Grid>
-      <Grid item xs={12} marginTop={4}>
-          <Paper
-            sx={{
-              padding: 4,
-              boxShadow: 3,
-              backgroundColor: "#ffffff",
-              borderRadius: 2,
-            }}
-          >
-            <Typography
-              variant="h6"
-              align="center"
-              color="textSecondary"
-              gutterBottom
-            >
-              Top Chuyến Đi Được Đánh Giá Cao Nhất
-            </Typography>
-            <Divider sx={{ marginY: 2 }} />
-            <Typography
-              variant="subtitle1"
-              align="center"
-              color="textSecondary"
-              sx={{ marginBottom: 2 }}
-            >
-              Tổng số chuyến đi được đánh giá cao: {data.topRatedTourCount}
-            </Typography>
-            <List>
-              {data.topRatedTours.map((tour, index) => (
-                <ListItem
-                  key={index}
-                  sx={{
-                    padding: 2,
-                    backgroundColor: "#f9f9f9",
-                    borderRadius: 2,
-                    marginY: 1,
-                    boxShadow: 1,
-                    alignItems: "center",
-                    display: "flex",
-                  }}
-                >
-                  <Avatar
-                    src={tour?.Image_Tour[0]?.path}
-                    alt={tour.Name_Tour}
-                    sx={{ width: 72, height: 72, marginRight: 3 }}
-                  />
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle1" color="primary">
-                        {tour.Name_Tour}
-                      </Typography>
-                    }
-                    secondary={
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          marginTop: 1,
-                        }}
-                      >
-                        <Typography variant="body2" color="textSecondary">
-                          Đánh giá:
-                        </Typography>
-                        <Rating
-                          name="tour-rating"
-                          value={tour.totalReview}
-                          readOnly
-                          precision={0.1}
-                          sx={{ color: "#fbc02d" }}
-                        />
-                      </Box>
-                    }
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
-        </Grid>
 
-        <Grid item xs={12}>
-          <Paper
-            sx={{
-              padding: 4,
-              boxShadow: 3,
-              backgroundColor: "#ffffff",
-              borderRadius: 2,
-            }}
+      {/* Modal hiển thị chi tiết */}
+      <Modal open={openModal} onClose={handleClose}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography variant="h6" component="h2">
+            Chi tiết doanh thu
+          </Typography>
+          {selectedData && (
+            <Box mt={2}>
+              <Typography>
+                Ngày: {new Date(selectedData._id).toLocaleDateString("vi-VN")}
+              </Typography>
+              <Typography>
+                Doanh thu:{" "}
+                {selectedData.totalRevenuePerDay.toLocaleString("vi-VN")} VND
+              </Typography>
+              <Typography>
+                Số vé đã đặt: {selectedData.totalTicketsPerDay}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </Modal>
+      {/* Top Chuyến Đi Được Đánh Giá Cao Nhất  */}
+      <Grid item xs={12} marginTop={4}>
+        <Paper
+          sx={{
+            padding: 4,
+            boxShadow: 3,
+            backgroundColor: "#ffffff",
+            borderRadius: 2,
+          }}
+        >
+          <Typography
+            variant="h6"
+            align="center"
+            color="textSecondary"
+            gutterBottom
           >
-            <Typography
-              variant="h6"
-              align="center"
-              color="textSecondary"
-              gutterBottom
-            >
-              Top Chuyến Đi Được Đặt Vé Nhiều Nhất
-            </Typography>
-            <Divider sx={{ marginY: 2 }} />
-            <List>
-              {data.topToursByBookings.map((tour, index) => (
-                <ListItem
-                  key={index}
-                  sx={{
-                    padding: 2,
-                    backgroundColor: "#f9f9f9",
-                    borderRadius: 2,
-                    marginY: 1,
-                    boxShadow: 1,
-                    alignItems: "center",
-                    display: "flex",
-                  }}
-                >
-                  <Avatar
-                    src={tour.Image_Tour?.[0]?.path || ""}
-                    alt={tour.Name_Tour}
-                    sx={{ width: 72, height: 72, marginRight: 3 }}
-                  />
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle1" color="primary">
-                        {tour.Name_Tour}
+            Top Chuyến Đi Được Đánh Giá Cao Nhất
+          </Typography>
+          <Divider sx={{ marginY: 2 }} />
+          <Typography
+            variant="subtitle1"
+            align="center"
+            color="textSecondary"
+            sx={{ marginBottom: 2 }}
+          >
+            Tổng số chuyến đi được đánh giá cao: {data.topRatedTourCount}
+          </Typography>
+          <List>
+            {paginatedTopRatedTours.map((tour, index) => (
+              <ListItem
+                key={index}
+                sx={{
+                  padding: 2,
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: 2,
+                  marginY: 1,
+                  boxShadow: 1,
+                  alignItems: "center",
+                  display: "flex",
+                }}
+              >
+                <Avatar
+                  src={tour?.Image_Tour[0]?.path}
+                  alt={tour.Name_Tour}
+                  sx={{ width: 72, height: 72, marginRight: 3 }}
+                />
+                <ListItemText
+                  primary={
+                    <Typography variant="subtitle1" color="primary">
+                      {tour.Name_Tour}
+                    </Typography>
+                  }
+                  secondary={
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        marginTop: 1,
+                      }}
+                    >
+                      <Typography variant="body2" color="textSecondary">
+                        Đánh giá:
                       </Typography>
-                    }
-                    secondary={
-                      <Box
+                      <Rating
+                        name="tour-rating"
+                        value={tour.totalReview}
+                        readOnly
+                        precision={0.1}
+                        sx={{ color: "#fbc02d" }}
+                      />
+                    </Box>
+                  }
+                />
+              </ListItem>
+            ))}
+          </List>
+
+          <Pagination
+            count={Math.ceil(data.topRatedTourCount / itemsPerPage)}
+            page={pageTopRated}
+            onChange={handlePageChangeTopRated}
+            sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}
+          />
+        </Paper>
+      </Grid>
+      {/* Top Chuyến Đi Được Đặt Vé Nhiều Nhất */}
+      <Grid item xs={12} marginTop={4}>
+        <Paper
+          sx={{
+            padding: 4,
+            boxShadow: 3,
+            backgroundColor: "#ffffff",
+            borderRadius: 2,
+          }}
+        >
+          <Typography
+            variant="h6"
+            align="center"
+            color="textSecondary"
+            gutterBottom
+          >
+            Top Chuyến Đi Được Đặt Vé Nhiều Nhất
+          </Typography>
+          <Divider sx={{ marginY: 2 }} />
+          <List>
+            {data.topToursByBookings.map((tour, index) => (
+              <ListItem
+                key={index}
+                sx={{
+                  padding: 2,
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: 2,
+                  marginY: 1,
+                  boxShadow: 1,
+                  alignItems: "center",
+                  display: "flex",
+                }}
+              >
+                <Avatar
+                  src={tour.Image_Tour?.[0]?.path || ""}
+                  alt={tour.Name_Tour}
+                  sx={{ width: 72, height: 72, marginRight: 3 }}
+                />
+                <ListItemText
+                  primary={
+                    <Typography variant="subtitle1" color="primary">
+                      {tour.Name_Tour}
+                    </Typography>
+                  }
+                  secondary={
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        marginTop: 1,
+                      }}
+                    >
+                      <Typography variant="body2" color="textSecondary">
+                        Số vé đã được đặt: {tour.bookingCount}
+                      </Typography>
+                    </Box>
+                  }
+                />
+              </ListItem>
+            ))}
+          </List>
+        </Paper>
+      </Grid>
+      {/* Danh sách những tài khoản đã đặt */}
+      <Grid item xs={12} marginTop={4}>
+        <Paper
+          sx={{
+            padding: 4,
+            boxShadow: 3,
+            backgroundColor: "#ffffff",
+            borderRadius: 2,
+          }}
+        >
+          <Typography
+            variant="h6"
+            align="center"
+            color="textSecondary"
+            gutterBottom
+          >
+            Danh sách những tài khoản đã đặt
+          </Typography>
+          <Divider sx={{ marginY: 2 }} />
+          <List>
+            {paginatedUsersBookedTours.map((tour, index) => (
+              <ListItem
+                key={index}
+                sx={{
+                  padding: 2,
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: 2,
+                  marginY: 1,
+                  boxShadow: 1,
+                  alignItems: "center",
+                  display: "flex",
+                }}
+              >
+                <Avatar
+                  src={tour?.photoUrl || ""}
+                  alt={tour.username}
+                  sx={{ width: 72, height: 72, marginRight: 3 }}
+                />
+                <ListItemText
+                  primary={
+                    <Typography variant="subtitle1" color="primary">
+                      {tour?.username}
+                    </Typography>
+                  }
+                  secondary={
+                    <Box
+                      sx={{
+                        marginTop: 1,
+                      }}
+                    >
+                      <Typography variant="body2" color="textSecondary">
+                        Email: {tour?.email}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
                         sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
                           marginTop: 1,
                         }}
                       >
-                        <Typography variant="body2" color="textSecondary">
-                          Số vé đã được đặt: {tour.bookingCount}
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
-        </Grid>
+                        Số lượng tour đã đặt: {tour?.totalBookings}
+                      </Typography>
+                    </Box>
+                  }
+                />
+              </ListItem>
+            ))}
+          </List>
+
+          <Pagination
+            count={Math.ceil(data.usersBookedTour.length / itemsPerPage)}
+            page={pageUsersBooked}
+            onChange={handlePageChangeUsersBooked}
+            sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}
+          />
+        </Paper>
+      </Grid>
     </Box>
   );
 }

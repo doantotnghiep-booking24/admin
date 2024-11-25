@@ -91,6 +91,16 @@ const TourManagement = () => {
         id_Schedule_Travel: "",
         id_Type_Tour: "",
     })
+
+    useEffect(() => {
+        getDataManagerSchedule();
+        getDataManagerCategory();
+        getDataManagerTypeTour();
+        getDataManagerVoucher();
+        getDataManagerTour();
+
+    }, [])
+    
     const [isModal, setIsModal] = useState(false)
     const [deletedId, setDeletedId] = useState("")
     const [errors, setErrors] = useState({
@@ -217,6 +227,7 @@ const TourManagement = () => {
         try {
             const res = await fetch(api, { credentials: "include" })
             const data = await res.json();
+
 
             setDataSchedule(data.Schedule_Travel)
         } catch (e) {
@@ -374,7 +385,10 @@ const TourManagement = () => {
 
         try {
             const res = await axios.get(api, { withCredentials: true })
+
             const tourData = res.data.Tours.datas.filter(t => t.isDeleted === false)
+            console.log(tourData);
+            
             const tourTrash = res.data.Tours.datas.filter(t => t.isDeleted === true)
             setDataTrash(tourTrash)
             setDataTours(tourData);
@@ -437,14 +451,7 @@ const TourManagement = () => {
 
 
     }
-    useEffect(() => {
-        getDataManagerSchedule();
-        getDataManagerCategory();
-        getDataManagerTypeTour();
-        getDataManagerVoucher();
-        getDataManagerTour();
 
-    }, [])
 
     const notification = (status, message) => {
         return toast[status](message, {
@@ -728,7 +735,7 @@ const TourManagement = () => {
                             <Select defaultValue="" name='id_Schedule_Travel' onChange={handleValueInput}>
                                 {dataSchedule?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Schedule}</MenuItem>)}
                                 {/* <MenuItem value="Vourcher">Đà Nẵng</MenuItem>
-                    <MenuItem value="Vourcher">Hà Nội</MenuItem> */}
+                    <MenuItem value="Vourcher">Hà Nội</MenuItem> */}    
                             </Select>
                         </FormControl>
                         <FormControl fullWidth sx={{ mt: 1 }}>

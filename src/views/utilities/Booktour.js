@@ -125,9 +125,9 @@ const ticketManagement = () => {
             location.reload()
         }, 1000)
     };
-    const HandleConfirmCancleTicket = async (id,idCus) => {
-        const res = await handleConfirmCancleTicket(id,idCus)
-        if(res){
+    const HandleConfirmCancleTicket = async (id, idCus) => {
+        const res = await handleConfirmCancleTicket(id, idCus)
+        if (res) {
             notification("success", "Xác nhận hủy thành công!!!")
             location.reload()
         }
@@ -226,8 +226,7 @@ const ticketManagement = () => {
                                         label={ticket?.Status}
                                         onChange={handleChange}
                                     >
-                                        <MenuItem value={`Đã Xác Nhận,` + `${ticket._id},` + `${ticket.id_Custommer}`}>Đã Xác nhận</MenuItem>
-                                        {/* <MenuItem value={`Đã Hủy,` + `${ticket._id},` + `${ticket.id_Custommer}`}>Đã Hủy</MenuItem> */}
+                                        {ticket.Status_Payment !== 'Chưa Thanh Toán' && ticket.Status === 'Đã Xác Nhận' ? <MenuItem disabled={true} value={`Đã Xác Nhận,` + `${ticket._id},` + `${ticket.id_Custommer}`}>Đã Xác nhận</MenuItem> : (ticket.Status_Payment !== 'Chưa Thanh Toán' && ticket.Status !== 'Đã Xác Nhận' ? <MenuItem value={`Đã Xác Nhận,` + `${ticket._id},` + `${ticket.id_Custommer}`}>Đã Xác nhận</MenuItem> : <MenuItem value={`Đã Hủy,` + `${ticket._id},` + `${ticket.id_Custommer}`}>Đã Hủy</MenuItem>)}
                                     </Select>
                                 </FormControl>
                             </TableCell>
@@ -271,8 +270,8 @@ const ticketManagement = () => {
                                     display: "flex",
                                 }}
                             >
-                                {users?.filter(user => user._id === ticket.id_user).map(user => (
-                                    <div>
+                                {users?.filter((user) => user._id === ticket.id_user).map(user => (
+                                    <div key={user._id}>
                                         <h4>{user.Name}</h4>
                                         <Avatar
                                             src={user?.photoUrl}
@@ -311,10 +310,10 @@ const ticketManagement = () => {
                                 />
                                 <div style={{ display: 'flex', gap: '5px' }}>
                                     {/* <DoneIcon/> */}
-                                    <div onClick={() => HandleConfirmCancleTicket(ticket._id,ticket.id_Custommer)} style={{ cursor: 'pointer' }}>
+                                    <div onClick={() => HandleConfirmCancleTicket(ticket._id, ticket.id_Custommer)} style={{ cursor: 'pointer' }}>
                                         <CheckCircleOutlineIcon style={{ lineHeight: '0px', fontSize: '23px', cursor: 'pointer' }} />
                                     </div>
-                                    <span onClick={() => HandleConfirmCancleTicket(ticket._id,ticket.id_Custommer)} style={{ cursor: 'pointer' }}>Xác nhận hủy</span>
+                                    <span onClick={() => HandleConfirmCancleTicket(ticket._id, ticket.id_Custommer)} style={{ cursor: 'pointer' }}>Xác nhận hủy</span>
                                 </div>
                             </ListItem>
                         ))}
@@ -355,7 +354,7 @@ const ticketManagement = () => {
                                 <Typography><strong>Số Lượng Người Lớn:</strong> {selectedBill.Adult}</Typography>
                                 <Typography><strong>Số Lượng Trẻ Em:</strong> {selectedBill.Children}</Typography>
                                 {valueVou && valueVou.map(voucher => (
-                                    <Typography><strong>Phần Trăm Giảm Giá:</strong> {voucher.Discount + '%'}</Typography>
+                                    <Typography key={voucher._id}><strong>Phần Trăm Giảm Giá:</strong> {voucher.Discount + '%'}</Typography>
                                 ))}
                                 <Typography><strong>Tổng Số Người:</strong> {selectedBill.Adult + selectedBill.Children}</Typography>
                                 <Typography><strong>Giá Vé Người Lớn :</strong> {selectedBill.After_Discount > 0 ? selectedBill.Adult_fare + '( Đã bao gồm giảm giá)' : selectedBill.Adult_fare}</Typography>
