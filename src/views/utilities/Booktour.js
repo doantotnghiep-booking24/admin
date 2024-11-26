@@ -270,8 +270,8 @@ const ticketManagement = () => {
                                     display: "flex",
                                 }}
                             >
-                                {users?.filter(user => user._id === ticket.id_user).map(user => (
-                                    <div>
+                                {users?.filter((user) => user._id === ticket.id_user).map(user => (
+                                    <div key={user._id}>
                                         <h4>{user.Name}</h4>
                                         <Avatar
                                             src={user?.photoUrl}
@@ -354,7 +354,7 @@ const ticketManagement = () => {
                                 <Typography><strong>Số Lượng Người Lớn:</strong> {selectedBill.Adult}</Typography>
                                 <Typography><strong>Số Lượng Trẻ Em:</strong> {selectedBill.Children}</Typography>
                                 {valueVou && valueVou.map(voucher => (
-                                    <Typography><strong>Phần Trăm Giảm Giá:</strong> {voucher.Discount + '%'}</Typography>
+                                    <Typography key={voucher._id}><strong>Phần Trăm Giảm Giá:</strong> {voucher.Discount + '%'}</Typography>
                                 ))}
                                 <Typography><strong>Tổng Số Người:</strong> {selectedBill.Adult + selectedBill.Children}</Typography>
                                 <Typography><strong>Giá Vé Người Lớn :</strong> {selectedBill.After_Discount > 0 ? selectedBill.Adult_fare + '( Đã bao gồm giảm giá)' : selectedBill.Adult_fare}</Typography>
