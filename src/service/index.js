@@ -67,3 +67,17 @@ export const handleConfirmCancleTicket = async (id, idCus) => {
     const res = await axios.post(`http://localhost:3001/Ticket/ConfirmCancleTicket/${id}`, { idCus })
     return res.data
 }
+export const fetchAllChat = async () => {
+    const response = await axios.get(`http://localhost:3001/chat`);
+    // console.log(response.data);
+    return response.data;
+};
+export const fetchChat = async (id) => {
+    const response = await axios.get(`http://localhost:3001/Chat/chats/${id}`);
+    return response.data;
+};
+
+export const CallChats = async (userId) => {
+    const response = await axios.get(`http://localhost:3001/chat/${userId}`);
+    return response.data;
+  };
