@@ -80,13 +80,17 @@ const TourTypeManagement = () => {
             const typeTourUndeleted = TypeTour.filter(t => t.isDeleted === false);
             setTypeTourTrash(typeTourDeleted)
 
-
+            
             setTypeTours(typeTourUndeleted)
         } catch (error) {
             console.log(error);
         } finally {
             setIsLoading(false)
         }
+    }
+    const handleGetValueInput = (e) => {
+        const { name, value } = e.target;
+        setValueInput({ ...valueInput, [name]: value })
     }
 
     const handleAddTypeTours = async () => {
@@ -95,44 +99,49 @@ const TourTypeManagement = () => {
             setErrors(errors);
             return;
         }
-
-        const api = "http://localhost:3001/V2/TypeTour/CreateTypeTour"
-
+    
+        setIsLoading(true);  // Bắt đầu loading
+    
+        const api = "http://localhost:3001/V2/TypeTour/CreateTypeTour";
+    
         try {
-            const res = await axios.post(api, valueInput, { withCredentials: true })
-            setOpenAddDialog(false)
-            getAllTypeTours()
-            notification("success", "Created Type Tour successfully")
+            const res = await axios.post(api, valueInput, { withCredentials: true });
+            setOpenAddDialog(false);
+            getAllTypeTours();
+            notification("success", "Created Type Tour successfully");
         } catch (error) {
             console.log(error);
-
+            notification("error", "Error creating Type Tour");
+        } finally {
+            setIsLoading(false);  // Kết thúc loading
         }
-
-    }
-
-    const handleGetValueInput = (e) => {
-        const { name, value } = e.target;
-        setValueInput({ ...valueInput, [name]: value })
-    }
+    };
+    
     const handleUpdateTypeTour = async () => {
         const errors = validateForm(valueInput);
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;
         }
-        const api = "http://localhost:3001/V2/TypeTour/UpdateTypeTour/"
+    
+        setIsLoading(true);  // Bắt đầu loading
+    
+        const api = "http://localhost:3001/V2/TypeTour/UpdateTypeTour/";
+    
         try {
-
             const updatedType = valueInput.Name_Type === "" ? { Name_Type: selectedType.Name_Type } : valueInput;
-            const res = await axios.post(`${api}${selectedType._id}`, updatedType, { withCredentials: true })
-            setOpenEditDialog(false)
-            getAllTypeTours()
-            notification("success", "Updated Type Tour successfully")
+            const res = await axios.post(`${api}${selectedType._id}`, updatedType, { withCredentials: true });
+            setOpenEditDialog(false);
+            getAllTypeTours();
+            notification("success", "Updated Type Tour successfully");
         } catch (error) {
             console.log(error);
-
+            notification("error", "Error updating Type Tour");
+        } finally {
+            setIsLoading(false);  // Kết thúc loading
         }
-    }
+    };
+    
 
     const handleDeleteTypeTour = async (id) => {
         const api = "http://localhost:3001/V2/TypeTour/DeleteTypeTour/"
@@ -305,8 +314,8 @@ const TourTypeManagement = () => {
                     <Button onClick={handleCloseAddDialog} color="secondary">
                         Hủy
                     </Button>
-                    <Button onClick={handleAddTypeTours} color="primary">
-                        Lưu
+                    <Button onClick={handleAddTypeTours} color="primary" disabled={isLoading}>
+                        {isLoading ? <CircularProgress size={24} /> : "Thêm"}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -333,8 +342,8 @@ const TourTypeManagement = () => {
                     <Button onClick={handleCloseEditDialog} color="secondary">
                         Hủy
                     </Button>
-                    <Button onClick={handleUpdateTypeTour} color="primary">
-                        Lưu
+                    <Button onClick={handleUpdateTypeTour} color="primary" disabled={isLoading} >
+                    {isLoading ? <CircularProgress size={24} /> : "Lưu"}
                     </Button>
                 </DialogActions>
             </Dialog>

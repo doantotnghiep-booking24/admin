@@ -27,7 +27,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import ModalCustom from '../../modals/ModalCustom';
 import validator from 'validator';
-
+import CircularProgress from '@mui/material/CircularProgress';
 
 const HotelManagement = () => {
     const [openAdd, setOpenAdd] = useState(false);
@@ -36,6 +36,7 @@ const HotelManagement = () => {
     const [images, setImages] = useState([]);
     const [dataHotel, setDataHotel] = useState([])
     const [nameImages, setNameImages] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
     const [getValueInput, setGetValueInput] = useState({
         Name_Hotel: '',
         Price_Hotel: '',
@@ -127,69 +128,82 @@ const HotelManagement = () => {
             setErrors(errors);
             return;
         }
-        const api = "http://localhost:3001/Hotel/CreateHotel"
+    
+        setIsLoading(true);  // Bắt đầu loading
+    
+        const api = "http://localhost:3001/Hotel/CreateHotel";
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
             let file = nameImages[i];
-            formData.append("Image_Hotel", file)
+            formData.append("Image_Hotel", file);
         }
-        formData.append("Name_Hotel", getValueInput.Name_Hotel)
-        formData.append("Price_Hotel", getValueInput.Price_Hotel)
-        formData.append("Image_Hotel", getValueInput.Image_Hotel)
-        formData.append("Description_Hotel", getValueInput.Description_Hotel)
-        formData.append("Adress_Hotel", getValueInput.Adress_Hotel)
-        fetch(api, {
-            method: 'POST',
-            body: formData
-        })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data);
-                handleClose()
-                notification("success", "Created Hotel successfully")
-                getDataHotel();
-            })
-            .catch(err => {
-                console.log(err);
-            })
-
-    }
-
+    
+        formData.append("Name_Hotel", getValueInput.Name_Hotel);
+        formData.append("Price_Hotel", getValueInput.Price_Hotel);
+        formData.append("Image_Hotel", getValueInput.Image_Hotel);
+        formData.append("Description_Hotel", getValueInput.Description_Hotel);
+        formData.append("Adress_Hotel", getValueInput.Adress_Hotel);
+    
+        try {
+            const res = await fetch(api, {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await res.json();
+            console.log(data);
+            handleClose();
+            notification("success", "Created Hotel successfully");
+            getDataHotel();
+        } catch (err) {
+            console.log(err);
+            notification("error", "Error creating hotel");
+        } finally {
+            setIsLoading(false);  // Kết thúc loading
+        }
+    };
+    
     const handleEditHotel = async () => {
         const errors = validateForm(getValueInput);
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;
         }
+    
+        setIsLoading(true);  // Bắt đầu loading
+    
         const api = `http://localhost:3001/Hotel/UpdateHotel/${selectedHotel._id}`;
         const formData = new FormData();
-
+    
         for (let i = 0; i < nameImages.length; i++) {
             let file = nameImages[i];
-            formData.append("Image_Hotel", file)
+            formData.append("Image_Hotel", file);
         }
-        formData.append("Name_Hotel", getValueInput.Name_Hotel || selectedHotel.Name_Hotel)
-        formData.append("Price_Hotel", getValueInput.Price_Hotel || selectedHotel.Price_Hotel)
-        formData.append("Image_Hotel", getValueInput.Image_Hotel || selectedHotel.Image_Hotel)
-        formData.append("Description_Hotel", getValueInput.Description_Hotel || selectedHotel.Description_Hotel)
-        formData.append("Adress_Hotel", getValueInput.Adress_Hotel || selectedHotel.Adress_Hotel)
-        fetch(api, {
-            method: 'POST',
-            credentials: 'include',
-            body: formData
-        })
-
-            .then(res => res.json())
-            .then(data => {
-                console.log(data);
-                handleClose()
-                getDataHotel();
-                notification("success", "Updated Hotel successfully")
-            })
-            .catch(err => {
-                console.log(err);
-            })
+    
+        formData.append("Name_Hotel", getValueInput.Name_Hotel || selectedHotel.Name_Hotel);
+        formData.append("Price_Hotel", getValueInput.Price_Hotel || selectedHotel.Price_Hotel);
+        formData.append("Image_Hotel", getValueInput.Image_Hotel || selectedHotel.Image_Hotel);
+        formData.append("Description_Hotel", getValueInput.Description_Hotel || selectedHotel.Description_Hotel);
+        formData.append("Adress_Hotel", getValueInput.Adress_Hotel || selectedHotel.Adress_Hotel);
+    
+        try {
+            const res = await fetch(api, {
+                method: 'POST',
+                credentials: 'include',
+                body: formData,
+            });
+            const data = await res.json();
+            console.log(data);
+            handleClose();
+            getDataHotel();
+            notification("success", "Updated Hotel successfully");
+        } catch (err) {
+            console.log(err);
+            notification("error", "Error updating hotel");
+        } finally {
+            setIsLoading(false);  // Kết thúc loading
+        }
     };
+    
 
     const handleDele = async (id) => {
         const api = "http://localhost:3001/Hotel/DeleteHotel/"
@@ -365,7 +379,7 @@ const HotelManagement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Hủy</Button>
-                    <Button onClick={handleAddNewHotel} color="primary">Thêm</Button>
+                    <Button onClick={handleAddNewHotel} color="primary" disabled={isLoading}>{isLoading ? <CircularProgress size={24} /> : "Thêm"}</Button>
                 </DialogActions>
             </Dialog>
 
@@ -446,7 +460,7 @@ const HotelManagement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Hủy</Button>
-                    <Button onClick={handleEditHotel} color="primary">Lưu</Button>
+                    <Button onClick={handleEditHotel} color="primary"disabled={isLoading} >{isLoading ? <CircularProgress size={24} /> : "Lưu"}</Button>
                 </DialogActions>
             </Dialog>
 

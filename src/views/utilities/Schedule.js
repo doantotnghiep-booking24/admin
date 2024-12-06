@@ -3,6 +3,7 @@ import {
     Typography, Paper, Table, TableBody, TableCell, TableHead, TableRow,
     IconButton, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Box
 } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -141,29 +142,32 @@ const ScheduleManagement = () => {
         }
     }
 
+    const handleGetValueInput = (e) => {
+        const { name, value } = e.target;
+        setValueInput({ ...valueInput, [name]: value })
+    }
     const handleAddSchedule = async () => {
         const errors = validateForm(valueInput);
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;
         }
-        const api = "http://localhost:3001/Schedules/CreateSchedule"
+    
+        setIsLoading(true); // Bắt đầu loading
+    
+        const api = "http://localhost:3001/Schedules/CreateSchedule";
         try {
-            const res = await axios.post(api, valueInput, { withCredentials: true })
-            handleCloseAdd()
-            getAllSchedule()
-            notification("success", "Created Schedule successfully")
+            const res = await axios.post(api, valueInput, { withCredentials: true });
+            handleCloseAdd();
+            getAllSchedule();
+            notification("success", "Created Schedule successfully");
         } catch (error) {
             console.log(error);
-
+            notification("error", "Error creating Schedule");
+        } finally {
+            setIsLoading(false); // Kết thúc loading
         }
-
-    }
-
-    const handleGetValueInput = (e) => {
-        const { name, value } = e.target;
-        setValueInput({ ...valueInput, [name]: value })
-    }
+    };
     
     const handleUpdateSchedule = async () => {
         const errors = validateForm(valueInput);
@@ -171,7 +175,10 @@ const ScheduleManagement = () => {
             setErrors(errors);
             return;
         }
-        const api = "http://localhost:3001/Schedules/UpdateSchedule/"
+    
+        setIsLoading(true); // Bắt đầu loading
+    
+        const api = "http://localhost:3001/Schedules/UpdateSchedule/";
         try {
             const updatedType = {
                 ...editData,
@@ -184,18 +191,19 @@ const ScheduleManagement = () => {
                 Time_Afternoon_Schedule: valueInput.Time_Afternoon_Schedule || editData.Time_Afternoon_Schedule,
                 Text_Schedule_Afternoon: valueInput.Text_Schedule_Afternoon || editData.Text_Schedule_Afternoon,
             };
-            const res = await axios.post(`${api}${editData._id}`, updatedType)
+            const res = await axios.post(`${api}${editData._id}`, updatedType, { withCredentials: true });
             console.log(res);
             getAllSchedule();
-            handleCloseEdit();  // Đóng form edit
-            notification("success", "Updated Schedule successfully")
-
+            handleCloseEdit(); // Đóng form edit
+            notification("success", "Updated Schedule successfully");
         } catch (error) {
             console.log(error);
-
+            notification("error", "Error updating Schedule");
+        } finally {
+            setIsLoading(false); // Kết thúc loading
         }
-    }
-
+    };
+    
     const handleDeleteSchedule = async (id) => {
         const api = "http://localhost:3001/Schedules/DeleteSchedule/"
         const apiRemove = "http://localhost:3001/Schedules/RemoveSchedule/"
@@ -456,8 +464,8 @@ const ScheduleManagement = () => {
                     <Button onClick={handleCloseAdd} color="primary">
                         Hủy
                     </Button>
-                    <Button onClick={handleAddSchedule} color="primary">
-                        Lưu
+                    <Button onClick={handleAddSchedule} color="primary" disabled={isLoading}>
+                    {isLoading ? <CircularProgress size={24} /> : "Thêm"}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -559,8 +567,8 @@ const ScheduleManagement = () => {
                     <Button onClick={handleCloseEdit} color="primary">
                         Hủy
                     </Button>
-                    <Button onClick={handleUpdateSchedule} color="primary">
-                        Lưu
+                    <Button onClick={handleUpdateSchedule} color="primary" disabled={isLoading}>
+                    {isLoading ? <CircularProgress size={24} /> : "Lưu"}
                     </Button>
                 </DialogActions>
             </Dialog>

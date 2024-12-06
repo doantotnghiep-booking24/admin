@@ -3,6 +3,7 @@ import {
     Typography, Paper, Table, TableBody, TableCell, TableHead, TableRow,
     IconButton, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField
 } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -102,56 +103,64 @@ const ServiceManagement = () => {
         }
     }
 
+    const handleGetValueInput = (e) => {
+        const { name, value } = e.target;
+        setValueInput({ ...valueInput, [name]: value })
+    }
+
+
     const handleAddService = async () => {
         const validationErrors = validateForm(valueInput);
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
         }
+    
+        setIsLoading(true);  // Bắt đầu loading
+    
         const api = "http://localhost:3001/Services/CreateService";
         try {
-            const res = await axios.post(api, valueInput, { withCredentials: true})
-            handleCloseAdd()
-            getAllService()
-            notification("success", "Created Schedule successfully")
+            const res = await axios.post(api, valueInput, { withCredentials: true });
+            handleCloseAdd();
+            getAllService();
+            notification("success", "Created Service successfully");
         } catch (error) {
             console.log(error);
-
+            notification("error", "Error creating Service");
+        } finally {
+            setIsLoading(false);  // Kết thúc loading
         }
     };
     
-    
-
-     const handleGetValueInput = (e) => {
-        const { name, value } = e.target;
-        setValueInput({ ...valueInput, [name]: value })
-    }
-
     const handleUpdateService = async () => {
         const validationErrors = validateForm(valueInput);
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
         }
-        const api = "http://localhost:3001/Services/UpdateService/"
+    
+        setIsLoading(true);  // Bắt đầu loading
+    
+        const api = "http://localhost:3001/Services/UpdateService/";
         try {
             const updatedType = {
                 ...editData,
                 Name_Service: valueInput.Name_Service || editData.Name_Service,
                 Price_Service: valueInput.Price_Service || editData.Price_Service,
-                
             };
-            const res = await axios.post(`${api}${editData._id}`, updatedType)
+            const res = await axios.post(`${api}${editData._id}`, updatedType, { withCredentials: true });
             console.log(res);
             getAllService();
-            handleCloseEdit();  // Đóng form edit
-            notification("success", "Updated Schedule successfully")
-
+            handleCloseEdit(); // Đóng form edit
+            notification("success", "Updated Service successfully");
         } catch (error) {
             console.log(error);
-
+            notification("error", "Error updating Service");
+        } finally {
+            setIsLoading(false);  // Kết thúc loading
         }
-    }
+    };
+    
 
     const handleDeleteService = async (id) => {
         const api = "http://localhost:3001/Services/DeleteService/"
@@ -270,8 +279,8 @@ const ServiceManagement = () => {
                     <Button onClick={handleCloseAdd} color="primary">
                         Hủy
                     </Button>
-                    <Button onClick={handleAddService} color="primary">
-                        Lưu
+                    <Button onClick={handleAddService} color="primary" disabled={isLoading}>
+                    {isLoading ? <CircularProgress size={24} /> : "Thêm"}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -305,8 +314,8 @@ const ServiceManagement = () => {
                     <Button onClick={handleCloseEdit} color="primary">
                         Hủy
                     </Button>
-                    <Button onClick={handleUpdateService} color="primary">
-                        Lưu
+                    <Button onClick={handleUpdateService} color="primary" disabled={isLoading}>
+                    {isLoading ? <CircularProgress size={24} /> : "Lưu"}
                     </Button>
                 </DialogActions>
             </Dialog>
