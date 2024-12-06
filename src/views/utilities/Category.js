@@ -4,8 +4,10 @@ import { handleGetCategories, handleCreateCategories, handleDeleteCategories, ha
 import {
     Typography, Paper, Table, TableBody, TableCell, TableHead, TableRow,
     IconButton, Dialog, DialogActions, DialogContent, DialogTitle,
-    TextField, Button, Box
+    TextField, Button, Box,
 } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
+
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -21,6 +23,7 @@ const CategoryManagement = () => {
     const [idUpdate, setIdUpdate] = useState();
     const [type_ButtonAdd, setType_ButtonAdd] = useState();
     const [type_ButtonEdit, setType_ButtonEdit] = useState();
+    const [loading, setLoading] = useState(false);
 
     // Hàm kiểm tra input hợp lệ sử dụng validator
     const isValidCategory = (input) => {
@@ -40,6 +43,7 @@ const CategoryManagement = () => {
             notification("error", "Tên danh mục không được để trống phải có ít nhất 3 kí tự");
             return;
         }
+        setLoading(true);
         setType_ButtonEdit(type);
     };
 
@@ -48,6 +52,7 @@ const CategoryManagement = () => {
             notification("error", "Tên danh mục không được để trống phải có ít nhất 3 kí tự");
             return;
         }
+        setLoading(true);
         setType_ButtonAdd(type);
     };
 
@@ -77,7 +82,7 @@ const CategoryManagement = () => {
 
     useEffect(() => {
         console.log(idDelete);
-        
+
         const Delete_Cate = async () => {
             const res = await handleDeleteCategories(idDelete);
             res.status === 200 ? window.location.reload() : console.error('Error When handle function Delete');
@@ -195,7 +200,13 @@ const CategoryManagement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseEdit} color="secondary">Đóng</Button>
-                    <Button onClick={() => btn_edit('Update')} color="primary">Lưu</Button>
+                    <Button
+                        onClick={() => btn_edit('Update')}
+                        color="primary"
+                        disabled={loading}
+                    >
+                        {loading ? <CircularProgress size={24} /> : "Lưu"}
+                    </Button>
                 </DialogActions>
             </Dialog>
 
@@ -210,7 +221,14 @@ const CategoryManagement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseAdd} color="secondary">Đóng</Button>
-                    <Button onClick={() => btn_add('Create')} color="primary">Lưu</Button>
+
+                    <Button
+                        onClick={() => btn_add('Create')}
+                        color="primary"
+                        disabled={loading}
+                    >
+                        {loading ? <CircularProgress size={24} /> : "Lưu"}
+                    </Button>
                 </DialogActions>
             </Dialog>
         </Paper>
