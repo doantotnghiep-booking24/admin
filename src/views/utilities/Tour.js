@@ -73,7 +73,7 @@ const TourManagement = () => {
     const [dataSchedule, setDataSchedule] = useState([])
     const [dataCategory, setDataCategory] = useState([])
     const [dataTypeTour, setDataTypeTour] = useState([])
-    const [dataVoucher, setDataVoucher] = useState([])
+    // const [dataVoucher, setDataVoucher] = useState([])
     const [nameImages, setNameImages] = useState([])
     const [dataTours, setDataTours] = useState([])
     const [openTrash, setOpenTrash] = useState(false);
@@ -86,7 +86,7 @@ const TourManagement = () => {
         Start_Tour: "",
         End_Tour: "",
         total_Date: "",
-        id_Voucher: "",
+        // id_Voucher: "",
         id_Category: "",
         id_Schedule_Travel: "",
         id_Type_Tour: "",
@@ -96,7 +96,7 @@ const TourManagement = () => {
         getDataManagerSchedule();
         getDataManagerCategory();
         getDataManagerTypeTour();
-        getDataManagerVoucher();
+        // getDataManagerVoucher();
         getDataManagerTour();
 
     }, [])
@@ -112,7 +112,7 @@ const TourManagement = () => {
         End_Tour: '',
         total_Date: '',
         id_Schedule_Travel: '',
-        id_Voucher: '',
+        // id_Voucher: '',
         id_Category: '',
         id_Type_Tour: '',
     });
@@ -160,9 +160,9 @@ const TourManagement = () => {
         }
 
         // check lựa chọn voucher
-        if (validator.isEmpty(data.id_Voucher)) {
-            newErrors.id_Voucher = 'Bạn cần chọn voucher!';
-        }
+        // if (validator.isEmpty(data.id_Voucher)) {
+        //     newErrors.id_Voucher = 'Bạn cần chọn voucher!';
+        // }
 
         // check lựa chọn danh mục
         if (validator.isEmpty(data.id_Category)) {
@@ -259,21 +259,22 @@ const TourManagement = () => {
         }
     }
 
-    const getDataManagerVoucher = async () => {
-        const api = "http://localhost:3001/Vouchers/GetAllVoucher"
-        try {
-            const res = await axios.get(api, { withCredentials: true });
+    // const getDataManagerVoucher = async () => {
+    //     const api = "http://localhost:3001/Vouchers/GetAllVoucher"
+    //     try {
+    //         const res = await axios.get(api, { withCredentials: true });
 
 
-            setDataVoucher(res.data.Voucher)
-        } catch (error) {
-            console.log(error);
+    //         setDataVoucher(res.data.Voucher)
+    //     } catch (error) {
+    //         console.log(error);
 
-        }
-    }
+    //     }
+    // }
     const handleValueInput = (e) => {
         const { name, value } = e.target
 
+console.log(value);
 
         setGetValueInput({ ...getValueInput, [name]: value })
     }
@@ -301,7 +302,7 @@ const TourManagement = () => {
         formData.append("Start_Tour", getValueInput.Start_Tour)
         formData.append("End_Tour", getValueInput.End_Tour)
         formData.append("total_Date", getValueInput.total_Date)
-        formData.append("id_Voucher", getValueInput.id_Voucher)
+        // formData.append("id_Voucher", getValueInput.id_Voucher)
         formData.append("id_Category", getValueInput.id_Category)
         formData.append("id_Schedule_Travel", getValueInput.id_Schedule_Travel)
         formData.append("id_Type_Tour", getValueInput.id_Type_Tour)
@@ -354,7 +355,7 @@ const TourManagement = () => {
         formData.append("Start_Tour", getValueInput.Start_Tour || selectedTour.Start_Tour)
         formData.append("End_Tour", getValueInput.End_Tour || selectedTour.End_Tour)
         formData.append("total_Date", getValueInput.total_Date || selectedTour.total_Date)
-        formData.append("id_Voucher", getValueInput.id_Voucher || selectedTour.id_Voucher)
+        // formData.append("id_Voucher", getValueInput.id_Voucher || selectedTour.id_Voucher)
         formData.append("id_Category", getValueInput.id_Category || selectedTour.id_Category)
         formData.append("id_Schedule_Travel", getValueInput.id_Schedule_Travel || selectedTour.id_Schedule_Travel)
         formData.append("id_Type_Tour", getValueInput.id_Type_Tour || selectedTour.id_Type_Tour)
@@ -445,12 +446,12 @@ const TourManagement = () => {
         const nameCate = dataCategory.find(item => item._id === id)
         return nameCate?.Name_Cate
     }
-    const getNameVoucher = (id) => {
-        const nameVoucher = dataVoucher.find(item => item._id === id)
-        return nameVoucher?.Code_Voucher
+    // const getNameVoucher = (id) => {
+    //     const nameVoucher = dataVoucher.find(item => item._id === id)
+    //     return nameVoucher?.Code_Voucher
 
 
-    }
+    // }
 
 
     const notification = (status, message) => {
@@ -521,9 +522,9 @@ const TourManagement = () => {
                             <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                                 <Typography variant="subtitle2" fontWeight={600}>Mô Tả</Typography>
                             </TableCell>
-                            <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
+                            {/* <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                                 <Typography variant="subtitle2" fontWeight={600}>Voucher</Typography>
-                            </TableCell>
+                            </TableCell> */}
                             <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                                 <Typography variant="subtitle2" fontWeight={600}>Lịch Trình</Typography>
                             </TableCell>
@@ -561,7 +562,7 @@ const TourManagement = () => {
                                         }}>
                                             {tour.Description_Tour}
                                         </TableCell>
-                                        <TableCell>{getNameVoucher(tour.id_Voucher)}</TableCell>
+                                        {/* <TableCell>{getNameVoucher(tour.id_Voucher)}</TableCell> */}
                                         <TableCell>
                                             <Typography>
                                                 <strong>Điểm bắt đầu:</strong> {tour.Start_Tour}<br />
@@ -616,7 +617,7 @@ const TourManagement = () => {
                                     }}>
                                         {tour.Description_Tour}
                                     </TableCell>
-                                    <TableCell>{getNameVoucher(tour.id_Voucher)}</TableCell>
+                                    {/* <TableCell>{getNameVoucher(tour.id_Voucher)}</TableCell> */}
                                     <TableCell>
                                         <Typography>
                                             <strong>Điểm bắt đầu:</strong> {tour.Start_Tour}<br />
@@ -738,14 +739,14 @@ const TourManagement = () => {
                     <MenuItem value="Vourcher">Hà Nội</MenuItem> */}    
                             </Select>
                         </FormControl>
-                        <FormControl fullWidth sx={{ mt: 1 }}>
+                        {/* <FormControl fullWidth sx={{ mt: 1 }}>
                             <InputLabel>Voucher</InputLabel>
                             <Select defaultValue="" name='id_Voucher' onChange={handleValueInput}>
                                 {dataVoucher?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Code_Voucher}</MenuItem>)}
-                                {/* <MenuItem value="Vourcher">10%</MenuItem>
-                    <MenuItem value="Vourcher">20%</MenuItem> */}
+                                <MenuItem value="Vourcher">10%</MenuItem>
+                    <MenuItem value="Vourcher">20%</MenuItem>
                             </Select>
-                        </FormControl>
+                        </FormControl> */}
                         <FormControl fullWidth sx={{ mt: 1 }}>
                             <InputLabel>Danh Mục</InputLabel>
                             <Select defaultValue="" name='id_Category' onChange={handleValueInput}>
@@ -870,14 +871,14 @@ const TourManagement = () => {
                     <MenuItem value="Vourcher">Hà Nội</MenuItem> */}
                                     </Select>
                                 </FormControl>
-                                <FormControl fullWidth sx={{ mt: 1 }}>
+                                {/* <FormControl fullWidth sx={{ mt: 1 }}>
                                     <InputLabel>Voucher</InputLabel>
                                     <Select defaultValue={selectedTour.id_Voucher} name='id_Voucher' onChange={handleValueInput}>
                                         {dataVoucher?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Discount}</MenuItem>)}
-                                        {/* <MenuItem value="Vourcher">10%</MenuItem>
-                    <MenuItem value="Vourcher">20%</MenuItem> */}
+                                        <MenuItem value="Vourcher">10%</MenuItem>
+                    <MenuItem value="Vourcher">20%</MenuItem>
                                     </Select>
-                                </FormControl>
+                                </FormControl> */}
                                 <FormControl fullWidth sx={{ mt: 1 }}>
                                     <InputLabel>Danh Mục</InputLabel>
                                     <Select defaultValue={selectedTour.id_Category} name='id_Category' onChange={handleValueInput}>

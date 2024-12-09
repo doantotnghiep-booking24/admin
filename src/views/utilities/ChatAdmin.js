@@ -11,6 +11,7 @@ import { useRef } from 'react';
 const socket = io('http://localhost:3001');
 
 const Chat = () => {
+    const RefScroll = useRef(null)
     const [messageText, setMessageText] = useState('');
     const [selectedUser, setSelectedUser] = useState(null); // User selection for admin
     const [userChats, setUserChats] = useState([])
@@ -25,10 +26,17 @@ const Chat = () => {
         }
         handleGetChats()
     }, [])
-    useEffect(async () => {
-        const res = await handleGetUsers()
-        console.log(res);
-        setUsers(res.Users)
+    useEffect(() => {
+        if (RefScroll) {
+            RefScroll.current?.scrollIntoView();  
+        }
+      }, [dataChats]);
+    useEffect(() => {
+        const funcHandle = async () => {
+            const res = await handleGetUsers()
+            setUsers(res.Users);
+        }
+        funcHandle()
     }, [])
     const handleSelectContact = async (senderId, id_Roomchat) => {
         try {
@@ -106,7 +114,7 @@ const Chat = () => {
 
     return (
         <>
-            Nút mở/đóng ChatBox
+            {/* Nút mở/đóng ChatBox */}
             <IconButton
                 onClick={toggleChatBox}
                 sx={{
@@ -148,12 +156,12 @@ const Chat = () => {
                                     <ListItem
                                         button
                                         key={userChat._id}
-                                        style={{ cursor: 'pointer' }}
+                                        style={id_Room === userChat._id ? {background : '#00BFFF',cursor : 'pointer'}: {color : 'black',cursor : 'pointer'}}
                                         onClick={() => handleSelectContact(userChat.senderId, userChat._id)}
                                     //   selected={selectedContact === user.id}
                                     >
                                         {users.filter(user => user._id === userChat.senderId).map(users => (
-                                            <ListItemAvatar style={{display : 'flex',gap : 5}}>
+                                            <ListItemAvatar style={{ display: 'flex', gap: 5 }}>
                                                 <Avatar src={users?.photoUrl || 'default-avatar-url'} alt={`User ${users?.photoUrl}`} />
                                                 <ListItemText primary={`${users.Name}`} />
                                             </ListItemAvatar>
@@ -192,7 +200,8 @@ const Chat = () => {
                                                     color: 'black',
                                                 }}
                                             >
-                                                <Typography variant="body2">{message.text}</Typography>
+                                                <div variant="body2">{message.text}</div>
+                                                <div ref={RefScroll} />
                                             </Box>
                                         </Box>
                                     ))}

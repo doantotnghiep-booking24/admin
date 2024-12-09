@@ -16,6 +16,7 @@ function App() {
   const auth = Cookies.get("authAdmin")
     ? JSON.parse(Cookies.get("authAdmin"))
     : null;
+    
   useEffect(() => {
     if (auth?.role === "Admin") {
       ``;
@@ -53,7 +54,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {routing}
-      <Chat/>
+      {auth?.Email === "doantotnghiep24booking@gmail.com" ? <Chat/> : <></>}
     </ThemeProvider>
   );
 }

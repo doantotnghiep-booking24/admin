@@ -74,6 +74,7 @@ const ticketManagement = () => {
         })
         setValueCus(result)
     }, [])
+    
     useEffect(() => {
         const result_voucher = voucher.filter(voucher => {
             return voucher.Condition.Min_tour_value === ticket.Price_Tour
@@ -161,6 +162,7 @@ const ticketManagement = () => {
                 return "default";
         }
     };
+console.log(custommers);
 
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
@@ -195,7 +197,10 @@ const ticketManagement = () => {
                         <TableRow key={ticket.id}>
                             <TableCell sx={{ fontSize: '13px', fontFamily: 'Arial' }}>{index}</TableCell>
                             <TableCell sx={{ fontSize: '13px', fontFamily: 'Arial' }}>{ticket.Title_Tour}</TableCell>
-                            <TableCell sx={{ fontSize: '13px', fontFamily: 'Arial' }}>mail</TableCell>
+                            {custommers.filter(Cus => Cus._id === ticket.id_Custommer).map(user => (
+                                <TableCell sx={{ fontSize: '13px',width : '50px', fontFamily: 'Arial' }}>{user ? user.Name_Customer : ''}</TableCell>
+                            ))}
+                            {ticket.id_Custommer === null && <TableCell sx={{ fontSize: '13px', fontFamily: 'Arial' }}>Null</TableCell>}
                             <TableCell sx={{ fontSize: '13px', fontFamily: 'Arial' }}>
                                 <Typography>
                                     <strong>Điểm đi:</strong> {ticket.Departure_Location}<br /> <br />
@@ -226,7 +231,7 @@ const ticketManagement = () => {
                                         label={ticket?.Status}
                                         onChange={handleChange}
                                     >
-                                        {ticket.Status_Payment !== 'Chưa Thanh Toán' && ticket.Status === 'Đã Xác Nhận' ? <MenuItem disabled={true} value={`Đã Xác Nhận,` + `${ticket._id},` + `${ticket.id_Custommer}`}>Đã Xác nhận</MenuItem> : (ticket.Status_Payment !== 'Chưa Thanh Toán' && ticket.Status !== 'Đã Xác Nhận' ? <MenuItem value={`Đã Xác Nhận,` + `${ticket._id},` + `${ticket.id_Custommer}`}>Đã Xác nhận</MenuItem> : <MenuItem value={`Đã Hủy,` + `${ticket._id},` + `${ticket.id_Custommer}`}>Đã Hủy</MenuItem>)}
+                                        {ticket.Status_Payment !== 'Chưa Thanh Toán' && ticket.Status === 'Đã Xác Nhận' ||  ticket.Status === 'Đã Hoàn Thành' ? <MenuItem disabled={true} value={`Đã Xác Nhận,` + `${ticket._id},` + `${ticket.id_Custommer}`}>Đã Xác nhận</MenuItem> : (ticket.Status_Payment !== 'Chưa Thanh Toán' && ticket.Status !== 'Đã Xác Nhận' ? <MenuItem value={`Đã Xác Nhận,` + `${ticket._id},` + `${ticket.id_Custommer}`}>Đã Xác nhận</MenuItem> : <MenuItem value={`Đã Hủy,` + `${ticket._id},` + `${ticket.id_Custommer}`}>Đã Hủy</MenuItem>)}
                                     </Select>
                                 </FormControl>
                             </TableCell>

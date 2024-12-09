@@ -30,7 +30,7 @@ const initialCustomers = [
     {
         id: 3,
         Create_by : "Nguyễn Ngọc Hùng",
-        Name_Customer: "Phạm Văn C",
+        Name_Customer: "Phạm Văn C ",
         Date_Of_Birth: "1992-12-30",
         Sex_Customer: "Nam",
         Phone_Number: "0912345678",
