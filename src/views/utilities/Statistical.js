@@ -94,8 +94,8 @@ function Statistics() {
     datasets: [
       {
         data: [data.totalTours, data.totalNews, data.totalTickets],
-        backgroundColor: ["#42a5f5", "#66bb6a", "#ffa726"],
-        hoverBackgroundColor: ["#64b5f6", "#81c784", "#ffb74d"],
+        backgroundColor: ["#1565C0", "#1E88E5", "#42A5F5"],
+        hoverBackgroundColor: ["#0D47A1", "#1976D2", "#64B5F6"],
       },
     ],
   };
@@ -267,21 +267,22 @@ function Statistics() {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: "60%",
+            maxHeight: "600px",
             bgcolor: "background.paper",
-            border: "2px solid #000",
             boxShadow: 24,
             p: 4,
+            overflowY: "auto",
+            borderRadius: 2,
           }}
         >
           <Typography variant="h6" component="h2">
-            Chi tiết doanh thu
+            Chi tiết ngày:{" "}
+            {selectedData &&
+              new Date(selectedData.date).toLocaleDateString("vi-VN")}
           </Typography>
           {selectedData && (
             <Box mt={2}>
-              <Typography>
-                Ngày: {new Date(selectedData._id).toLocaleDateString("vi-VN")}
-              </Typography>
               <Typography>
                 Doanh thu:{" "}
                 {selectedData.totalRevenuePerDay.toLocaleString("vi-VN")} VND
@@ -289,6 +290,31 @@ function Statistics() {
               <Typography>
                 Số vé đã đặt: {selectedData.totalTicketsPerDay}
               </Typography>
+              <Typography variant="h6" mt={2}>
+                Danh sách user và tour đã đặt:
+              </Typography>
+              <Box>
+                {selectedData.userTourDetails.map((detail, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      mt: 2,
+                      p: 2,
+                      border: "1px solid #ddd",
+                      borderRadius: 2,
+                    }}
+                  >
+                    <Typography>
+                      <strong>User:</strong> {detail.user.Name} (
+                      {detail.user.Email})
+                    </Typography>
+                    <Typography>
+                      <strong>Tour:</strong> {detail.tour.Name_Tour} - Giá:{" "}
+                      {detail.tour.Price_Tour.toLocaleString("vi-VN")} VND
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
             </Box>
           )}
         </Box>

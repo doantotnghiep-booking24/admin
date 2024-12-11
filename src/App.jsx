@@ -10,6 +10,7 @@ import axios from "axios";
 import { baselightTheme } from "./theme/DefaultColors";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import Chat from "./views/utilities/ChatAdmin";
 function App() {
   const [isAuth, setIsAuth] = useState(false);
   const auth = Cookies.get("authAdmin")
@@ -52,6 +53,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {routing}
+      <Chat/>
     </ThemeProvider>
   );
 }
