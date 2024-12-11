@@ -86,6 +86,8 @@ const VoucherManagement = () => {
         Condition: ''
     });
     const validateForm = (data) => {
+   
+        
         const newErrors = {};
         if (validator.isEmpty(data.Code_Voucher)) {
             newErrors.Code_Voucher = 'Mã code không được để trống!';
@@ -93,7 +95,7 @@ const VoucherManagement = () => {
         if (validator.isEmpty(data.Description)) {
             newErrors.Description = 'Mô tả không được để trống!';
         }
-        if (validator.isEmpty(data.Discount)) {
+        if (validator.isNumeric(data.Discount)) {
             newErrors.Discount = 'Giảm giá không được để trống!';
         }
         if (!validator.isDate(data.Start_Date)) {
@@ -193,15 +195,13 @@ const VoucherManagement = () => {
     };
 
     const handleUpdateVoucher = async () => {
-        const errors = validateForm(valueInput);
-        if (Object.keys(errors).length > 0) {
-            setErrors(errors);
-            return;
-        }
-
-        setIsLoading(true); // Bắt đầu loading
-
-        const api = "http://localhost:3001/Vouchers/UpdateVoucher/";
+        
+        // const errors = validateForm(valueInput);
+        // if (Object.keys(errors).length > 0) {
+        //     setErrors(errors);
+        //     return;
+        // }
+        const api = "http://localhost:3001/Vouchers/UpdateVoucher/"
         try {
             const updatedType = {
                 Code_Voucher: valueInput.Code_Voucher || selectedVoucher.Code_Voucher,

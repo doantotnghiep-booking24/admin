@@ -132,7 +132,6 @@ const ScheduleManagement = () => {
             const datas = await res.data
             const dataUndelete = datas.Schedule_Travel.filter(t => t.isDeleted === false);
             const dataDeleted = datas.Schedule_Travel.filter(t => t.isDeleted === true);
-            console.log(datas.Schedule_Travel);
             setScheduleTrash(dataDeleted);
             setDataSchedule(dataUndelete)
         } catch (error) {

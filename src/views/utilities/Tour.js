@@ -283,6 +283,8 @@ const TourManagement = () => {
 
     const handleAddNewTour = async () => {
         const errors = validateForm(getValueInput);
+
+        
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;
@@ -333,16 +335,17 @@ const TourManagement = () => {
     
 
     const handleEditTour = async () => {
-        const errors = validateForm(getValueInput);
-        console.log(errors);
-    
-        if (Object.keys(errors).length > 0) {
-            setErrors(errors);
-            return;
-        }
-    
-        setIsLoading(true);  // Bật trạng thái loading
-    
+
+        // const errors = validateForm(selectedTour);
+        // console.log(errors);
+
+        // if (Object.keys(errors).length > 0) {
+        //     setErrors(errors);
+        //     return;
+        // }
+
+
+
         const api = `http://localhost:3001/V1/Tours/Update/${selectedTour._id}`;
     
         const formData = new FormData();

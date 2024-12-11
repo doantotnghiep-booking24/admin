@@ -238,34 +238,36 @@ const LocationManagement = () => {
         for (let i = 0; i < nameImages.length; i++) {
             formData.append("Image_Location", nameImages[i]);
         }
-    
-        formData.append("Name_Location", location.Name_Location);
-        formData.append("Address_Location", location.Address_Location);
-        formData.append("Description", location.Description);
-        formData.append("Type_Location", location.Type_Location);
-        formData.append("Nationnal", location.Nationnal);
-        formData.append("City_Location", location.City_Location);
-        formData.append("id_tour", location.id_tour);
-    
-        try {
-            await fetch(api, {
-                method: 'POST',
-                body: formData,
-                credentials: 'include',
-            });
-            getDataManagerLocation();
-            handleClose();
-            notification("success", "Created Location successfully");
-        } catch (err) {
-            console.error(err);
-            notification("error", "Error creating location");
-        } finally {
-            setLoading(false);  // Kết thúc trạng thái loading
-        }
-    };
-    
-    const handleUpdateLocation = async () => {
-        const errors = validateForm(location);
+        formData.append("Name_Location", location.Name_Location)
+        formData.append("Address_Location", location.Address_Location)
+        formData.append("Description", location.Description)
+        formData.append("Type_Location", location.Type_Location)
+        formData.append("Nationnal", location.Nationnal)
+        formData.append("City_Location", location.City_Location)
+        formData.append("id_tour", location.id_tour)
+
+        fetch(api, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                getDataManagerLocation()
+                handleClose()
+                notification("success", "Created News successfully")
+            })
+            .catch(err => {
+                console.log(err);
+            })
+
+
+    }
+
+    const handleUpdateNews = async () => {
+        
+        const errors = validateForm(selectedLocation);
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;
