@@ -53,7 +53,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {routing}
-      <Chat/>
+      {isAuth ? <Chat /> : <></>}
     </ThemeProvider>
   );
 }
