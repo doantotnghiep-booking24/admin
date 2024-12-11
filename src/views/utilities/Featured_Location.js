@@ -260,7 +260,8 @@ const LocationManagement = () => {
     }
 
     const handleUpdateNews = async () => {
-        const errors = validateForm(location);
+        
+        const errors = validateForm(selectedLocation);
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;

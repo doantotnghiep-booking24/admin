@@ -280,6 +280,8 @@ const TourManagement = () => {
 
     const handleAddNewTour = async () => {
         const errors = validateForm(getValueInput);
+
+        
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;
@@ -327,13 +329,14 @@ const TourManagement = () => {
     }
 
     const handleEditTour = async () => {
-        const errors = validateForm(getValueInput);
-        console.log(errors);
 
-        if (Object.keys(errors).length > 0) {
-            setErrors(errors);
-            return;
-        }
+        // const errors = validateForm(selectedTour);
+        // console.log(errors);
+
+        // if (Object.keys(errors).length > 0) {
+        //     setErrors(errors);
+        //     return;
+        // }
 
 
 

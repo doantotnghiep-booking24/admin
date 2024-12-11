@@ -139,7 +139,7 @@ const ArticleManagement = () => {
     };
 
     const handleAddNews = async () => {
-        if (!validateForm()) { return; }
+        if (validateForm()) { return; }
         const api = "http://localhost:3001/News/CreateNew"
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
@@ -196,7 +196,10 @@ const ArticleManagement = () => {
     }
 
     const handleUpdateNews = async () => {
-        if (!validateForm()) { return; }
+        console.log("isDeleted");
+
+        if (validateForm()) { return; }
+
         setIsLoading(true);
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
@@ -538,7 +541,8 @@ const ArticleManagement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Hủy</Button>
-                    <Button onClick={handleUpdateNews} color="primary">Lưu</Button>
+                    <Button onClick={() => handleUpdateNews()
+                    } color="primary">Lưu</Button>
                 </DialogActions>
             </Dialog>
             <ModalCustom isModal={isModal} setIsModals={(value) => {

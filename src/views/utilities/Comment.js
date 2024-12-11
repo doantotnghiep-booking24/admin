@@ -1,4 +1,4 @@
-import { useState } from 'react'; 
+import { useEffect, useState } from 'react';
 import {
     Typography, Paper, Table, TableBody, TableCell, TableHead, TableRow,
     IconButton, Chip
@@ -41,6 +41,54 @@ const initialComments = [
 
 const CommentManagement = () => {
     const [comments] = useState(initialComments);
+    const [dataComment, setDataComment] = useState([]);
+    const [dataTour, setDataTour] = useState([]);
+    const [dataUser, setDataUser] = useState([]);
+
+    const getDataComment = async () => {
+        try {
+            const result = await fetch('http://localhost:3001/V1/Review/GetAllReview', { credentials: "include" });
+            const data = await result.json();
+
+
+            setDataComment(data)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const getDataTour = async () => {
+        try {
+            const result = await fetch('http://localhost:3001/V1/Tours/GetTours', { credentials: "include" });
+            const data = await result.json();
+
+
+            setDataTour(data.Tours.datas)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const getDataUser = async () => {
+        try {
+            const result = await fetch('http://localhost:3001/User/GetAllUsers', { credentials: "include" });
+            const data = await result.json();
+
+
+            setDataUser(data.Users)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    useEffect(() => {
+
+        getDataComment();
+        getDataUser();
+        getDataTour();
+    }, [])
+    console.log(dataUser);
+
+
 
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
@@ -53,7 +101,7 @@ const CommentManagement = () => {
             <Table aria-label="bảng bình luận">
                 <TableHead>
                     <TableRow>
-                    <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
+                        <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
                                 STT
                             </Typography>
@@ -96,26 +144,39 @@ const CommentManagement = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {comments.map((comment, index) => (
-                        <TableRow key={comment.id}>
+                    {dataComment.map((comment, index) => (
+                        <TableRow key={comment._id}>
                             <TableCell>
                                 <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>
                                     {index + 1}
                                 </Typography>
                             </TableCell>
-                            <TableCell>{comment.location}</TableCell>
+                            <TableCell>
+                                {dataTour.filter(i => i._id === comment.tourId).map(i =>
+                                    i.Name_Tour ? i.Name_Tour : "Chua co ten"
+                                )}
+                            </TableCell>
                             <TableCell>
                                 <Typography variant="subtitle2" fontWeight={600}>
-                                    {comment.userName}
+                                    {dataUser.filter(i => i._id === comment.userId).map(i =>
+                                        i.Name ? i.Name : "Chua co ten"
+                                    )}
+
                                 </Typography>
                             </TableCell>
-                            <TableCell>{comment.email}</TableCell>
+                            <TableCell>{dataUser.filter(i => i._id === comment.userId).map(i =>
+                                i.Email ? i.Email : "Chua co ten"
+                            )}
+                            </TableCell>
                             <TableCell>{comment.content}</TableCell>
-                            <TableCell>{comment.time}</TableCell>
+                            <TableCell>{comment.
+                                Created_At}</TableCell>
                             <TableCell>
                                 <Chip
-                                    label={comment.status}
-                                    color={comment.statusColor}
+                                    label={comment.isDeleted ? 
+                                        "Xóa" : "Hiển thị"
+                                    }
+                                    color={comment.isDeleted ? "info": "error"}
                                     size="small"
                                     sx={{ px: 1 }}
                                 />
