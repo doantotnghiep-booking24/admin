@@ -117,10 +117,6 @@ const LocationManagement = () => {
         if (validator.isEmpty(data.id_tour)) {
             newErrors.id_tour = 'Phải chọn lịch khởi hành'
         }
-        ///image
-        if (nameImages.length === 0) {
-            newErrors.images = 'Vui lòng tải lên ít nhất một hình ảnh!';
-        }
         return newErrors;
     }
 
@@ -137,6 +133,16 @@ const LocationManagement = () => {
 
     const handleEditClickOpen = (location) => {
         setSelectedLocation(location);
+        setLocation({
+            Name_Location: location.Name_Location,
+            Address_Location: location.Address_Location,
+            Image_Location: location.Image_Location.map(image => image?.path),
+            Description: location.Description,
+            Type_Location: location.Type_Location,
+            Nationnal: location.Nationnal,
+            City_Location: location.City_Location,
+            id_tour: location.id_tour
+        })
         setOpenEdit(true);
     };
 
@@ -149,10 +155,10 @@ const LocationManagement = () => {
 
     const handleImageUpload = (event) => {
         const files = Array.from(event.target.files);
-        if (files.length === 0) {
-            toast.error('Vui lòng tải lên ít nhất một hình ảnh!');
-            return; // Dừng lại nếu không có ảnh
-        }
+        // if (files.length === 0) {
+        //     toast.error('Vui lòng tải lên ít nhất một hình ảnh!');
+        //     return; // Dừng lại nếu không có ảnh
+        // }
         setNameImages(files)
         const imageUrls = files.map((file) => URL.createObjectURL(file));
         setImages(imageUrls);
@@ -228,17 +234,17 @@ const LocationManagement = () => {
             setErrors(errors);
             return;
         }
-    
+
         setLoading(true);  // Bắt đầu trạng thái loading
-    
+
         const api = "http://localhost:3001/V2/Featured_Location/CreateFeatured_Location";
         const formData = new FormData();
-    
+
         // Thêm hình ảnh vào formData
         for (let i = 0; i < nameImages.length; i++) {
             formData.append("Image_Location", nameImages[i]);
         }
-    
+
         formData.append("Name_Location", location.Name_Location);
         formData.append("Address_Location", location.Address_Location);
         formData.append("Description", location.Description);
@@ -246,7 +252,7 @@ const LocationManagement = () => {
         formData.append("Nationnal", location.Nationnal);
         formData.append("City_Location", location.City_Location);
         formData.append("id_tour", location.id_tour);
-    
+
         try {
             await fetch(api, {
                 method: 'POST',
@@ -263,21 +269,27 @@ const LocationManagement = () => {
             setLoading(false);  // Kết thúc trạng thái loading
         }
     };
-    
+
     const handleUpdateLocation = async () => {
         const errors = validateForm(location);
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;
         }
-    
+
         setLoading(true);  // Bắt đầu trạng thái loading
-    
+
         const formData = new FormData();
-        for (let i = 0; i < nameImages.length; i++) {
-            formData.append("Image_Location", nameImages[i]);
+        // Nếu không có ảnh mới, thì giữ ảnh cũ trong formData
+        if (nameImages.length === 0) {
+            formData.append("Image_Location", location.Image_Location || selectedLocation.Image_Location );
+        } else {
+            // Nếu có ảnh mới, thì gửi các ảnh mới được chọn
+            for (let i = 0; i < nameImages.length; i++) {
+                formData.append("Image_Location", nameImages[i]);
+            }
         }
-    
+
         formData.append("Name_Location", location.Name_Location || selectedLocation.Name_Location);
         formData.append("Address_Location", location.Address_Location || selectedLocation.Address_Location);
         formData.append("Description", location.Description || selectedLocation.Description);
@@ -285,7 +297,7 @@ const LocationManagement = () => {
         formData.append("Nationnal", location.Nationnal || selectedLocation.Nationnal);
         formData.append("City_Location", location.City_Location || selectedLocation.City_Location);
         formData.append("id_tour", location.id_tour || selectedLocation.id_tour);
-    
+
         try {
             await axios.post(`http://localhost:3001/V2/Featured_Location/UpdateFeatured_Location/${selectedLocation._id}`, formData, { withCredentials: true });
             getDataManagerLocation();
@@ -298,7 +310,7 @@ const LocationManagement = () => {
             setLoading(false);  // Kết thúc trạng thái loading
         }
     };
-    
+
 
     const getDataManagerTour = async () => {
         const api = "http://localhost:3001/V1/Tours/GetTours"
@@ -497,7 +509,6 @@ const LocationManagement = () => {
                         onChange={handleImageUpload}
                         style={{ marginBottom: '16px' }}
                     />
-                    {images.length === 0 && <Typography color="error">Vui lòng tải lên ít nhất một hình ảnh!</Typography>}
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         {images.map((image, index) => (
                             <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -599,9 +610,8 @@ const LocationManagement = () => {
                                 onChange={handleImageUpload}
                                 style={{ marginBottom: '16px' }}
                             />
-                            {images.length === 0 && <Typography color="error">Vui lòng tải lên ít nhất một hình ảnh!</Typography>}
                             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                {images.map((image, index) => (
+                                {location.Image_Location.map((image, index) => (
                                     <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                         <img src={image} alt={`preview-${index}`} style={{ width: '50px', height: 'auto', marginRight: '8px' }} />
                                         <IconButton onClick={() => handleImageRemove(index)}>
@@ -609,7 +619,6 @@ const LocationManagement = () => {
                                         </IconButton>
                                     </Box>
                                 ))}
-                                {errors.images && <Typography color="error" sx={{ mt: 1 }}>{errors.images}</Typography>}
                             </Box>
                             <TextField
                                 margin="dense"
