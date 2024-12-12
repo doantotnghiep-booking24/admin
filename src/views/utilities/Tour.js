@@ -20,6 +20,8 @@ import {
     FormControl,
     Box,
 } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
+
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
@@ -78,6 +80,7 @@ const TourManagement = () => {
     const [dataTours, setDataTours] = useState([])
     const [openTrash, setOpenTrash] = useState(false);
     const [dataTrash, setDataTrash] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
     const [getValueInput, setGetValueInput] = useState({
         Name_Tour: "",
         Price_Tour: "",
@@ -100,7 +103,8 @@ const TourManagement = () => {
         getDataManagerTour();
 
     }, [])
-    
+    console.log(selectedTour);
+
     const [isModal, setIsModal] = useState(false)
     const [deletedId, setDeletedId] = useState("")
     const [errors, setErrors] = useState({
@@ -135,7 +139,7 @@ const TourManagement = () => {
         }
 
         // check giá tour
-        if (!validator.isNumeric(data.Price_Tour) || Number(data.Price_Tour) <= 0) {
+        if (Number(data.Price_Tour) <= 0) {
             newErrors.Price_Tour = 'Giá tour phải là một số hợp lệ!';
         }
 
@@ -185,10 +189,30 @@ const TourManagement = () => {
 
     const handleEditClickOpen = (tour) => {
 
-
+        // console.log('tour', tour);
+        const contaiImages = []
         setSelectedTour(tour);
+        for (let i = 0; i < tour.Image_Tour.length; i++) {
+            contaiImages.push(tour.Image_Tour[i])
+        }   
+        setGetValueInput({
+            Name_Tour: tour.Name_Tour,
+            Price_Tour: tour.Price_Tour,
+            Title_Tour: tour.Title_Tour,
+            Description_Tour: tour.Description_Tour,
+            Start_Tour: tour.Start_Tour,
+            End_Tour: tour.End_Tour,
+            total_Date: tour.total_Date,
+            Image_Tour: contaiImages,
+            // id_Voucher: "",
+            id_Category: tour.id_Category,
+            id_Schedule_Travel: tour.id_Schedule_Travel,
+            id_Type_Tour: tour.id_Type_Tour,
+        })
+
         setOpenEdit(true);
     };
+    console.log(getValueInput);
 
 
     const handleClose = () => {
@@ -274,7 +298,7 @@ const TourManagement = () => {
     const handleValueInput = (e) => {
         const { name, value } = e.target
 
-console.log(value);
+        console.log(value);
 
         setGetValueInput({ ...getValueInput, [name]: value })
     }
@@ -286,98 +310,102 @@ console.log(value);
             return;
         }
 
-        const api = "http://localhost:3001/V1/Tours/CreateTour/"
+        setIsLoading(true);  // Bật trạng thái loading
 
+        const api = "http://localhost:3001/V1/Tours/CreateTour/";
 
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
             let file = nameImages[i];
-            formData.append("Image_Tour", file)
+            formData.append("Image_Tour", file);
         }
 
-        formData.append("Name_Tour", getValueInput.Name_Tour)
-        formData.append("Price_Tour", getValueInput.Price_Tour)
-        formData.append("Title_Tour", getValueInput.Title_Tour)
-        formData.append("Description_Tour", getValueInput.Description_Tour)
-        formData.append("Start_Tour", getValueInput.Start_Tour)
-        formData.append("End_Tour", getValueInput.End_Tour)
-        formData.append("total_Date", getValueInput.total_Date)
-        // formData.append("id_Voucher", getValueInput.id_Voucher)
-        formData.append("id_Category", getValueInput.id_Category)
-        formData.append("id_Schedule_Travel", getValueInput.id_Schedule_Travel)
-        formData.append("id_Type_Tour", getValueInput.id_Type_Tour)
+        formData.append("Name_Tour", getValueInput.Name_Tour);
+        formData.append("Price_Tour", getValueInput.Price_Tour);
+        formData.append("Title_Tour", getValueInput.Title_Tour);
+        formData.append("Description_Tour", getValueInput.Description_Tour);
+        formData.append("Start_Tour", getValueInput.Start_Tour);
+        formData.append("End_Tour", getValueInput.End_Tour);
+        formData.append("total_Date", getValueInput.total_Date);
+        formData.append("id_Voucher", getValueInput.id_Voucher);
+        formData.append("id_Category", getValueInput.id_Category);
+        formData.append("id_Schedule_Travel", getValueInput.id_Schedule_Travel);
+        formData.append("id_Type_Tour", getValueInput.id_Type_Tour);
 
         fetch(api, {
             method: 'POST',
             body: formData,
             credentials: "include"
         })
-
             .then(res => res.json())
             .then(data => {
                 console.log(data);
-                handleClose()
-                notification("success", "Created Tour successfully")
+                handleClose();
+                notification("success", "Created Tour successfully");
                 getDataManagerTour();
-
             })
             .catch(err => {
                 console.log(err);
+                notification("error", "Failed to create tour");
             })
-
+            .finally(() => {
+                setIsLoading(false);  // Tắt trạng thái loading khi xong
+            });
     }
+
 
     const handleEditTour = async () => {
         const errors = validateForm(getValueInput);
-        console.log(errors);
+        console.log('getValueInput', selectedTour);
 
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;
         }
 
-
+        setIsLoading(true);  // Bật trạng thái loading
 
         const api = `http://localhost:3001/V1/Tours/Update/${selectedTour._id}`;
-
 
         const formData = new FormData();
 
         for (let i = 0; i < nameImages.length; i++) {
             let file = nameImages[i];
-            formData.append("Image_Tour", file)
+            formData.append("Image_Tour", file);
         }
 
-        formData.append("Name_Tour", getValueInput.Name_Tour || selectedTour.Name_Tour)
-        formData.append("Price_Tour", getValueInput.Price_Tour || selectedTour.Price_Tour)
-        formData.append("Title_Tour", getValueInput.Title_Tour || selectedTour.Title_Tour)
-        formData.append("Description_Tour", getValueInput.Description_Tour || selectedTour.Description_Tour)
-        formData.append("Start_Tour", getValueInput.Start_Tour || selectedTour.Start_Tour)
-        formData.append("End_Tour", getValueInput.End_Tour || selectedTour.End_Tour)
-        formData.append("total_Date", getValueInput.total_Date || selectedTour.total_Date)
-        // formData.append("id_Voucher", getValueInput.id_Voucher || selectedTour.id_Voucher)
-        formData.append("id_Category", getValueInput.id_Category || selectedTour.id_Category)
-        formData.append("id_Schedule_Travel", getValueInput.id_Schedule_Travel || selectedTour.id_Schedule_Travel)
-        formData.append("id_Type_Tour", getValueInput.id_Type_Tour || selectedTour.id_Type_Tour)
-
+        formData.append("Name_Tour", getValueInput.Name_Tour || selectedTour.Name_Tour);
+        formData.append("Price_Tour", getValueInput.Price_Tour || selectedTour.Price_Tour);
+        formData.append("Title_Tour", getValueInput.Title_Tour || selectedTour.Title_Tour);
+        formData.append("Description_Tour", getValueInput.Description_Tour || selectedTour.Description_Tour);
+        formData.append("Start_Tour", getValueInput.Start_Tour || selectedTour.Start_Tour);
+        formData.append("End_Tour", getValueInput.End_Tour || selectedTour.End_Tour);
+        formData.append("total_Date", getValueInput.total_Date || selectedTour.total_Date);
+        formData.append("id_Voucher", getValueInput.id_Voucher || selectedTour.id_Voucher);
+        formData.append("id_Category", getValueInput.id_Category || selectedTour.id_Category);
+        formData.append("id_Schedule_Travel", getValueInput.id_Schedule_Travel || selectedTour.id_Schedule_Travel);
+        formData.append("id_Type_Tour", getValueInput.id_Type_Tour || selectedTour.id_Type_Tour);
 
         fetch(api, {
             method: 'POST',
             credentials: 'include',
             body: formData
         })
-
             .then(res => res.json())
             .then(data => {
                 console.log(data);
-                handleClose()
+                handleClose();
                 getDataManagerTour();
-                notification("success", "Updated Tour successfully")
+                notification("success", "Updated Tour successfully");
             })
             .catch(err => {
                 console.log(err);
+                notification("error", "Failed to update tour");
             })
-    };
+            .finally(() => {
+                setIsLoading(false);  // Tắt trạng thái loading khi xong
+            });
+    }
 
 
 
@@ -389,7 +417,7 @@ console.log(value);
 
             const tourData = res.data.Tours.datas.filter(t => t.isDeleted === false)
             console.log(tourData);
-            
+
             const tourTrash = res.data.Tours.datas.filter(t => t.isDeleted === true)
             setDataTrash(tourTrash)
             setDataTours(tourData);
@@ -736,7 +764,7 @@ console.log(value);
                             <Select defaultValue="" name='id_Schedule_Travel' onChange={handleValueInput}>
                                 {dataSchedule?.map((item) => <MenuItem key={item._id} value={item._id}>{item.Name_Schedule}</MenuItem>)}
                                 {/* <MenuItem value="Vourcher">Đà Nẵng</MenuItem>
-                    <MenuItem value="Vourcher">Hà Nội</MenuItem> */}    
+                    <MenuItem value="Vourcher">Hà Nội</MenuItem> */}
                             </Select>
                         </FormControl>
                         {/* <FormControl fullWidth sx={{ mt: 1 }}>
@@ -767,7 +795,7 @@ console.log(value);
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose} color="primary">Hủy</Button>
-                        <Button onClick={handleAddNewTour} color="primary">Thêm</Button>
+                        <Button onClick={handleAddNewTour} color="primary" disabled={isLoading}>{isLoading ? <CircularProgress size={24} /> : "Thêm"}</Button>
                     </DialogActions>
                 </Dialog>
 
@@ -812,6 +840,16 @@ console.log(value);
                                         </Box>
                                     ))}
                                 </Box>
+                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    {getValueInput?.Image_Tour.map((image, index) => (
+                                        <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                            <img src={image.path} alt={`preview-${index}`} style={{ width: '50px', height: 'auto', marginRight: '8px' }} />
+                                            <IconButton onClick={() => handleImageRemove(index)}>
+                                                <RemoveCircleOutlineIcon color="error" />
+                                            </IconButton>
+                                        </Box>
+                                    ))}
+                                </Box>
                                 <TextField
                                     margin="dense"
                                     label="Mô Tả"
@@ -832,6 +870,7 @@ console.log(value);
                                     name='Price_Tour'
                                     onChange={handleValueInput}
                                     defaultValue={selectedTour.Price_Tour}
+                                    value={selectedTour.Price_Tour}
                                 />
                                 <TextField
                                     margin="dense"
@@ -901,7 +940,7 @@ console.log(value);
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose} color="primary">Hủy</Button>
-                        <Button onClick={handleEditTour} color="primary">Lưu</Button>
+                        <Button onClick={handleEditTour} color="primary" disabled={isLoading}> {isLoading ? <CircularProgress size={24} /> : "Lưu"}</Button>
                     </DialogActions>
                 </Dialog>
 

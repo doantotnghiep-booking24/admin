@@ -24,6 +24,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
 import ModalCustom from '../../modals/ModalCustom';
 import { toast } from 'react-toastify';
@@ -33,6 +34,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import RecyclingIcon from '@mui/icons-material/Recycling';
 import ModalRestore from '../../modals/ModalRestore';
+
 const initialLocations = [
     {
         id: 1,
@@ -127,6 +129,7 @@ const LocationManagement = () => {
     const [openTrash, setOpenTrash] = useState(false);
     const [isModalRestore, setIsModalRestore] = useState(false);
     const [restoreId, setRestoreId] = useState("")
+    const [loading, setLoading] = useState(false);
 
     const handleAddClickOpen = () => {
         setOpenAdd(true);
@@ -225,68 +228,77 @@ const LocationManagement = () => {
             setErrors(errors);
             return;
         }
-
-        const api = "http://localhost:3001/V2/Featured_Location/CreateFeatured_Location"
+    
+        setLoading(true);  // Bắt đầu trạng thái loading
+    
+        const api = "http://localhost:3001/V2/Featured_Location/CreateFeatured_Location";
         const formData = new FormData();
+    
+        // Thêm hình ảnh vào formData
         for (let i = 0; i < nameImages.length; i++) {
-            let file = nameImages[i];
-            formData.append("Image_Location", file)
+            formData.append("Image_Location", nameImages[i]);
         }
-        formData.append("Name_Location", location.Name_Location)
-        formData.append("Address_Location", location.Address_Location)
-        formData.append("Description", location.Description)
-        formData.append("Type_Location", location.Type_Location)
-        formData.append("Nationnal", location.Nationnal)
-        formData.append("City_Location", location.City_Location)
-        formData.append("id_tour", location.id_tour)
-
-        fetch(api, {
-            method: 'POST',
-            body: formData,
-            credentials: 'include'
-        })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data);
-                getDataManagerLocation()
-                handleClose()
-                notification("success", "Created News successfully")
-            })
-            .catch(err => {
-                console.log(err);
-            })
-
-
-    }
-
-    const handleUpdateNews = async () => {
+    
+        formData.append("Name_Location", location.Name_Location);
+        formData.append("Address_Location", location.Address_Location);
+        formData.append("Description", location.Description);
+        formData.append("Type_Location", location.Type_Location);
+        formData.append("Nationnal", location.Nationnal);
+        formData.append("City_Location", location.City_Location);
+        formData.append("id_tour", location.id_tour);
+    
+        try {
+            await fetch(api, {
+                method: 'POST',
+                body: formData,
+                credentials: 'include',
+            });
+            getDataManagerLocation();
+            handleClose();
+            notification("success", "Created Location successfully");
+        } catch (err) {
+            console.error(err);
+            notification("error", "Error creating location");
+        } finally {
+            setLoading(false);  // Kết thúc trạng thái loading
+        }
+    };
+    
+    const handleUpdateLocation = async () => {
         const errors = validateForm(location);
         if (Object.keys(errors).length > 0) {
             setErrors(errors);
             return;
         }
-
+    
+        setLoading(true);  // Bắt đầu trạng thái loading
+    
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
             formData.append("Image_Location", nameImages[i]);
         }
-        formData.append("Name_Location", location.Name_Location || selectedLocation.Name_Location)
-        formData.append("Address_Location", location.Address_Location || selectedLocation.Address_Location)
-        formData.append("Description", location.Description || selectedLocation.Description)
-        formData.append("Type_Location", location.Type_Location || selectedLocation.Type_Location)
-        formData.append("Nationnal", location.Nationnal || selectedLocation.Nationnal)
-        formData.append("City_Location", location.City_Location || selectedLocation.City_Location)
-        formData.append("id_tour", location.id_tour || selectedLocation.id_tour)
+    
+        formData.append("Name_Location", location.Name_Location || selectedLocation.Name_Location);
+        formData.append("Address_Location", location.Address_Location || selectedLocation.Address_Location);
+        formData.append("Description", location.Description || selectedLocation.Description);
+        formData.append("Type_Location", location.Type_Location || selectedLocation.Type_Location);
+        formData.append("Nationnal", location.Nationnal || selectedLocation.Nationnal);
+        formData.append("City_Location", location.City_Location || selectedLocation.City_Location);
+        formData.append("id_tour", location.id_tour || selectedLocation.id_tour);
+    
         try {
             await axios.post(`http://localhost:3001/V2/Featured_Location/UpdateFeatured_Location/${selectedLocation._id}`, formData, { withCredentials: true });
-            getDataManagerLocation()
-            handleClose()
-            notification("success", "Updated News successfully")
+            getDataManagerLocation();
+            handleClose();
+            notification("success", "Updated Location successfully");
         } catch (err) {
             console.error(err);
+            notification("error", "Error updating location");
+        } finally {
+            setLoading(false);  // Kết thúc trạng thái loading
         }
     };
-
+    
 
     const getDataManagerTour = async () => {
         const api = "http://localhost:3001/V1/Tours/GetTours"
@@ -548,7 +560,7 @@ const LocationManagement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Hủy</Button>
-                    <Button onClick={handleAddLocation} color="primary">Thêm</Button>
+                    <Button onClick={handleAddLocation} color="primary" disabled={loading}> {loading ? <CircularProgress size={24} /> : "Thêm"}</Button>
                 </DialogActions>
             </Dialog>
 
@@ -656,7 +668,7 @@ const LocationManagement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Hủy</Button>
-                    <Button onClick={handleUpdateNews} color="primary">Lưu</Button>
+                    <Button onClick={handleUpdateLocation} color="primary" disabled={loading}> {loading ? <CircularProgress size={24} /> : "Lưu"}</Button>
                 </DialogActions>
             </Dialog>
 

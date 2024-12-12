@@ -5,43 +5,26 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-
-const initialCustomers = [
-    {
-        id: 1,
-        Create_by : "Nguyễn Ngọc Hùng",
-        Name_Customer: "Nguyễn Văn A",
-        Date_Of_Birth: "1990-01-15",
-        Sex_Customer: "Nam",
-        Phone_Number: "0901234567",
-        Citizen_Identification: "0123456789",
-        Address: "123 Đường ABC, Quận 1, TP.HCM"
-    },
-    {
-        id: 2,
-        Create_by : "Nguyễn Ngọc Hùng",
-        Name_Customer: "Trần Thị B",
-        Date_Of_Birth: "1985-07-20",
-        Sex_Customer: "Nữ",
-        Phone_Number: "0909876543",
-        Citizen_Identification: "9876543210",
-        Address: "456 Đường XYZ, Quận 3, TP.HCM"
-    },
-    {
-        id: 3,
-        Create_by : "Nguyễn Ngọc Hùng",
-        Name_Customer: "Phạm Văn C ",
-        Date_Of_Birth: "1992-12-30",
-        Sex_Customer: "Nam",
-        Phone_Number: "0912345678",
-        Citizen_Identification: "3456789123",
-        Address: "789 Đường DEF, Quận 5, TP.HCM"
-    }
-];
-
+import { useEffect } from 'react';
+import { handleGetUsers } from '../../service';
+import axios from 'axios'
 const CustomerManagement = () => {
-    const [customers] = useState(initialCustomers);
-
+    const [custommers,setCustommer] = useState([]);
+    const [users,setUsers] = useState([]);
+    useEffect(() => {
+        const abc = async () => {
+            const res = await axios.get('http://localhost:3001/Custommer/GetCustommers')
+        setCustommer(res.data.Custommer)
+        }
+        abc()
+    }, [])
+    useEffect(() => {
+        const handleCallUser = async () => {
+            const res = await handleGetUsers()
+            setUsers(res.Users)
+        }
+        handleCallUser()
+    }, [])
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
             {/* Tiêu đề căn giữa */}
@@ -100,14 +83,16 @@ const CustomerManagement = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {customers.map((customer) => (
+                    {custommers.map((customer) => (
                         <TableRow key={customer.id}>
                             <TableCell>
                                 <Typography sx={{ fontSize: "15px", fontWeight: "500" }}>
                                     {customer.id}
                                 </Typography>
                             </TableCell>
-                            <TableCell>{customer.Create_by}</TableCell>
+                            {users.filter(user => user._id === customer.Create_by).map(user => (
+                                <TableCell>{user.Name}</TableCell>
+                            ))}
                             <TableCell>{customer.Name_Customer}</TableCell>
                             <TableCell>{customer.Date_Of_Birth}</TableCell>
                             <TableCell>{customer.Sex_Customer}</TableCell>
@@ -131,4 +116,3 @@ const CustomerManagement = () => {
 };
 
 export default CustomerManagement;
- 

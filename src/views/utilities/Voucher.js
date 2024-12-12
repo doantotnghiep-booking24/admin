@@ -16,6 +16,7 @@ import {
     TextField,
     Box
 } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
@@ -59,6 +60,7 @@ const VoucherManagement = () => {
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [selectedVoucher, setSelectedVoucher] = useState(null);
+    const [isLoading, setIsLoading] = useState(false)
     const [valueInput, setValueInput] = useState({
 
         Code_Voucher: '',
@@ -173,21 +175,22 @@ const VoucherManagement = () => {
             return;
         }
 
-        const api = "http://localhost:3001/Vouchers/CreateVoucher"
+        setIsLoading(true); // Bắt đầu loading
+
+        const api = "http://localhost:3001/Vouchers/CreateVoucher";
         try {
-
-            const res = await axios.post(api, valueInput, { withCredentials: true })
-
-            setValueInput({})
-            getAllVoucher()
-            handleClose()
-            notification("success", "Created Voucher successfully")
+            const res = await axios.post(api, valueInput, { withCredentials: true });
+            setValueInput({});
+            getAllVoucher();
+            handleClose();
+            notification("success", "Created Voucher successfully");
         } catch (error) {
             console.log(error);
-
+            notification("error", "Error creating Voucher");
+        } finally {
+            setIsLoading(false); // Kết thúc loading
         }
-
-    }
+    };
 
     const handleUpdateVoucher = async () => {
         const errors = validateForm(valueInput);
@@ -195,7 +198,10 @@ const VoucherManagement = () => {
             setErrors(errors);
             return;
         }
-        const api = "http://localhost:3001/Vouchers/UpdateVoucher/"
+
+        setIsLoading(true); // Bắt đầu loading
+
+        const api = "http://localhost:3001/Vouchers/UpdateVoucher/";
         try {
             const updatedType = {
                 Code_Voucher: valueInput.Code_Voucher || selectedVoucher.Code_Voucher,
@@ -208,17 +214,19 @@ const VoucherManagement = () => {
                 Condition: valueInput.Condition || selectedVoucher.Condition,
             };
 
-            const res = await axios.post(`${api}${selectedVoucher._id}`, updatedType, { withCredentials: true })
+            const res = await axios.post(`${api}${selectedVoucher._id}`, updatedType, { withCredentials: true });
             console.log(res);
-            getAllVoucher()
-            handleClose()
-            notification("success", "Updated Voucher successfully")
-
+            getAllVoucher();
+            handleClose();
+            notification("success", "Updated Voucher successfully");
         } catch (error) {
             console.log(error);
-
+            notification("error", "Error updating Voucher");
+        } finally {
+            setIsLoading(false); // Kết thúc loading
         }
-    }
+    };
+
 
 
     const handleDeleteVoucher = async (id) => {
@@ -495,7 +503,7 @@ const VoucherManagement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Hủy</Button>
-                    <Button onClick={handleAddVoucher} color="primary">Thêm</Button>
+                    <Button onClick={handleAddVoucher} color="primary" disabled={isLoading} > {isLoading ? <CircularProgress size={24} /> : "Thêm"} </Button>
                 </DialogActions>
             </Dialog>
 
@@ -602,7 +610,7 @@ const VoucherManagement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Hủy</Button>
-                    <Button onClick={handleUpdateVoucher} color="primary">Lưu</Button>
+                    <Button onClick={handleUpdateVoucher} color="primary" disabled={isLoading}> {isLoading ? <CircularProgress size={24} /> : "Lưu"}</Button>
                 </DialogActions>
             </Dialog>
 
