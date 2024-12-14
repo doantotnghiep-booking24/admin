@@ -32,7 +32,8 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
             const result = await axios.post(api, valueInput)
             const data = await result.data;
 
-            if (data.inforUser.role === "Admin") {
+
+            if (data.inforUser.role === "Admin" || data.inforUser.role === "Staff") {
                 // Đặt token xác thực vào cookie
                 Cookies.set("authAdmin", JSON.stringify(data.inforUser), {
                     expires: 1,

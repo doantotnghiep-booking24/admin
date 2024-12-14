@@ -16,14 +16,17 @@ function App() {
   const auth = Cookies.get("authAdmin")
     ? JSON.parse(Cookies.get("authAdmin"))
     : null;
+
+    
   useEffect(() => {
-    if (auth?.role === "Admin") {
-      ``;
+    if (auth?.role === "Admin" || auth?.role ==="Staff") {
       setIsAuth(true);
     } else {
       setIsAuth(false);
     }
   }, [auth]);
+
+  
   const routing = useRoutes(Router(isAuth));
   const theme = baselightTheme;
 
@@ -53,7 +56,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {routing}
-      {isAuth ? <Chat /> : <></>}
+      {auth?.Email === "doantotnghiep24booking@gmail.com" ? <Chat/> : <></>}
     </ThemeProvider>
   );
 }

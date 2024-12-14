@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Box, List, ListItem, ListItemText, Divider, Typography, TextField, IconButton, ListItemAvatar, Avatar } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import ChatIcon from '@mui/icons-material/Chat';
 import CloseIcon from '@mui/icons-material/Close';
+import { FaFacebookMessenger } from "react-icons/fa";
 import { Badge } from '@mui/material';
 import { Tooltip } from '@mui/material';
 import io from 'socket.io-client';
@@ -20,6 +20,7 @@ const Chat = () => {
     const [isChatBoxOpen, setIsChatBoxOpen] = useState(false);
     const [id_Room, setId_Room] = useState('')
     const messagesEndRef = useRef(null);
+    const unansweredMessages = userChats.reduce((total, userChat) => total + userChat.unansweredMessages, 0);
 
     useEffect(() => {
         if (messagesEndRef.current) {
@@ -204,8 +205,19 @@ const Chat = () => {
                         boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.15)',
                     },
                 }}
-            >
-                {isChatBoxOpen ? <CloseIcon /> : <ChatIcon />}
+            ><Badge
+            badgeContent={unansweredMessages}
+            color="error"
+            invisible={unansweredMessages === 0} // Ẩn chấm đỏ khi không có tin nhắn chưa trả lời
+            sx={{
+                '.MuiBadge-dot': {
+                    backgroundColor: 'red',
+                },
+            }}
+        >
+        {isChatBoxOpen ? <CloseIcon style={{fontSize: '30px'}}/> : <FaFacebookMessenger  style={{fontSize: '30px'}}/>}
+        </Badge>
+                
             </IconButton>
 
             {/* Giao diện ChatBox */}

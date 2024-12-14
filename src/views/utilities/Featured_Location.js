@@ -271,7 +271,7 @@ const LocationManagement = () => {
 
     }
 
-    const handleUpdateNews = async () => {
+    const handleUpdateLocation = async () => {
         
         const errors = validateForm(selectedLocation);
         if (Object.keys(errors).length > 0) {
