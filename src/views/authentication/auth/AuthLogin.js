@@ -31,8 +31,9 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
         try {
             const result = await axios.post(api, valueInput)
             const data = await result.data;
+console.log('data',data);
 
-            if (data.inforUser.role === "Admin") {
+            if (data.inforUser.role === "Admin" || data.inforUser.role === "Staff") {
                 // Đặt token xác thực vào cookie
                 Cookies.set("authAdmin", JSON.stringify(data.inforUser), {
                     expires: 1,
@@ -41,7 +42,6 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
                     path: '/',
                     domain: 'localhost'
                 });
-
                 setValueInput({ Email: "", Password: "" });
                 navigate("/dashboard");
             } else {

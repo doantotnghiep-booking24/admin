@@ -8,7 +8,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { handleGetUsers } from '../../service';
 import { useEffect } from 'react';
-
+import { toast } from 'react-toastify';
 // Dữ liệu cứng ban đầu
 
 const CustomerManagement = () => {
@@ -21,6 +21,62 @@ const CustomerManagement = () => {
         setOpenEdit(true);
     };
 
+    const handleUpdateRole = async () => {
+        const dataUP = {
+            role: selectedCustomer.role
+        }
+        try {
+            const res = await fetch(`http://localhost:3001/User/Edit-User/${selectedCustomer._id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(dataUP),
+            }, {
+                credentials: "include",
+            })
+
+            const data = await res.json()
+
+            if (res.ok) {
+                console.log(data.data.role);
+                setSelectedCustomer((prev) => ({
+                    ...prev,
+                    role: data.data.role 
+                }));
+                setCustommers((prev) => prev.map((i) => {
+                    if(i._id === selectedCustomer._id) {
+                        return {
+                            ...i, 
+                            role: data.data.role
+                        }
+                    }else {
+                        return i
+                    }
+                }))
+                handleCloseEdit();
+                notification("success", "Edit successfully")
+            } else {
+                console.error("Failed to update user:", data.message);
+            }
+        } catch (error) {
+            console.log(error);
+
+        }
+    }
+
+    const notification = (status, message) => {
+        return toast[status](message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        })
+    }
     // Đóng form chỉnh sửa
     const handleCloseEdit = () => {
         setOpenEdit(false);
@@ -31,7 +87,10 @@ const CustomerManagement = () => {
             setCustommers(res.Users)
         }
         handleCallUser()
-    }, [])
+    }, [selectedCustomer.role])
+
+
+
     return (
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2 }}>
             {/* Tiêu đề được căn giữa */}
@@ -45,7 +104,7 @@ const CustomerManagement = () => {
                     <TableRow>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
                             <Typography variant="subtitle2" fontWeight={600}>
-                               STT
+                                STT
                             </Typography>
                         </TableCell>
                         <TableCell sx={{ backgroundColor: '#E3F2FD' }}>
@@ -76,7 +135,7 @@ const CustomerManagement = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {custommer.map((customer,index) => (
+                    {custommer.map((customer, index) => (
                         <TableRow key={index}>
                             <TableCell>{index}</TableCell>
                             <TableCell>{customer.Name}</TableCell>
@@ -105,24 +164,24 @@ const CustomerManagement = () => {
                         label="Tên khách hàng"
                         fullWidth
                         variant="outlined"
-                        value={selectedCustomer.name}
-                        onChange={(e) => setSelectedCustomer({ ...selectedCustomer, name: e.target.value })}
+                        value={selectedCustomer.Name}
+                        onChange={(e) => setSelectedCustomer({ ...selectedCustomer, Name: e.target.value })}
                     />
                     <TextField
                         margin="dense"
                         label="Email"
                         fullWidth
                         variant="outlined"
-                        value={selectedCustomer.email}
-                        onChange={(e) => setSelectedCustomer({ ...selectedCustomer, email: e.target.value })}
+                        value={selectedCustomer.Email}
+                        onChange={(e) => setSelectedCustomer({ ...selectedCustomer, Email: e.target.value })}
                     />
                     <TextField
                         margin="dense"
                         label="Mật khẩu"
                         fullWidth
                         variant="outlined"
-                        value={selectedCustomer.password}
-                        onChange={(e) => setSelectedCustomer({ ...selectedCustomer, password: e.target.value })}
+                        value={selectedCustomer.Password}
+                        onChange={(e) => setSelectedCustomer({ ...selectedCustomer, Password: e.target.value })}
                     />
                     <FormControl fullWidth sx={{ mt: 2 }}>
                         <InputLabel>Vai trò</InputLabel>
@@ -130,15 +189,15 @@ const CustomerManagement = () => {
                             value={selectedCustomer.role}
                             onChange={(e) => setSelectedCustomer({ ...selectedCustomer, role: e.target.value })}
                         >
-                            <MenuItem value="admin">Admin</MenuItem>
-                            <MenuItem value="nhân viên">Nhân viên</MenuItem>
-                            <MenuItem value="user">User</MenuItem>
+                            <MenuItem value="Admin">Admin</MenuItem>
+                            <MenuItem value="Staff">Nhân viên</MenuItem>
+                            <MenuItem value="User">User</MenuItem>
                         </Select>
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseEdit} color="secondary">Đóng</Button>
-                    <Button onClick={handleCloseEdit} color="primary">Lưu</Button>
+                    <Button onClick={handleUpdateRole} color="primary">Lưu</Button>
                 </DialogActions>
             </Dialog>
         </Paper>

@@ -205,7 +205,7 @@ console.log(custommers);
                                 <Typography>
                                     <strong>Điểm đi:</strong> {ticket.Departure_Location}<br /> <br />
                                     <strong>Điểm đến:</strong> {ticket.Destination}<br /><br />
-                                    <strong>Ngày khởi hành:</strong> {ticket.Departure_Date.slice(0, 10)}<br /><br />
+                                    <strong>Ngày khởi hành:</strong> {ticket.Departure_Date}<br /><br />
                                     <strong>Giờ khởi hành:</strong> {ticket.Departure_Time}<br /><br />
                                     <strong>Tổng thời gian:</strong> {ticket.Total_DateTrip}
                                 </Typography>

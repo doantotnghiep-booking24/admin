@@ -28,7 +28,7 @@ const Profile = () => {
   const handleLogout = () => {
     console.log("logout");
     const logout = Cookies.remove("authAdmin")
-    navigate("/login");
+    navigate("/login"); 
   }
 
   return (

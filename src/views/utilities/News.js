@@ -16,7 +16,7 @@ import {
     TextField,
     Box
 } from '@mui/material';
-
+import CircularProgress from '@mui/material/CircularProgress';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
@@ -140,8 +140,12 @@ const ArticleManagement = () => {
 
     const handleAddNews = async () => {
         if (!validateForm()) { return; }
+        
+        setIsLoading(true); 
+    
         const api = "http://localhost:3001/News/CreateNew"
         const formData = new FormData();
+        
         for (let i = 0; i < nameImages.length; i++) {
             let file = nameImages[i];
             formData.append("Image", file)
@@ -149,7 +153,7 @@ const ArticleManagement = () => {
         formData.append("Name", news.Name)
         formData.append("Title", news.Title)
         formData.append("Content", news.Content)
-
+    
         fetch('http://localhost:3001/News/CreateNew', {
             method: 'POST',
             body: formData,
@@ -165,8 +169,9 @@ const ArticleManagement = () => {
             .catch(err => {
                 console.log(err);
             })
-
-
+            .finally(() => {
+                setIsLoading(false); // Kết thúc loading
+            })
     }
     const handleGetValueInput = (e) => {
         const { name, value } = e.target
@@ -196,7 +201,10 @@ const ArticleManagement = () => {
     }
 
     const handleUpdateNews = async () => {
-        if (!validateForm()) { return; }
+        console.log("isDeleted");
+
+        if (validateForm()) { return; }
+
         setIsLoading(true);
         const formData = new FormData();
         for (let i = 0; i < nameImages.length; i++) {
@@ -454,7 +462,7 @@ const ArticleManagement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Hủy</Button>
-                    <Button onClick={handleAddNews} color="primary">Thêm</Button>
+                    <Button onClick={handleAddNews} color="primary" disabled={isLoading}>{isLoading ? <CircularProgress size={24} /> : "Thêm"}</Button>
                 </DialogActions>
             </Dialog>
 
@@ -538,7 +546,7 @@ const ArticleManagement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Hủy</Button>
-                    <Button onClick={handleUpdateNews} color="primary">Lưu</Button>
+                    <Button onClick={handleUpdateNews} color="primary" disabled={isLoading}>{isLoading ? <CircularProgress size={24} /> : "Lưu"}</Button>
                 </DialogActions>
             </Dialog>
             <ModalCustom isModal={isModal} setIsModals={(value) => {

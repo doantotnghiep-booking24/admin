@@ -150,7 +150,7 @@ const ServiceManagement = () => {
                 Name_Service: valueInput.Name_Service || editData.Name_Service,
                 Price_Service: valueInput.Price_Service || editData.Price_Service,
             };
-            const res = await axios.post(`${api}${editData._id}`, updatedType, { withCredentials: true });
+            const res = await axios.post(`${api}${editData._id}`, updatedType, { withCredentials: true })   
             console.log(res);
             getAllService();
             handleCloseEdit(); // Đóng form edit
