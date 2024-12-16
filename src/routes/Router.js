@@ -54,11 +54,12 @@ const Router = (isAuth) => [
   },
   {
     path: "/auth",
-    element: !isAuth ? <BlankLayout /> : < Navigate to="/" />,
+    element: !isAuth ? <BlankLayout /> : <Navigate to="/" />,
     children: [
       { path: "login", element: <Login /> },
     ],
   },
+  
 ];
 
 

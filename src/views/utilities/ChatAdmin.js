@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Box, List, ListItem, ListItemText, Divider, Typography, TextField, IconButton, ListItemAvatar, Avatar } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import ChatIcon from '@mui/icons-material/Chat';
 import CloseIcon from '@mui/icons-material/Close';
+import { FaFacebookMessenger } from "react-icons/fa";
 import { Badge } from '@mui/material';
 import { Tooltip } from '@mui/material';
 import io from 'socket.io-client';
@@ -20,51 +20,52 @@ const Chat = () => {
     const [users, setUsers] = useState([]);
     const [isChatBoxOpen, setIsChatBoxOpen] = useState(false);
     const [id_Room, setId_Room] = useState('')
-    const [receive,setReceive] = useState('')
+    const [receive, setReceive] = useState('')
     const messagesEndRef = useRef(null);
+    const unansweredMessages = userChats.reduce((total, userChat) => total + userChat.unansweredMessages, 0);
 
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView();
         }
     }, [dataChats]);
-console.log(dataChats);
+    console.log(dataChats);
 
+    const handleGetChats = async () => {
+        const res = await fetchAllChat();
+
+        const updatedChats = res.Chat.map(chat => {
+            if (!Array.isArray(chat.messages)) {
+                return { ...chat, unansweredMessages: 0 };
+            }
+
+            let lastAdminIndex = -1;
+
+            // Duyệt ngược để tìm tin nhắn cuối cùng của admin
+            for (let i = chat.messages.length - 1; i >= 0; i--) {
+                if (chat.messages[i].senderId === Admin_Id) {
+                    lastAdminIndex = i;
+                    break;
+                }
+            }
+
+            // Đếm số tin nhắn từ người dùng sau lần cuối admin gửi
+            const unansweredMessages = chat.messages
+                .slice(lastAdminIndex + 1)
+                .filter(msg => msg.senderId !== Admin_Id).length;
+
+            return {
+                ...chat,
+                unansweredMessages, // Số tin nhắn chưa trả lời kể từ lần cuối admin rep
+            };
+        });
+
+        setUserChats(updatedChats);
+    };
     useEffect(() => {
-        const handleGetChats = async () => {
-            const res = await fetchAllChat();
-
-            const updatedChats = res.Chat.map(chat => {
-                if (!Array.isArray(chat.messages)) {
-                    return { ...chat, unansweredMessages: 0 };
-                }
-
-                let lastAdminIndex = -1;
-
-                // Duyệt ngược để tìm tin nhắn cuối cùng của admin
-                for (let i = chat.messages.length - 1; i >= 0; i--) {
-                    if (chat.messages[i].senderId === Admin_Id) {
-                        lastAdminIndex = i;
-                        break;
-                    }
-                }
-
-                // Đếm số tin nhắn từ người dùng sau lần cuối admin gửi
-                const unansweredMessages = chat.messages
-                    .slice(lastAdminIndex + 1)
-                    .filter(msg => msg.senderId !== Admin_Id).length;
-
-                return {
-                    ...chat,
-                    unansweredMessages, // Số tin nhắn chưa trả lời kể từ lần cuối admin rep
-                };
-            });
-
-            setUserChats(updatedChats);
-        };
 
         handleGetChats();
-    }, []);
+    }, [receive]);
 
     useEffect(async () => {
         const res = await handleGetUsers()
@@ -181,7 +182,7 @@ console.log(dataChats);
     }
     useEffect(() => {
         callMessages()
-    }, [id_Room,receive])
+    }, [id_Room, receive])
 
     return (
         <>
@@ -207,8 +208,19 @@ console.log(dataChats);
                         boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.15)',
                     },
                 }}
+            ><Badge
+                badgeContent={unansweredMessages}
+                color="error"
+                invisible={unansweredMessages === 0} // Ẩn chấm đỏ khi không có tin nhắn chưa trả lời
+                sx={{
+                    '.MuiBadge-dot': {
+                        backgroundColor: 'red',
+                    },
+                }}
             >
-                {isChatBoxOpen ? <CloseIcon /> : <ChatIcon />}
+                    {isChatBoxOpen ? <CloseIcon style={{ fontSize: '30px' }} /> : <FaFacebookMessenger style={{ fontSize: '30px' }} />}
+                </Badge>
+
             </IconButton>
 
             {/* Giao diện ChatBox */}
@@ -261,7 +273,7 @@ console.log(dataChats);
                                             <ListItem
                                                 button
                                                 key={userChat._id}
-                                                style={id_Room === userChat._id ? {background : '#00BFFF',cursor : 'pointer'}: {color : 'black',cursor : 'pointer'}}
+                                                style={id_Room === userChat._id ? { background: '#00BFFF', cursor: 'pointer' } : { color: 'black', cursor: 'pointer' }}
                                                 onClick={() => handleSelectContact(userChat.senderId, userChat._id)}
                                             >
                                                 <ListItemAvatar>

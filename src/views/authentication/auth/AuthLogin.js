@@ -10,7 +10,6 @@ import {
     Checkbox
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-
 import CustomTextField from '../../../components/forms/theme-elements/CustomTextField';
 import { useState } from 'react';
 import axios from 'axios';

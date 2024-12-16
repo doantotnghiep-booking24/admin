@@ -16,16 +16,17 @@ function App() {
   const auth = Cookies.get("authAdmin")
     ? JSON.parse(Cookies.get("authAdmin"))
     : null;
-    console.log(auth);
+
     
   useEffect(() => {
-    if (auth?.role === "Admin" || auth?.role === "Staff") {
-      ``;
+    if (auth?.role === "Admin" || auth?.role ==="Staff") {
       setIsAuth(true);
     } else {
       setIsAuth(false);
     }
   }, [auth]);
+
+  
   const routing = useRoutes(Router(isAuth));
   console.log('routing',routing);
   
